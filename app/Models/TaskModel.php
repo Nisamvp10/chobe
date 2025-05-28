@@ -7,7 +7,7 @@ class TaskModel extends Model {
     protected $table = 'tasks';
     protected $allowedFields= ['id','title','description','status','priority','progress','branch','overdue_date','completed_at'];
     protected $primaryKey ='id';
-
+ 
     function getTasks() {
 
         $builder = $this->db->table('tasks as t')

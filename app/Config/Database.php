@@ -29,9 +29,9 @@ class Database extends Config
     public array $default = [
         'DSN'          => '',
         'hostname'     => 'localhost',
-        'username'     => 'root',
-        'password'     => '',
-        'database'     => 'spamanagement',
+        'username'     => 'u473669689_chobeuser',
+        'password'     => '$ToSpGm6',
+        'database'     => 'u473669689_newChobedb',
         'DBDriver'     => 'MySQLi',
         'DBPrefix'     => '',
         'pConnect'     => false,
