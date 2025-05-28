@@ -26,27 +26,35 @@ class Database extends Config
      *
      * @var array<string, mixed>
      */
-    public array $default = [
-        'DSN'          => '',
-        'hostname'     => 'localhost',
-        'username'     => 'u473669689_chobeuser',
-        'password'     => '$ToSpGm6',
-        'database'     => 'u473669689_newChobedb',
-        'DBDriver'     => 'MySQLi',
-        'DBPrefix'     => '',
-        'pConnect'     => false,
-        'DBDebug'      => true,
-        'charset'      => 'utf8',
-        'DBCollat'     => 'utf8_general_ci',
-        'swapPre'      => '',
-        'encrypt'      => false,
-        'compress'     => false,
-        'strictOn'     => false,
-        'failover'     => [],
-        'port'         => 3306,
-        'numberNative' => false,
-    ];
+    
+    public function __construct()
+    {
+        parent::__construct();
 
+        $serverName = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $isLocal = in_array($serverName, ['localhost', '127.0.0.1']);
+
+        $this->default = [
+            'DSN'          => '',
+            'hostname'     =>  $isLocal ? 'localhost':'localhost',
+            'username'     =>  $isLocal ? 'root':'u473669689_chobeuser',
+            'password'     =>  $isLocal ? '':'$ToSpGm6',
+            'database'     =>  $isLocal ? 'chobetaskmanage':'u473669689_newChobedb',
+            'DBDriver'     =>  'MySQLi',
+            'DBPrefix'     => '',
+            'pConnect'     => false,
+            'DBDebug'      => true,
+            'charset'      => 'utf8',
+            'DBCollat'     => 'utf8_general_ci',
+            'swapPre'      => '',
+            'encrypt'      => false,
+            'compress'     => false,
+            'strictOn'     => false,
+            'failover'     => [],
+            'port'         => 3306,
+            'numberNative' => false,
+        ];
+    }
     /**
      * This database connection is used when
      * running PHPUnit database tests.
