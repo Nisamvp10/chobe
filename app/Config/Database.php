@@ -9,6 +9,9 @@ use CodeIgniter\Database\Config;
  */
 class Database extends Config
 {
+
+    public array $default;
+    
     /**
      * The directory that holds the Migrations
      * and Seeds directories.
@@ -27,34 +30,6 @@ class Database extends Config
      * @var array<string, mixed>
      */
     
-    public function __construct()
-    {
-        parent::__construct();
-
-        $serverName = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $isLocal = in_array($serverName, ['localhost', '127.0.0.1']);
-
-        $this->default = [
-            'DSN'          => '',
-            'hostname'     =>  $isLocal ? 'localhost':'localhost',
-            'username'     =>  $isLocal ? 'root':'u473669689_chobeuser',
-            'password'     =>  $isLocal ? '':'$ToSpGm6',
-            'database'     =>  $isLocal ? 'chobetaskmanage':'u473669689_newChobedb',
-            'DBDriver'     =>  'MySQLi',
-            'DBPrefix'     => '',
-            'pConnect'     => false,
-            'DBDebug'      => true,
-            'charset'      => 'utf8',
-            'DBCollat'     => 'utf8_general_ci',
-            'swapPre'      => '',
-            'encrypt'      => false,
-            'compress'     => false,
-            'strictOn'     => false,
-            'failover'     => [],
-            'port'         => 3306,
-            'numberNative' => false,
-        ];
-    }
     /**
      * This database connection is used when
      * running PHPUnit database tests.
@@ -86,6 +61,33 @@ class Database extends Config
     public function __construct()
     {
         parent::__construct();
+
+        // Get the current server name or default to 'localhost'
+        $serverName = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+        // Check if running on localhost
+        $isLocal = in_array($serverName, ['localhost', '127.0.0.1']);
+
+        $this->default = [
+            'DSN'      => '',
+            'hostname'     =>  $isLocal ? 'localhost':'localhost',
+            'username'     =>  $isLocal ? 'root':'u473669689_chobeuser',
+            'password'     =>  $isLocal ? '':'$ToSpGm6',
+            'database'     =>  $isLocal ? 'chobetaskmanage':'u473669689_newChobedb',
+            'DBDriver'     =>  'MySQLi',
+            'DBPrefix' => '',
+            'pConnect' => false,
+            'DBDebug'  => (ENVIRONMENT !== 'production'),
+            'cacheOn'  => false,
+            'charset'  => 'utf8mb4',
+            'DBCollat' => 'utf8mb4_general_ci',
+            'swapPre'  => '',
+            'encrypt'  => false,
+            'compress' => false,
+            'strictOn' => false,
+            'failover' => [],
+            'port'     => 3306,
+        ];
 
         // Ensure that we always set the database group to 'tests' if
         // we are currently running an automated test suite, so that
