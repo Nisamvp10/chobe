@@ -19,8 +19,8 @@
     <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 transition-all hover:shadow-md">
         <div class="flex items-start justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Total Appointments</p>
-                <h3 class="text-2xl font-semibold mt-1"><?= $totalAppintments ?></h3>
+                <p class="text-gray-500 text-sm">Total Task</p>
+                <h3 class="text-2xl font-semibold mt-1"><?= $totalTasks ?></h3>
                 <div class="flex items-center mt-2">
                     <span class="mr-1 text-green-500">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up "><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
@@ -37,8 +37,8 @@
     <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 transition-all hover:shadow-md">
         <div class="flex items-start justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Total Clients</p>
-                <h3 class="text-2xl font-semibold mt-1"><?= $totalClients ?></h3>
+                <p class="text-gray-500 text-sm">Pending Task</p>
+                <h3 class="text-2xl font-semibold mt-1"><?= $pendingTasks ?></h3>
                 <div class="flex items-center mt-2">
                     <span class="mr-1 text-green-500">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up "><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
@@ -56,8 +56,8 @@
     <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 transition-all hover:shadow-md">
         <div class="flex items-start justify-between">
             <div>
-                <p class="text-gray-500 text-sm">Total Revenue</p>
-                <h3 class="text-2xl font-semibold mt-1"><?= $totalRevenue ?></h3>
+                <p class="text-gray-500 text-sm">In Progress Task</p>
+                <h3 class="text-2xl font-semibold mt-1"><?= $inProgressTasks ?></h3>
                 <div class="flex items-center mt-2">
                     <span class="mr-1 text-green-500">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dollar-sign text-purple-500"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
@@ -108,7 +108,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Recent Tasks</h5>
-                <a href="<?= base_url('dashboard/tasks') ?>" class="btn btn-sm btn-outline-primary">View All</a>
+                <a href="<?= base_url('tasks') ?>" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -138,19 +138,19 @@
                                         <td><?= $task['branch_name'] ?></td>
                                         <td>
                                             <span class="badge rounded-pill 
-                                                <?= $task['priority'] == 'high' ? 'bg-danger' : 
-                                                   ($task['priority'] == 'medium' ? 'bg-warning' : 'bg-success') ?>">
+                                                <?= $task['priority'] == 'High' ? 'bg-danger' : 
+                                                   ($task['priority'] == 'Medium' ? 'bg-warning' : ($task['priority'] == 'Low' ? 'bg-primary': 'bg-success') )?>">
                                                 <?= ucfirst($task['priority']) ?>
                                             </span>
                                         </td>
                                         <td>
                                             <span class="badge rounded-pill 
-                                                <?= $task['status'] == 'pending' ? 'bg-primary' : 
-                                                   ($task['status'] == 'in_progress' ? 'bg-warning' : 'bg-success') ?>">
+                                                <?= $task['status'] == 'Pending' ? 'bg-warning' : 
+                                                   ($task['status'] == 'In_Progress' ? 'bg-primary' : 'bg-success') ?>">
                                                 <?= ucfirst(str_replace('_', ' ', $task['status'])) ?>
                                             </span>
                                         </td>
-                                        <td><?= date('M d, Y', strtotime($task['deadline'])) ?></td>
+                                        <td><?= date('M d, Y', strtotime($task['overdue_date'])) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php endif; ?>

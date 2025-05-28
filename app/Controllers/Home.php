@@ -3,6 +3,7 @@
 namespace App\Controllers;
 use App\Models\AppointmentModel;
 use App\Models\ClientsModel;
+use App\Models\TaskModel;
 class Home extends BaseController
 {
 
@@ -10,11 +11,63 @@ class Home extends BaseController
     {
         $appointmentModel = new AppointmentModel(); 
         $clientsModel = new ClientsModel();
+        $taskModel = new TaskModel();
 
         $totalAppointments = $appointmentModel->countAll();
         $totalRevenue = $appointmentModel->selectSum('price')->get()->getRow()->price;
 
         $totalClients = $clientsModel->countAll();
+        $totalTasks = $taskModel->countAll();
+        $inProgressTasks =  $taskModel->where('status','In_Progress')->findAll();
+        $pendingTasks =  $taskModel->where('status',1)->findAll();
+        $recentTasks =  $taskModel->getTasks(10,'t.created_at DESC');
+
+        $groupData = [];
+
+        foreach ($recentTasks as &$task) {
+            $taskId = $task['id'];
+
+            if (!isset($groupData[$taskId])) {
+                $groupData[$taskId] = [
+
+                    'id'        => encryptor($task['id']),
+                    'title'     => $task['title'],
+                    'storeId'   => $task['store'],
+                    'description' => $task['description'],
+                    'branch_name' => $task['branch_name'],
+                    'priority'  => $task['priority'],
+                    'status'    => $task['status'],
+                    'overdue_date' => $task['overdue_date'],
+                    'progress'  => $task['progress'],
+                    'users'     => [],
+                ];
+
+                if (!empty($task['profileimg']) || !empty($task['name'])) {
+                    $groupData[$taskId]['users'][] = [
+
+                        'img'       => $task['profileimg'],
+                        'staffName' => $task['name'],
+                        'userId'    => $task['userId'],
+                        'role'      => $task['role'],
+                    ];
+                }
+
+                $groupData[$taskId]['duration'] = $task['status'] == 'Completed'
+                    ? human_duration($task['created_at'], $task['completed_at'])
+                    : human_duration($task['created_at']);
+            } else {
+                $existingProfiles = array_column($groupData[$taskId]['users'], 'img');
+                if (!empty($task['name']) && count($groupData[$taskId]['users']) < 8 && !in_array($task['profileimg'], $existingProfiles)) {
+                    $groupData[$taskId]['users'][] = [
+
+                        'img'       => $task['profileimg'],
+                        'staffName' => $task['name'],
+                        'userId'    => $task['userId'],
+                        'role'      => $task['role'],
+                    ];
+                }
+            }
+        }
 
         $currentMonthStart = date('Y-m-01');
         $currentMonthEnd = date('Y-m-t');
@@ -41,15 +94,15 @@ class Home extends BaseController
             'growth' =>round($growth),
             'totalClients' => $totalClients,
             'totalRevenue' => number_format($totalRevenue,2),
-            'totalTasks' => '',
-            'pendingTasks' => '',
-            'inProgressTasks' => '',
+            'totalTasks' => $totalTasks,
+            'pendingTasks' => count($pendingTasks) ?? 0,
+            'inProgressTasks' => count($inProgressTasks) ?? 0,
             'completedTasks' => '',
             'overdueTasksCount' => '',
             'highPriorityTasks' =>'',
             'mediumPriorityTasks' => '',
             'lowPriorityTasks' => '',
-            'recentTasks' => '',
+            'recentTasks' => $groupData,
             'myTasks' => '',
             'unreadNotifications' => '',
             'page'  => 'Dashboard'
