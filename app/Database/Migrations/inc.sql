@@ -1,0 +1,1 @@
+INSERT INTO roles (role_name) VALUES('Super Admin/CEO'),('Admin'),('Store Manager'),('Cashier'),('Inventory Staff'),('Customer');
