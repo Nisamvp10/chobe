@@ -37,7 +37,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('permisions/list','Permissions::list');
     $routes->get('permissions/check-permission/(:any)','Permissions::checkpermission/$1');
     $routes->post('permissions/save','Permissions::save');
-    $routes->get('permissions/controls','permissions::controls');
+    $routes->get('permissions/controls','Permissions::controls');
 
     //staff
     $routes->get('staff','Staff::index');
