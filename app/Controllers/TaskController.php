@@ -220,7 +220,7 @@ class TaskController extends Controller {
         }
        $alltasks = $this->taskModel->getMytask('',''); // or ->findAll()
       $groupData = [];
-exit();
+
         foreach ($alltasks as &$task) {
             $taskId = $task['id'];
 

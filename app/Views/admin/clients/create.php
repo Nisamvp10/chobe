@@ -10,7 +10,9 @@
         $notes = $data['note'];
         $profile = $data['profile'];
     }else {
-        $id=$name=$email=$phone=$join_date=$profile=$notes='';
+        $id=$name=$email=$phone=$profile=$notes='';
+       // $join_date_formatted = date('Y-m-d', strtotime($join_date));
+        $join_date = date('Y-m-d');
     }?>
  <!-- titilebar -->
  <div class="flex items-center justify-between">
@@ -36,7 +38,7 @@
                     <div class="relative">
                         <input type="hidden" name="clientId" value="<?=$id;?>" />
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-person text-xl text-gray-400"></i></div>
-                        <input type="text" name="name" value="<?= $name ?>"  id="name" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Your Name">
+                        <input type="text" name="name" value="<?= $name ?>"  id="name" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Client Name">
                         <div class="invalid-feedback" id="name_error"></div>
                     </div>
                 </div>

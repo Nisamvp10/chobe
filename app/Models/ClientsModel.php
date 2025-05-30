@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 
 class ClientsModel extends Model {
     protected $table = 'clients';
-    protected $allowedFields = ['id,name','email','phone','profile','join_date','note','created_at','updated_at','status'];
+    protected $allowedFields = ['id','name','email','phone','profile','join_date','note','created_at','updated_at','status'];
     protected $primaryKey ='id';
 
     function getClients($search,$filter) {
