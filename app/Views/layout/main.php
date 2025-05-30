@@ -730,14 +730,14 @@ if (!empty($userData)){
                         if( $userRole == 1) {
                  ?>
                 <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'tasks') === 0 && strpos(uri_string(), 'dashboard/tasks/my-tasks') === false ? 'active' : '' ?>" href="<?= base_url('tasks') ?>">
+                    <a class="nav-link <?= strpos(uri_string(), 'tasks') === 0 && strpos(uri_string(), 'tasks') === false ? 'active' : '' ?>" href="<?= base_url('tasks') ?>">
                         <i class="bi bi-list-check"></i>
                         <span>Tasks </span>
                     </a>
                 </li>
                 <?php } ?>
                 <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'dashboard/tasks/my-tasks') === 0 ? 'active' : '' ?>" href="#<?= base_url('dashboard/tasks/my-tasks') ?>">
+                    <a class="nav-link <?= strpos(uri_string(), 'tasks/my-tasks') === 0 ? 'active' : '' ?>" href="<?= base_url('tasks/my-tasks') ?>">
                         <i class="bi bi-person-check"></i>
                         <span>My Tasks</span>
                     </a>
@@ -860,8 +860,8 @@ if (!empty($userData)){
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                        <li><a class="dropdown-item" href="<?= base_url('dashboard/settings/profile') ?>"><i class="bi bi-person me-2"></i> Profile</a></li>
-                        <li><a class="dropdown-item" href="<?= base_url('dashboard/settings') ?>"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                        <!-- <li><a class="dropdown-item" href="<?= base_url('/settings/profile') ?>"><i class="bi bi-person me-2"></i> Profile</a></li> -->
+                        <li><a class="dropdown-item" href="<?= base_url('settings') ?>"><i class="bi bi-gear me-2"></i> Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="<?= base_url('logout') ?>"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                     </ul>

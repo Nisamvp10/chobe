@@ -90,8 +90,12 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('task/view/(:any)','TaskController::view/$1');
     $routes->post('task/update_status','TaskController::update_status');
     $routes->post('task/update','TaskController::save');
+    $routes->get('tasks/my-tasks','TaskController::myTask');
+    $routes->get('task/my-task','TaskController::list');
+
     
 });
+$routes->get('logout', 'Auth::logout');
 $routes->get('qry', 'Home::qry');
 //$routes->set404Override('App\Controllers\Errors::show404');
 

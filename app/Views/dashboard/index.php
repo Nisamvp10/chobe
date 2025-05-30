@@ -6,7 +6,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 mb-0"><?= $page ?? '' ?></h1>
             <div>
-                <a href="<?= base_url('dashboard/tasks/create') ?>" class="btn btn-primary">
+                <a href="<?= base_url('task/create') ?>" class="btn btn-primary">
                     <i class="bi bi-plus-circle me-1"></i> New Task
                 </a>
             </div>

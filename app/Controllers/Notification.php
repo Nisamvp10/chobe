@@ -30,7 +30,9 @@ class Notification extends Controller{
             $notify = $this->notifications->where(['user_id' =>session('user_data')['id'],'is_read' =>0 ])->findAll();
         }else
         {
-            $notify = $this->notifications->where('is_read',0)->findAll();
+            //$notify = $this->notifications->where('is_read',0)->findAll();
+            $notify = $this->notifications->where(['user_id' =>session('user_data')['id'],'is_read' =>0 ])->findAll();
+
         }     
 
         return $this->response->setJSON([

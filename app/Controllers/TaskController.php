@@ -151,8 +151,8 @@ class TaskController extends Controller {
                 'message' => 'Permission Denied'
             ]);
         }
-
-       $alltask = $this->taskModel->getTasks(); // or ->findAll()
+       $taskType = $this->request->getGet('list') ?? 0; //all task and My task
+       $alltask = $this->taskModel->getTasks('','',$taskType); // or ->findAll()
         $groupData = [];
 
         foreach ($alltask as &$task) {
@@ -222,12 +222,31 @@ class TaskController extends Controller {
         if (!$task_id || !$new_status) {
             return $this->response->setJSON(['success' => false, 'message' => 'Invalid data']);
         }
-
         $task_id = decryptor( $task_id);
+        $getTask = $this->taskModel->find($task_id);
+        $tasks =  $this->taskassignModel->where('task_id',$task_id)->findAll();
+        
+        foreach($tasks as $tsk) {
+            $notify = [
+                'user_id' =>  $tsk['staff_id'],
+                'type'    => 'new_task',
+                'title'   => 'Task '.$getTask['title'].' Status Change ',
+                'message' => 'Task '.$getTask['title'].' Status Change to '.ucwords(str_replace('_', ' ', $new_status)).' By '.session('user_data')['username']
+            ];
+             $this->notificationModel->insert($notify);
+        }
+      
         $updated = $this->taskModel->update($task_id, ['status' => $new_status]);
         return $this->response->setJSON([
             'success' => $updated,
             'message' => $updated ? 'Task updated' : 'Failed to update task'
         ]);
     }
+
+    function myTask() {
+        $page = "My Tasks";
+        $branches = $this->branchModel->where('status','active')->findAll();
+        return view('admin/task/mytask',compact('page','branches'));
+    }
+    
 }
