@@ -167,7 +167,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">My Tasks</h5>
-                <a href="<?= base_url('dashboard/tasks/my-tasks') ?>" class="btn btn-sm btn-outline-primary">View All</a>
+                <a href="<?= base_url('tasks/my-tasks') ?>" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
             <div class="card-body p-3">
                 <?php if (empty($myTasks)): ?>
@@ -227,7 +227,7 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">Recent Notifications</h5>
-                <a href="<?= base_url('dashboard/notifications') ?>" class="btn btn-sm btn-outline-primary">View All</a>
+                <a href="#<?= base_url('notifications') ?>" class="btn btn-sm btn-outline-primary">View All</a>
             </div>
             <div class="card-body p-0">
                 <?php if (empty($unreadNotifications)): ?>

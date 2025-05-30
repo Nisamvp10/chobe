@@ -151,11 +151,77 @@ class TaskController extends Controller {
                 'message' => 'Permission Denied'
             ]);
         }
-       $taskType = $this->request->getGet('list') ?? 0; //all task and My task
-       $alltask = $this->taskModel->getTasks('','',$taskType); // or ->findAll()
+       $alltask = $this->taskModel->getTasks('',''); // or ->findAll()
         $groupData = [];
 
         foreach ($alltask as &$task) {
+            $taskId = $task['id'];
+
+            if (!isset($groupData[$taskId])) {
+                $groupData[$taskId] = [
+
+                    'id'        => encryptor($task['id']),
+                    'title'     => $task['title'],
+                    'storeId'   => $task['store'],
+                    'description' => $task['description'],
+                    'branch_name' => $task['branch_name'],
+                    'priority'  => $task['priority'],
+                    'status'    => $task['status'],
+                    'overdue_date' => $task['overdue_date'],
+                    'progress'  => $task['progress'],
+                    'users'     => [],
+                ];
+
+                if (!empty($task['profileimg']) || !empty($task['name'])) {
+                    $groupData[$taskId]['users'][] = [
+
+                        'img'       => $task['profileimg'],
+                        'staffName' => $task['name'],
+                        'userId'    => $task['userId'],
+                        'role'      => $task['role'],
+                    ];
+                }
+
+                $groupData[$taskId]['duration'] = $task['status'] == 'Completed'
+                    ? human_duration($task['created_at'], $task['completed_at'])
+                    : human_duration($task['created_at']);
+            } else {
+                $existingProfiles = array_column($groupData[$taskId]['users'], 'img');
+                if (!empty($task['name']) && count($groupData[$taskId]['users']) < 8 && !in_array($task['profileimg'], $existingProfiles)) {
+                    $groupData[$taskId]['users'][] = [
+
+                        'img'       => $task['profileimg'],
+                        'staffName' => $task['name'],
+                        'userId'    => $task['userId'],
+                        'role'      => $task['role'],
+                    ];
+                }
+            }
+        }
+
+        $tasks = array_values($groupData);
+        return $this->response->setJSON([ 'success'=>true,'task' => $tasks]);
+    }
+
+    // Mt Task
+    function myTaskList() {
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid Request'
+            ]);
+        }
+        if (!haspermission('','task_view')) {
+             return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Permission Denied'
+            ]);
+        }
+       $alltasks = $this->taskModel->getMytask('',''); // or ->findAll()
+      $groupData = [];
+exit();
+        foreach ($alltasks as &$task) {
             $taskId = $task['id'];
 
             if (!isset($groupData[$taskId])) {
