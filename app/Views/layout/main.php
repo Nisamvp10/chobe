@@ -693,7 +693,8 @@ if (!empty($userData)){
                         <span>Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <?php  if(haspermission('','supperadmin')) { ?>
+                <li class="nav-item disp">
                     <a class="nav-link <?= strpos(uri_string(), 'appointments') === 0 && strpos(uri_string(), 'appointments') === false ? 'active' : '' ?>" href="<?= base_url('appointments') ?>">
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar "><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>
                         <span>Appoinments</span>
@@ -716,7 +717,8 @@ if (!empty($userData)){
                         <span>Services</span>
                     </a>
                 </li>
-                <?php } 
+                <?php }  
+                }
                 if(haspermission('','view_staff')) {  ?>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'staff') === 0 && strpos(uri_string(), 'appointments') === false ? 'active' : '' ?>" href="<?= base_url('staff') ?>">
