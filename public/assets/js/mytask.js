@@ -187,7 +187,7 @@ function openTaskModal(el) {
     modal.classList.remove('hidden');
     // Fill modal fields from data attributes
     let gettaskId =  modal.querySelector('.modal-title').textContent = el.dataset.id;
-    //taskId.value = gettaskId;
+    taskId.value = gettaskId;
     modal.querySelector('.modal-title').textContent = el.dataset.title;
     modal.querySelector('.modal-desc').textContent = el.dataset.desc;
     modal.querySelector('.modal-branch').textContent = el.dataset.branch;
@@ -260,24 +260,88 @@ function closeTaskModal(event) {
   }
 }
 
-function toggleEditForm() {
-  const editForm = document.getElementById('editForm');
-  const taskDetails = document.getElementById('taskDetails');
-  const taskHistory = document.getElementById('taskHistory');
-  const replyForm = document.getElementById('replyForm');
-  
-  // Toggle visibility
-    if (editForm.classList.contains('hidden')) 
-    {
-        editForm.classList.remove('hidden');
-        taskDetails.classList.add('hidden');
+let isHistoryOpen = false;
+
+function toggleHistory() {
+    const history = document.getElementById('taskHistory');
+    const details = document.getElementById('taskDetails');
+    const reply = document.getElementById('replyForm');
+
+    if (!isHistoryOpen) {
+        history.classList.remove('hidden');
+        details.classList.add('hidden');
+        reply.classList.add('hidden');
+        isHistoryOpen = true;
     } else {
-        editForm.classList.add('hidden');
-        taskDetails.classList.remove('hidden');
+        history.classList.add('hidden');
+        details.classList.remove('hidden');
+        reply.classList.add('hidden');
+        isHistoryOpen = false;
     }
 }
 
-function toggleReplay() {
-    showOnly('replyForm');
+function toggleReply() {
+    const history = document.getElementById('taskHistory');
+    const details = document.getElementById('taskDetails');
+    const reply = document.getElementById('replyForm');
+
+    history.classList.add('hidden');
+    details.classList.add('hidden');
+    reply.classList.remove('hidden');
+    isHistoryOpen = false;
 }
+
+function hideReplyForm() {
+    const history = document.getElementById('taskHistory');
+    const details = document.getElementById('taskDetails');
+    const reply = document.getElementById('replyForm');
+
+    reply.classList.add('hidden');
+    history.classList.add('hidden');
+    details.classList.remove('hidden');
+    isHistoryOpen = false;
+}
+
+$('#replyTaskForm').on('submit', function(e) {
+
+    let webForm = $('#replyTaskForm');
+    e.preventDefault();
+    let formData = new FormData(this);
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').empty();
+    $('#submitBtn').prop('disabled', true).html(
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+    );
+    $.ajax({
+        url : App.getSiteurl()+'task/replay',
+        method:'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success:function(response)
+        { 
+            if(response.success){
+                toastr.success(response.message);
+                webForm[0].reset();
+                loadTask();
+            }else{
+                if(response.errors){
+                    $.each(response.errors,function(field,message)
+                    {
+                        $('#'+ field).addClass('is-invalid');
+                        $('#' + field + '_error').text(message);
+                    })
+                }else{
+                    toastr.error(response.message);
+                }
+            }
+        },error: function() {
+            toastr.error('An error occurred while saving Service');
+        },
+        complete: function() {
+            // Re-enable submit button
+            $('#submitBtn').prop('disabled', false).text('Save Branch');
+        }
+    })
+})
 

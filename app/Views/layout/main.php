@@ -772,7 +772,7 @@ if (!empty($userData)){
                 </li>
                 <?php } ?>
                 <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'dashboard/notifications') === 0 ? 'active' : '' ?>" href="#<?= base_url('dashboard/notifications') ?>">
+                    <a class="nav-link <?= strpos(uri_string(), 'dashboard/notifications') === 0 ? 'active' : '' ?>" href="<?= base_url('notifications') ?>">
                         <i class="bi bi-bell"></i>
                         <span>Notifications</span>
                         <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
@@ -844,7 +844,7 @@ if (!empty($userData)){
                             </div>
                         </div>
                         <div class="notification-footer">
-                            <a href="<?= base_url('dashboard/notifications') ?>">View all notifications</a>
+                            <a href="<?= base_url('notifications') ?>">View all notifications</a>
                         </div>
                     </div>
                 </div>
@@ -863,8 +863,11 @@ if (!empty($userData)){
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                         <!-- <li><a class="dropdown-item" href="<?= base_url('/settings/profile') ?>"><i class="bi bi-person me-2"></i> Profile</a></li> -->
+                         <?php
+                           if(haspermission('','settings')) : ?>
                         <li><a class="dropdown-item" href="<?= base_url('settings') ?>"><i class="bi bi-gear me-2"></i> Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
+                        <?php endif; ?>
                         <li><a class="dropdown-item" href="<?= base_url('logout') ?>"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
                     </ul>
                 </div>

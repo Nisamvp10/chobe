@@ -19,6 +19,7 @@ $routes->setAutoRoute(false);
 $routes->get('/','Auth::login');
 $routes->get('login','Auth::login');
 $routes->post('login', 'Auth::attemptLogin');
+$routes->get('logout', 'LogoutController::index');
 
 // $routes->group('', ['filter' => 'noauth'], function($routes) {
 //     $routes->get('login', 'Auth::login');
@@ -32,6 +33,9 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('notifications/count','Notification::notifications');
     $routes->post('settings/save','Settings::save');
     $routes->get('notifications/fetch','Notification::load');
+    $routes->get('notifications','Notification::myNotifications');
+    $routes->get('notification/list','Notification::allnotification');
+    $routes->post('notification/view','Notification::view');
     //permissions 
     $routes->get('permisions','Permissions::checkpermission');
     $routes->get('permisions/list','Permissions::list');
@@ -92,10 +96,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('task/update','TaskController::save');
     $routes->get('tasks/my-tasks','TaskController::myTask');
     $routes->get('task/my-task','TaskController::myTaskList');
-
-    
+    $routes->post('task/replay','ReplayController::save');    
 });
-$routes->get('logout', 'Auth::logout');
 $routes->get('qry', 'Home::qry');
 //$routes->set404Override('App\Controllers\Errors::show404');
 

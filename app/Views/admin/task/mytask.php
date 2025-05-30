@@ -99,8 +99,11 @@
             <button onclick="toggleHistory()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100" title="View History">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock "><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             </button>
-            <button onclick="toggleEditForm()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen "><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg></button><button class="p-1.5 rounded-md text-gray-500 hover:bg-red-100 hover:text-red-600"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash "><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg></button>
-            <button onclick="closeTaskModal()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x "><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
+            <button onclick="toggleReply()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square "><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
+            
+            <button onclick="closeTaskModal()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x "><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+        </div>
+    </div>
      <!-- close Head -->
    
     <div class="flex-1 overflow-y-auto p-4 space-y-4" id="taskDetails">
@@ -123,12 +126,13 @@
         </div>
     </div>
     <!-- history -->
+
      <div class="w-1/2 p-6 overflow-y-auto border-l hidden h-full flex flex-col" id="taskHistory">
         <div class="space-y-4">
             <div class="flex items-center justify-between">
             <h3 class="text-lg font-medium text-gray-900">Task History</h3>
             <div class="flex space-x-2">
-                <button onclick="toggleReplay()" class="flex items-center space-x-1 px-3 py-1 bg-green-50 text-green-600 rounded-md hover:bg-green-100">
+                <button onclick="toggleReply()" class="flex items-center space-x-1 px-3 py-1 bg-green-50 text-green-600 rounded-md hover:bg-green-100">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
@@ -136,9 +140,17 @@
                 </button>
             </div>
             </div>
-            <div class="flow-root">
-            <ul class="-mb-8"></ul>
-            </div>
+           <!-- flw root -->
+            <div class="flow-root"><ul class="-mb-8"><li><div class="relative pb-8"><span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span><div class="relative flex space-x-3"><div class="
+                    flex h-8 w-8 items-center justify-center rounded-full
+                    bg-gray-100
+                    transition-colors duration-300
+                  "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square w-4 h-4 text-green-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div><div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5"><div class="flex-1"><div class="space-y-2"><p class="text-sm text-gray-400 font-medium">Test replay </p></div></div><div class="whitespace-nowrap text-right text-sm text-gray-500"><div class="flex items-center space-x-2"><div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs "><img src="https://i.pravatar.cc/150?img=1" alt="John Doe" class="w-full h-full object-cover"></div><time datetime="2025-05-30T20:48:12.577Z" class="text-gray-500">5/31/2025, 2:18:12 AM</time></div></div></div></div></div></li><li><div class="relative pb-8"><div class="relative flex space-x-3"><div class="
+                    flex h-8 w-8 items-center justify-center rounded-full
+                    bg-gray-100
+                    transition-colors duration-300
+                  "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square w-4 h-4 text-green-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div><div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5"><div class="flex-1"><div class="space-y-2"><p class="text-sm text-gray-400 font-medium">Good Job</p></div></div><div class="whitespace-nowrap text-right text-sm text-gray-500"><div class="flex items-center space-x-2"><div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs "><img src="https://i.pravatar.cc/150?img=1" alt="John Doe" class="w-full h-full object-cover"></div><time datetime="2025-05-30T20:48:32.531Z" class="text-gray-500">5/31/2025, 2:18:32 AM</time></div></div></div></div></div></li></ul></div>
+            <!-- close Flow root -->
         </div>
         </div>
 
@@ -146,13 +158,16 @@
      
     <div id="replyForm" class="w-1/2 p-6 overflow-y-auto border-l hidden h-full flex flex-col">
          <h2 class="text-xl font-semibold mb-4">Replay Task</h2>
-            <form class="mb-4">
-                <div class="flex space-x-2">
-                    <textarea placeholder="Enter your reply..." class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            <form class="mb-4" method="post" id="replyTaskForm">
+                <?= csrf_field() ;?>
+                <input type="hidden" name="taskId" id="taskId" />
+                <div class="flex space-x-2" >
+                    <textarea placeholder="Enter your reply..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                     <div class="invalid-feedback" id="replay_error"></div>
                 </div>
                 <div class="flex justify-end space-x-2 mt-2">
                     <button type="button" class="px-3 py-1 text-gray-600 hover:bg-gray-100 rounded-md" onclick="hideReplyForm()">Cancel</button>
-                    <button type="submit" class="flex items-center space-x-1 px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                    <button type="submit" class="flex items-center space-x-1 px-3 py-1 bg-primary text-white rounded-md hover:bg-indigo-700">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
                             <path d="M22 2 11 13"></path><path d="M22 2 15 22 11 13 2 9 22 2z"></path>
                         </svg>

@@ -9,7 +9,7 @@ class NotificationModel extends Model
     protected $table = 'notifications';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'user_id', 'type', 'title', 'message', 'is_read', 'created_at'
+        'user_id', 'type', 'title', 'message', 'is_read', 'created_at','created_by'
     ];
     protected $useTimestamps = false;
 
@@ -32,7 +32,7 @@ class NotificationModel extends Model
         return $builder->orderBy('n.created_at', 'DESC')->get()->getResultArray();
     }
 
-    public function getStaffNotifications()
+    public function getStaffNotifications($isread = FAlse)
     {
         $builder = $this->db->table('notifications n');
 
@@ -42,14 +42,15 @@ class NotificationModel extends Model
 
         if ($role != 1 && $userId) { 
             // Join with staff to filter by branch
-            $builder->join('users u', 'u.id = n.user_id')
+            $builder->join('users u', 'u.id = n.user_id');
+             $builder->join('users cu', 'cu.id = n.created_by')
                     ->where('u.id', $userId);
         }
-        $builder->where('is_read',0);
-        $builder->select('n.id,n.title, n.message, n.created_at');
+        if($isread) {
+            $builder->where('is_read',0);
+        }
+        $builder->select('n.id,n.title,n.is_read, n.message, u.name,n.created_at,u.profileimg,cu.name as created_by_name,cu.profileimg as created_by_image');
 
         return $builder->orderBy('n.created_at', 'DESC')->get()->getResultArray();
     }
-    
-
 }

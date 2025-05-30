@@ -92,8 +92,4 @@ Class Auth extends Controller{
         session()->set('permissions',array_column($permissions, 'permission_name'));
 
     }
-    function logout() {
-        session()->destroy();
-        redirect()->to('login');
-    }
 }

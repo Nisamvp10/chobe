@@ -121,6 +121,7 @@ class TaskController extends Controller {
                             'user_id' =>  $staff,
                             'type'    => 'new_task',
                             'title'   => 'New Task',
+                            'created_by' => session('user_data')['id'],
                             'message' => 'A new Task has been created by .'.session('user_data')['username']
                         ];
                         
@@ -296,6 +297,7 @@ class TaskController extends Controller {
             $notify = [
                 'user_id' =>  $tsk['staff_id'],
                 'type'    => 'new_task',
+                'created_by' => session('user_data')['id'],
                 'title'   => 'Task '.$getTask['title'].' Status Change ',
                 'message' => 'Task '.$getTask['title'].' Status Change to '.ucwords(str_replace('_', ' ', $new_status)).' By '.session('user_data')['username']
             ];
