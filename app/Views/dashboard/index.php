@@ -7,7 +7,7 @@
             <h1 class="h3 mb-0"><?= $page ?? '' ?></h1>
             <div>
                 <a href="<?= base_url('task/create') ?>" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-1"></i> New Task
+                    <i class="bi bi-plus-circle me-1"></i> New Task 
                 </a>
             </div>
         </div>
