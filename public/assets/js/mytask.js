@@ -248,6 +248,8 @@ function openTaskModal(el) {
         } catch (e) {
             console.error('Invalid profile data:', e);
         }
+
+        renderHistory(gettaskId)
 }
 
 function closeTaskModal() {
@@ -302,9 +304,63 @@ function hideReplyForm() {
     isHistoryOpen = false;
 }
 
-$('#replyTaskForm').on('submit', function(e) {
 
+function renderHistory(id) {
+    $.ajax({
+        url: App.getSiteurl()+'task-replays',
+        type: "POST",
+        data: { taskId: id},
+        dataType: "json",
+        success: function(response) {
+           
+            if (response.success) {
+                renderReplayUi(response.replay);
+            }
+        }
+    });
+}
+function renderReplayUi(replay) {
+    let html ='';
+    if(replay.length ===0) {
+        html = `<div class="text-center py-8">
+                    <h3 class="text-lg font-medium text-gray-700">No Replay yet</h3>
+                </div>`;
+    }else{
+         html +=` <ul class="-mb-8">`
+        replay.forEach(rply=>{
+            html +=` <li>
+                        <div class="relative pb-8">
+                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                            <div class="relative flex space-x-3"><div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square w-4 h-4 text-green-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            </div>
+                            <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                <div class="flex-1">
+                                    <div class="space-y-2">
+                                        <p class="text-sm text-gray-400 font-medium">${rply.reply_text} </p>
+                                    </div>
+                                </div>
+                                <div class="whitespace-nowrap text-right text-sm text-gray-500">
+                                    <div class="flex items-center space-x-2">
+                                        <div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs ">
+                                            <img src="${rply.profileimg}" alt="John Doe" class="w-full h-full object-cover">
+                                        </div>
+                                            <time datetime="2025-05-30T20:48:12.577Z" class="text-gray-500">5/31/2025, 2:18:12 AM</time>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>`
+        })
+        html += '</ul>'
+    }
+    $('#taskreplaysec').html(html);
+}
+$('#replyTaskForm').on('submit', function(e) {
+     let id =  $('#taskId').val();
     let webForm = $('#replyTaskForm');
+   
     e.preventDefault();
     let formData = new FormData(this);
     $('.is-invalid').removeClass('is-invalid');
@@ -324,6 +380,7 @@ $('#replyTaskForm').on('submit', function(e) {
                 toastr.success(response.message);
                 webForm[0].reset();
                 loadTask();
+                renderHistory(id);
             }else{
                 if(response.errors){
                     $.each(response.errors,function(field,message)

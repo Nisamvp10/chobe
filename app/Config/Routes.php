@@ -96,7 +96,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('task/update','TaskController::save');
     $routes->get('tasks/my-tasks','TaskController::myTask');
     $routes->get('task/my-task','TaskController::myTaskList');
-    $routes->post('task/replay','ReplayController::save');    
+    $routes->post('task/replay','ReplayController::save');  
+    $routes->post('task-replays','ReplayController::replayHistory');    
 });
 $routes->get('qry', 'Home::qry');
 //$routes->set404Override('App\Controllers\Errors::show404');

@@ -32,11 +32,12 @@ class ReplayController extends Controller {
         }
         $id = decryptor($this->request->getVar('taskId'));
         $data = [
-            'name'      => $this->request->getPost('replay'),
+            'reply_text'      => $this->request->getPost('replay'),
             'task_id'  => $id,
             'user_id'  => session('user_data')['id'],
         ];
-        if($inc = $replayModel->insert($data)){
+        if($inc = $replayModel->insert($data))
+        {
             $getTask = $this->taskModel->find($id);
             $notify = [
                 'user_id' =>  session('user_data')['id'],
@@ -48,5 +49,15 @@ class ReplayController extends Controller {
             $this->notificationModel->insert($notify);
         }
          return $this->response->setJSON(['success' => true,'message' => 'Done']);
+    }
+    function replayHistory() {
+         $replayModel = new ReplayModel();
+        if(!$this->request->isAJAX())
+        {
+            return $this->response->setJSON(['success' => false,'message' => 'invalid Request']);
+        }
+        $id = decryptor($this->request->getVar('taskId'));
+        $result = $replayModel->getHistory($id);
+        return $this->response->setJSON(['success' => true,'replay' => $result]);
     }
 }

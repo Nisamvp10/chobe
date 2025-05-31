@@ -51,6 +51,6 @@ class NotificationModel extends Model
         }
         $builder->select('n.id,n.title,n.is_read, n.message, u.name,n.created_at,u.profileimg,cu.name as created_by_name,cu.profileimg as created_by_image');
 
-        return $builder->orderBy('n.created_at', 'DESC')->get()->getResultArray();
+        return $builder->orderBy('n.id', 'DESC')->get()->getResultArray();
     }
 }

@@ -81,9 +81,6 @@
                         <div class="invalid-feedback" id="duedate_error"></div>
                     </div>
                 </div>
-               
-               
-                    
             </div>
 
             <!-- 2 -->
