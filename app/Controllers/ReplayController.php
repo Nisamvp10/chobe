@@ -42,6 +42,7 @@ class ReplayController extends Controller {
             $notify = [
                 'user_id' =>  session('user_data')['id'],
                 'type'    => 'task_replay',
+                'task_id' => $id,
                 'created_by' => session('user_data')['id'],
                 'title'   => 'Task '.$getTask['title'].' Replayed ',
                 'message' => 'Task '.$getTask['title'].' replayed  By '.session('user_data')['username']

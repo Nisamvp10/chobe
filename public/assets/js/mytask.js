@@ -2,13 +2,13 @@
  //$(document).ready(function() {
     
     function loadTask(search = '') {
-
+        let notifytask = document.getElementById('taskTable').dataset.tskId;
         let filer = $('#filerStatus').val();
         $.ajax({
 
             url: App.getSiteurl()+'task/my-task',
             type: "GET",
-            data: { search: search,filer:filer,list:1 },
+            data: { search: search,filer:filer,list:1,notifiytask : notifytask},
             dataType: "json",
             success: function(response) {
                 
@@ -74,6 +74,7 @@
             data-store='${task.storeId}'
             data-progressbar="${task.progress}"
             data-cls="${priority}"
+            data-doc="${task.ducument}"
            
             >
             
@@ -90,6 +91,12 @@
                 </div>
                 <span class="text-xs text-gray-500 text-gray-900">${progress}%</span>
             </div>
+              ${task.ducument ? `
+            <div class="d-flex align-items-center mb-2">
+                <a href="${task.ducument}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
+                    Doc
+                </a>
+            </div>` : ''}
             </div>
             <div class="flex justify-between items-center">
                 <div class="flex -space-x-2 profile-stack ">
@@ -104,8 +111,7 @@
         </div>
     `;
             
-            
-
+    
                 // 
                 progressBar = `<div class="flex items-center gap-2">
                             <div
@@ -196,6 +202,12 @@ function openTaskModal(el) {
     let progress = modal.querySelector('.modal-progress-bar').style.width = el.dataset.progress;
 
     let progressbar = el.dataset.progressbar;
+
+    let documentUi = ` <div class="d-flex align-items-center mb-2 mt-2">
+                <a href="${el.dataset.doc}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
+                    Doc
+                </a>`;
+    $('#documents').html(documentUi);
       
     //console.log(progressbar)
     let priority = modal.querySelector('.modal-priority').textContent = el.dataset.priority;
@@ -328,6 +340,8 @@ function renderReplayUi(replay) {
     }else{
          html +=` <ul class="-mb-8">`
         replay.forEach(rply=>{
+            const replyDate = new Date(rply.created_at);
+            const formattedDate = replyDate.toLocaleString();
             html +=` <li>
                         <div class="relative pb-8">
                             <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
@@ -345,7 +359,7 @@ function renderReplayUi(replay) {
                                         <div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs ">
                                             <img src="${rply.profileimg}" alt="John Doe" class="w-full h-full object-cover">
                                         </div>
-                                            <time datetime="2025-05-30T20:48:12.577Z" class="text-gray-500">5/31/2025, 2:18:12 AM</time>
+                                            <time datetime="${replyDate.toISOString()}" class="text-gray-500">${formattedDate}</time>
                                         </div>
                                     </div>
                                 </div>
@@ -381,6 +395,7 @@ $('#replyTaskForm').on('submit', function(e) {
                 webForm[0].reset();
                 loadTask();
                 renderHistory(id);
+                toggleHistory();
             }else{
                 if(response.errors){
                     $.each(response.errors,function(field,message)

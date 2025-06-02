@@ -6,18 +6,24 @@ use CodeIgniter\Controller;
 use App\Models\BranchesModel;
 use App\Models\TaskModel;
 use App\Models\NotificationModel;
+use App\Models\TaskimagesModel;
+use App\Controllers\UploadImages;
 class TaskController extends Controller {
 
     protected $branchModel;
     protected $taskModel;
     protected $taskassignModel;
     protected $notificationModel;
+    protected $taskImgModel;
+    protected $uploadImg;
 
     function __construct() {
         $this->branchModel = new BranchesModel();
         $this->taskModel = new TaskModel();
         $this->taskassignModel = new AssigntaskModel();
         $this->notificationModel = new NotificationModel();
+        $this->taskImgModel = new TaskimagesModel();
+        $this->uploadImg = new UploadImages();
     }
 
     function index() {
@@ -67,10 +73,16 @@ class TaskController extends Controller {
             'status'  => 1,
         ];
 
-        
-        
+        $file = $this->request->getFile('file');
+        $image =   ($file->isValid() && !$file->hasMoved() ? json_decode($this->uploadImg->uploadimg($file,'taskfiles'),true): ['status'=>false]);
+
+        $taskFiles = [
+          'image_url'   => base_url($image['file']),
+          'file_ext'    => $image['file_ext']
+        ];
         $taskId = decryptor($this->request->getPost('taskId'));
         if ($taskId) {
+          
             $data['progress'] = $this->request->getPost('progress');
             $data['status'] = $this->request->getPost('status');
             $update = $this->taskModel->update($taskId,$data);
@@ -108,6 +120,9 @@ class TaskController extends Controller {
         }else{
             if ($taskId = $this->taskModel->insert($data)) {
 
+                    $taskFiles['task_id'] = $taskId;
+                    $this->taskImgModel->insert($taskFiles);
+                    
                     $staffs = $this->request->getPost('staff');
                     $role =   $this->request->getPost('role');
 
@@ -119,6 +134,7 @@ class TaskController extends Controller {
                         ];
                         $notify = [
                             'user_id' =>  $staff,
+                            'task_id'   => $taskId,
                             'type'    => 'new_task',
                             'title'   => 'New Task',
                             'created_by' => session('user_data')['id'],
@@ -170,6 +186,7 @@ class TaskController extends Controller {
                     'status'    => $task['status'],
                     'overdue_date' => $task['overdue_date'],
                     'progress'  => $task['progress'],
+                    'ducument'  => $task['image_url'],
                     'users'     => [],
                 ];
 
@@ -219,8 +236,9 @@ class TaskController extends Controller {
                 'message' => 'Permission Denied'
             ]);
         }
-       $alltasks = $this->taskModel->getMytask('',''); // or ->findAll()
-      $groupData = [];
+        $notifiytask = $this->request->getGet('notifiytask');
+        $alltasks = $this->taskModel->getMytask('','',$notifiytask); // or ->findAll()
+        $groupData = [];
 
         foreach ($alltasks as &$task) {
             $taskId = $task['id'];
@@ -237,6 +255,7 @@ class TaskController extends Controller {
                     'status'    => $task['status'],
                     'overdue_date' => $task['overdue_date'],
                     'progress'  => $task['progress'],
+                    'ducument'  => $task['image_url'],
                     'users'     => [],
                 ];
 
@@ -297,6 +316,7 @@ class TaskController extends Controller {
             $notify = [
                 'user_id' =>  $tsk['staff_id'],
                 'type'    => 'new_task',
+                'task_id'   => $task_id,
                 'created_by' => session('user_data')['id'],
                 'title'   => 'Task '.$getTask['title'].' Status Change ',
                 'message' => 'Task '.$getTask['title'].' Status Change to '.ucwords(str_replace('_', ' ', $new_status)).' By '.session('user_data')['username']
@@ -307,7 +327,7 @@ class TaskController extends Controller {
         $updated = $this->taskModel->update($task_id, ['status' => $new_status]);
         return $this->response->setJSON([
             'success' => $updated,
-            'message' => $updated ? 'Task updated' : 'Failed to update task'
+            'message' => $updated ? 'Task updated' : 'Failed to update task',
         ]);
     }
 
@@ -315,6 +335,14 @@ class TaskController extends Controller {
         $page = "My Tasks";
         $branches = $this->branchModel->where('status','active')->findAll();
         return view('admin/task/mytask',compact('page','branches'));
+    }
+
+    function notificationTask($taskId=false){
+        $page = "Notifications";
+        $notificationId = decryptor($taskId);
+
+        $taskId = $this->notificationModel->where('id', $notificationId)->first()['task_id'] ?? null; 
+        return view('admin/task/mytask',compact('page','taskId'));
     }
     
 }

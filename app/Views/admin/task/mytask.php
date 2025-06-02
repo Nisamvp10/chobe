@@ -82,7 +82,7 @@
                     </div>
                    
                 </div>
-                <div id="taskTable"></div>
+                <div id="taskTable" data-tsk-id="<?=$taskId ?? 0 ?>"></div>
             </div>
             <!-- close table -->
 </div><!-- body -->
@@ -117,6 +117,7 @@
       <div class="w-full bg-gray-200 rounded-full h-2">
         <div id="progressIndicator" class="modal-progress-bar h-2 rounded-full transition-all duration-500 " style="width: 0%;"></div>
       </div>
+      <div id="documents"></div>
       <p class="text-sm text-gray-500">Duration <span class="modal-duration"></span></p>
         <div>
             <h3 class="text-sm font-medium text-gray-500 mb-2">Assigned Staff:</h3>

@@ -28,10 +28,16 @@ class Notification extends Controller{
         if ($role != 1) 
         {
             $notify = $this->notifications->where(['user_id' =>session('user_data')['id'],'is_read' =>0 ])->findAll();
+             foreach($notify as &$noti) {
+                $noti['id'] = encryptor($noti['id']);
+            }
         }else
         {
             //$notify = $this->notifications->where('is_read',0)->findAll();
             $notify = $this->notifications->where(['user_id' =>session('user_data')['id'],'is_read' =>0 ])->findAll();
+            foreach($notify as &$noti) {
+                $noti['id'] = encryptor($noti['id']);
+            }
 
         }     
         return $this->response->setJSON([
@@ -60,6 +66,9 @@ class Notification extends Controller{
         }
 
         $notify = $this->notifications->getStaffNotifications();
+        foreach($notify as &$noti) {
+            $noti['id'] = encryptor($noti['id']);
+        }
         return $this->response->setJSON([
                 'success' => true,
                 'notification' => $notify
@@ -78,11 +87,13 @@ class Notification extends Controller{
             ]);
         }
 
-        $id = $this->request->getPost('id');
+        $id = decryptor($this->request->getPost('id'));
         $updated = $this->notifications->update($id,['is_read' => 1]);
         return $this->response->setJSON([
             'success' => $updated,
-            'message' => $updated ? 'Notification Viewd' : 'Failed to Open Notification'
+            'message' => $updated ? 'Notification Viewd' : 'Failed to Open Notification',
+            'id' => encryptor($id)
+
         ]);
     }
 }

@@ -11,9 +11,10 @@ class TaskModel extends Model {
     function getTasks($limit=false,$orderBy=false) {
 
         $builder = $this->db->table('tasks as t')
-                    ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role')
+                    ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role,ti.image_url')
                     ->join('branches as b','t.branch = b.id')
                     ->join('task_assignees as a','t.id = a.task_id')
+                    ->join('task_images ti', 't.id = ti.task_id', 'left')
                     ->join('users u','a.staff_id =u.id');
                     if(session('user_data')['role'] != 1 ) {
                         $builder->where('a.staff_id',session('user_data')['id']);
@@ -30,7 +31,7 @@ class TaskModel extends Model {
                     
     }
 
-     function getMytask($limit=false,$orderBy=false) {
+     function getMytask($limit=false,$orderBy=false,$notificationTask=false) {
 
         $userId = session('user_data')['id'];
 
@@ -45,13 +46,17 @@ class TaskModel extends Model {
 
 
          $builder = $this->db->table('tasks as t')
-                    ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role')
+                    ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role,ti.image_url')
                     ->join('branches as b','t.branch = b.id')
                     ->join('task_assignees as a','t.id = a.task_id')
+                     ->join('task_images ti', 't.id = ti.task_id', 'left')
                     ->join('users u','a.staff_id =u.id')
                      ->whereIn('t.id', $myTaskIds);
                     if ($orderBy) {
                         $builder->orderBy($orderBy);
+                    }
+                    if($notificationTask) {
+                        $builder->where('t.id',$notificationTask);
                     }
                     if ($limit) {
                         $builder->limit($limit);

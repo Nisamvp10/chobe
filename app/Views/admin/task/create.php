@@ -97,6 +97,14 @@
                         <div class="invalid-feedback" id="priority_error"></div>
                     </div>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">File - Attachment</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-paperclip text-xl text-gray-400"></i></div>
+                        <input type="file" name="file" id="file" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Password">
+                        <div class="invalid-feedback" id="file_error"></div>
+                    </div>
+                </div>
              </div>
              </div>
               <div class="grid grid-cols-1 gap-4 pb-4 mt-4">

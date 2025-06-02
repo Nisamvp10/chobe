@@ -15,10 +15,12 @@ class UploadImages extends Controller{
             $newName = $file->getRandomName();
             $file->move($uploadPath, $newName);
             $filePath = $uploadPath . '/' . $newName;  
+            $extension = $file->getClientExtension();
             return json_encode([
                 'status'  => true,
                 'message' => 'Image uploaded successfully!',
-                'file'    => $filePath
+                'file'    => $filePath,
+                'file_ext' => $extension
             ]);
 
         }else{

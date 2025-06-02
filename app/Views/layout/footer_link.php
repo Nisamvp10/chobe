@@ -3,8 +3,11 @@
 <script src="<?= base_url('public/assets/js/bootstrap.bundle.min.js') ;?>"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.40.0/dist/apexcharts.min.js"></script>
 <script src="<?= base_url('public/assets/js/toastr.min.js') ;?>"></script>
+<script src="https://unpkg.com/alpinejs"></script>
 <script src="<?=base_url('public/assets/js/app.js');?>" ></script>
 <script src="<?=base_url('public/assets/js/script.js');?>" ></script>
+<script src="<?=base_url('public/assets/js/notifications.js');?>" ></script>
+
     <script>
     App.init({
         'siteUrl' : '<?=base_url()?>'
@@ -48,7 +51,6 @@
             fetch("<?= base_url('notifications/fetch') ?>")
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data.notifications);
                     const itemsContainer = document.getElementById("notification-items");
                     const badge = document.getElementById("notification-badge");
 
@@ -60,9 +62,9 @@
                     } else {
                         data.notifications.forEach(note => {
                             const item = `
-                                <div class="dropdown-item">
-                                    <strong>${note.title}</strong><br>
-                                    <small>${note.message}</small>
+                                <div class="dropdown-item" onclick="viewNotification('${note.id}')">
+                                        <strong>${note.title}</strong><br>
+                                        <small>${note.message}</small>
                                 </div>
                             `;
                             itemsContainer.innerHTML += item;

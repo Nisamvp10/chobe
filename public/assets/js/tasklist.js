@@ -52,7 +52,7 @@
                     <tbody class="bg-white divide-y divide-gray-200">
             `;
             tasks.forEach(task => {
-        
+                console.log(task)
             const dueDate = new Date(task.overdue_date);
             const today = new Date();
             dueDate.setHours(0, 0, 0, 0);
@@ -89,6 +89,7 @@
             data-store='${task.storeId}'
             data-progressbar="${task.progress}"
             data-cls="${priority}"
+            data-doc="${task.ducument}"
            
             >
             
@@ -105,6 +106,12 @@
                 </div>
                 <span class="text-xs text-gray-500 text-gray-900">${progress}%</span>
             </div>
+          ${task.ducument ? `
+            <div class="d-flex align-items-center mb-2">
+                <a href="${task.ducument}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
+                    Doc
+                </a>
+            </div>` : ''}
             </div>
             <div class="flex justify-between items-center">
                 <div class="flex -space-x-2 profile-stack ">
@@ -245,7 +252,13 @@ function openTaskModal(el) {
     const progressEl = document.getElementById('progressIndicator');
     const progressSlider = document.getElementById('progress');
     const progressLabel = document.getElementById('progressLabel');
+    console.log(el.dataset.doc)
     const taskId = document.getElementById('taskId');
+    let documentUi = ` <div class="d-flex align-items-center mb-2 mt-2">
+                <a href="${el.dataset.doc}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
+                    Doc
+                </a>`;
+    $('#documents').html(documentUi);
     modal.classList.remove('hidden');
     // Fill modal fields from data attributes
     let gettaskId =  modal.querySelector('.modal-title').textContent = el.dataset.id;

@@ -157,6 +157,16 @@ if (!empty($userData)){
             font-weight: 600;
             border-left: 4px solid var(--primary);
         }
+          .sidebar-nav .side-active {
+            background-color: rgba(15, 82, 186, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+            border-left: 4px solid var(--primary);
+        }
+
+        .sidebar-nav .nav-link:not(.collapsed) .bi-chevron-down {
+                transform: rotate(180deg);
+            }
         
         .sidebar-nav .nav-link i, .sidebar-nav .nav-link svg {
             margin-right: 10px;
@@ -737,14 +747,15 @@ if (!empty($userData)){
                         <span>Tasks </span>
                     </a>
                 </li>
-                <?php } ?>
+                <?php }  if( $userRole != 1) { ?>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'tasks/my-tasks') === 0 ? 'active' : '' ?>" href="<?= base_url('tasks/my-tasks') ?>">
                         <i class="bi bi-person-check"></i>
                         <span>My Tasks</span>
                     </a>
                 </li>
-                <?php } ?>
+                <?php } 
+            }?>
                 
                 <?php if (session()->get('role') == 'admin' || session()->get('role') == 'zone_manager'): ?>
                 <li class="nav-item">
@@ -778,16 +789,7 @@ if (!empty($userData)){
                         <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
                     </a>
                 </li>
-                <?php
-                if(haspermission('','permissions_view')) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'permisions') === 0 ? 'active' : '' ?>" href="<?= base_url('permisions') ?>">
-                        <i class="bi bi-building-lock"></i>
-                        <span>Permissions</span>
-                        <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
-                    </a>
-                </li>
-                <?php } 
+               <?php 
                  if(haspermission('','view_branch')) : ?>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'branches') === 0 ? 'active' : '' ?>" href="<?= base_url('branches') ?>">
@@ -795,22 +797,54 @@ if (!empty($userData)){
                         <span>Branches</span>
                     </a>
                 </li>
-                <?php endif;
-                 if(haspermission('','view_category')) : ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'categories') === 0 ? 'active' : '' ?>" href="<?= base_url('categories') ?>">
-                        <i class="bi bi-diagram-3"></i>
-                        <span>Categories</span>
-                    </a>
-                </li>
-                <?php endif;?>
+                
                 <?php if ($userRole ==1): ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'settings') === 0 ? 'active' : '' ?>" href="<?= base_url('settings') ?>">
-                        <i class="bi bi-gear"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
+                    <!-- nav -->
+                     <div class="relative mb-0 nav-item  <?= strpos(uri_string(), 'settings') === 0 ? 'side-active' : '' ?>" x-data="{ open: false }">
+                        <button @click="open = !open" class="flex items-center w-full   rounded-lg transition-all duration-200 
+                                text-gray-700 hover:bg-gray-100">
+                            <div class="flex items-center justify-between w-full nav-link ">
+                            <div class="flex items-center">
+                                <div class="mr-3">
+                                  <i class="bi bi-gear"></i>
+                                </div>
+                                <span class="font-medium">Settings</span>
+                            </div>
+                            <div :class="{ 'rotate-180': open }" class="transition-transform duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="lucide lucide-chevron-down text-gray-500">
+                                <path d="m6 9 6 6 6-6"></path>
+                                </svg>
+                            </div>
+                            </div>
+                        </button>
+
+                        <div class="ml-4 mt-1 space-y-1" x-show="open" x-transition>
+                            <a class="flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200 text-sm text-gray-700 hover:bg-gray-100" href="<?= base_url('settings') ?>">
+                            Settings
+                            </a>
+                            <?php endif;
+                            if(haspermission('','view_category')) : ?>
+                                <a class="flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200 text-sm text-gray-700 hover:bg-gray-100 <?= strpos(uri_string(), 'categories') === 0 ? 'active' : '' ?>" href="<?= base_url('categories') ?>">
+                                    <!-- <i class="bi bi-diagram-3"></i> -->
+                                    <span>Categories</span>
+                                </a>
+                            <?php endif; ?>
+
+                             <?php
+                        if(haspermission('','permissions_view')) { ?>
+                            <a class="flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200 text-sm text-gray-700 hover:bg-gray-100 <?= strpos(uri_string(), 'permisions') === 0 ? 'active' : '' ?>" href="<?= base_url('permisions') ?>">
+                                <!-- <i class="bi bi-building-lock"></i> -->
+                                <span>Permissions</span>
+                            </a>
+                        <?php } ?>
+                        
+                        </div>
+                        </div>
+
+                     <!-- close nav -->
+             
                 <?php endif;?>
             </ul>
         </div>
@@ -873,6 +907,7 @@ if (!empty($userData)){
                 </div>
             </div>
         </div>
+
         <!-- Page Content -->
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 md:p-6">
             <div class="space-y-6">
