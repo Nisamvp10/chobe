@@ -738,7 +738,7 @@ if (!empty($userData)){
                 </li>
                 <?php 
                 }
-                    if(haspermission('','task_view')) { 
+                if(haspermission('','task_view')) { 
                         if( $userRole == 1) {
                  ?>
                 <li class="nav-item">

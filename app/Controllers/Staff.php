@@ -42,7 +42,7 @@ class Staff extends BaseController{
           $serviceModel = new ServiceModel();
         if ($id){
 
-            $page = "Edit Staff";
+            $page = "Edit Team";
             $id = decryptor($id);
             $data = $userModel->where('id',$id)->first();
             $selectedSpecialties = $this->specialityModel->getSpecialty($id);
@@ -50,7 +50,7 @@ class Staff extends BaseController{
         }else{
             $selectedSpecialties = [];
             $data = '';
-            $page = "Add Staff Member";
+            $page = "Add Team";
         }
         
         $branches = $this->branchModel->where('status',1)->findAll();
