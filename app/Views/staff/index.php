@@ -9,7 +9,7 @@
                  <?php if(haspermission(session('user_data')['role'],'create_staff') ) { ?>
                 <div>
                     <a href="<?= base_url('staff/create') ?>" class="btn btn-primary">
-                        <i class="bi bi-plus-circle me-1"></i> Add Staff Member
+                        <i class="bi bi-plus-circle me-1"></i> Add a Member
                     </a>
                 </div>
                 <?php } ?>

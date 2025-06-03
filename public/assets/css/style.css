@@ -767,6 +767,10 @@
   .rotate-180 {
     transform: rotate(180deg);
   }
+  .text-blue-600 {
+    --tw-text-opacity: 1;
+    color: rgb(3 105 161 / var(--tw-text-opacity));
+  }
 
   @keyframes fadeIn {
   
@@ -1464,6 +1468,10 @@
   .hover\:bg-gray-100:hover {
     --tw-bg-opacity: 1;
     background-color: rgb(243 244 246 / var(--tw-bg-opacity));
+  }
+  .hover\:text-blue-800:hover {
+    --tw-text-opacity: 1;
+    color: rgb(12 74 110 / var(--tw-text-opacity));
   }
   .hover\:bg-gray-200:hover {
     --tw-bg-opacity: 1;

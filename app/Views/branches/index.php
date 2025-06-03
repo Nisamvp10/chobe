@@ -125,7 +125,8 @@
                               
                              
                                 <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="<?=base_url('branches/edit/');?>${branch.encrypted_id}" class="text-blue-600 hover:text-blue-800 mr-3">View</a>
+                                    <a href="<?=base_url('branches/edit/');?>${branch.encrypted_id}" class="text-blue-600 hover:text-blue-800 mr-3">Edit</a>
+                                    <a href="<?=base_url('branches/view/');?>${branch.encrypted_id}" class="text-blue-600 hover:text-blue-800 mr-3">View</a>
                                 </td>
                             </tr>
                         `;

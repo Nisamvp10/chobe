@@ -58,6 +58,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('branch/search','Branches::search');
     $routes->get('branches/edit/(:any)','Branches::create/$1');
     $routes->post('branch/delete','Branches::delete');
+    $routes->get('branches/view/(:any)','Branches::view/$1');
     //services
     $routes->get('services-list','Services::index');
     $routes->get('services/create','Services::create');

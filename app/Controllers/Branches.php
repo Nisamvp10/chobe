@@ -146,5 +146,12 @@ class Branches extends Controller{
             'message' => $validMsg
         ]);
     }
-
+    public function view($branchId=false) 
+    {
+        $branch = $this->branchModel->where(['id'=>decryptor($branchId)])->get()->getRow();
+      
+        $page = 'Branch:'.($branch->branch_name ? $branch->branch_name :'') ;
+        $storeId = $branch->id;
+        return view('branches/view-staff',compact('page','storeId'));
+    }
 }
