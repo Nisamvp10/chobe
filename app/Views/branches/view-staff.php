@@ -83,7 +83,7 @@
                 if (staff.length === 0) {
                     html += `
                         <div class="text-center py-8">
-                            <h3 class="text-lg font-medium text-gray-700">No Branches found</h3>
+                            <h3 class="text-lg font-medium text-gray-700">No Team found</h3>
                             <p class="text-gray-500 mt-1">Try adjusting your search</p>
                         </div>
                     `;
