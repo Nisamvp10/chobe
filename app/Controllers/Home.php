@@ -19,6 +19,7 @@ class Home extends BaseController
         $totalClients = $clientsModel->countAll();
         $totalTasks = $taskModel->countAll();
         $inProgressTasks =  $taskModel->where('status','In_Progress')->findAll();
+        $completedTasks = $taskModel->where('status','Completed')->findAll();
         $pendingTasks =  $taskModel->where('status',1)->findAll();
         $recentTasks =  $taskModel->getTasks(10,'t.created_at DESC');
 
@@ -97,7 +98,7 @@ class Home extends BaseController
             'totalTasks' => $totalTasks,
             'pendingTasks' => count($pendingTasks) ?? 0,
             'inProgressTasks' => count($inProgressTasks) ?? 0,
-            'completedTasks' => '',
+            'completedTasks' => count($completedTasks) ?? 0,
             'overdueTasksCount' => '',
             'highPriorityTasks' =>'',
             'mediumPriorityTasks' => '',

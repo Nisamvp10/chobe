@@ -329,111 +329,97 @@
     
     // Function to create status distribution chart
     function createStatusChart() {
-        const options = {
-            series: [{
-                name: 'Tasks',
-                data: [<?= $pendingTasks ?>, <?= $inProgressTasks ?>, <?= $completedTasks ?>]
-            }],
-            chart: {
-                type: 'bar',
-                height: 300,
-                toolbar: {
-                    show: false
-                },
-                animations: {
+    const options = {
+        series: [{
+            name: 'Tasks',
+            data: [<?= $pendingTasks ?>, <?= $inProgressTasks ?>, <?= $completedTasks ?>]
+        }],
+        chart: {
+            type: 'bar',
+            height: 300,
+            toolbar: { show: false },
+            animations: {
+                enabled: true,
+                easing: 'easeinout',
+                speed: 800,
+                animateGradually: {
                     enabled: true,
-                    easing: 'easeinout',
-                    speed: 800,
-                    animateGradually: {
-                        enabled: true,
-                        delay: 150
-                    },
-                    dynamicAnimation: {
-                        enabled: true,
-                        speed: 350
+                    delay: 150
+                },
+                dynamicAnimation: {
+                    enabled: true,
+                    speed: 350
+                }
+            }
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 5,
+                dataLabels: {
+                    position: 'top',
+                },
+                distributed: true // enables separate colors for each bar
+            }
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function (val) {
+                return val;
+            },
+            offsetY: -20,
+            style: {
+                fontSize: '14px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto',
+                fontWeight: 'bold',
+                colors: ["#304758"]
+            }
+        },
+        xaxis: {
+            categories: ['Pending', 'In Progress', 'Completed'],
+            position: 'bottom',
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+            crosshairs: {
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        colorFrom: '#D8E3F0',
+                        colorTo: '#BED1E6',
+                        stops: [0, 100],
+                        opacityFrom: 0.4,
+                        opacityTo: 0.5,
                     }
                 }
             },
-            plotOptions: {
-                bar: {
-                    borderRadius: 5,
-                    dataLabels: {
-                        position: 'top',
-                    },
-                }
-            },
-            dataLabels: {
-                enabled: true,
+            tooltip: { enabled: true }
+        },
+        yaxis: {
+            axisBorder: { show: false },
+            axisTicks: { show: false },
+            labels: {
+                show: true,
                 formatter: function (val) {
                     return val;
-                },
-                offsetY: -20,
-                style: {
-                    fontSize: '14px',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto',
-                    fontWeight: 'bold',
-                    colors: ["#304758"]
                 }
-            },
+            }
+        },
+        colors: ['#eab308', '#0F52BA', '#4CAF50'], // warning (pending), blue (in progress), green (completed)
+        grid: {
+            borderColor: '#e0e0e0',
+            strokeDashArray: 5,
             xaxis: {
-                categories: ['Pending', 'In Progress', 'Completed'],
-                position: 'bottom',
-                axisBorder: {
-                    show: false
-                },
-                axisTicks: {
-                    show: false
-                },
-                crosshairs: {
-                    fill: {
-                        type: 'gradient',
-                        gradient: {
-                            colorFrom: '#D8E3F0',
-                            colorTo: '#BED1E6',
-                            stops: [0, 100],
-                            opacityFrom: 0.4,
-                            opacityTo: 0.5,
-                        }
-                    }
-                },
-                tooltip: {
-                    enabled: true,
-                }
+                lines: { show: true }
             },
             yaxis: {
-                axisBorder: {
-                    show: false
-                },
-                axisTicks: {
-                    show: false,
-                },
-                labels: {
-                    show: true,
-                    formatter: function (val) {
-                        return val;
-                    }
-                }
-            },
-            colors: ['#0F52BA', '#FFC107', '#4CAF50'],
-            grid: {
-                borderColor: '#e0e0e0',
-                strokeDashArray: 5,
-                xaxis: {
-                    lines: {
-                        show: true
-                    }
-                },
-                yaxis: {
-                    lines: {
-                        show: true
-                    }
-                },
+                lines: { show: true }
             }
-        };
+        }
+    };
 
-        const chart = new ApexCharts(document.querySelector("#status-chart"), options);
-        chart.render();
-    }
+    const chart = new ApexCharts(document.querySelector("#status-chart"), options);
+    chart.render();
+}
+
     
     // Initialize charts when document is ready
     document.addEventListener('DOMContentLoaded', function() {
