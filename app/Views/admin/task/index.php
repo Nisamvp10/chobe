@@ -208,7 +208,7 @@
         </div>
         <div>
             <label for="progress" class="block text-sm font-medium text-gray-700 mb-1" id="progressLabel">Progress: 60%</label>
-            <input type="range" name="progress" id="progress" min="0" max="100" step="5" class="w-full" value="">
+            <input type="range" name="progress" id="progressBar" min="0" max="100" step="5" class="w-full" value="">
         </div>
         <div>
             <div class="grid grid-cols-2 gap-2">
@@ -230,7 +230,7 @@
         </div>
         <div>
           <label class="block mb-2 font-medium">Assign Staff</label>
-          <div class="mt-1 grid grid-cols-2 gap-2" id="participants">
+          <div class="mt-1 grid grid-cols-1 gap-2" id="participants">
           
           </div>
         </div>

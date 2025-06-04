@@ -203,10 +203,10 @@ function openTaskModal(el) {
 
     let progressbar = el.dataset.progressbar;
 
-    let documentUi = ` <div class="d-flex align-items-center mb-2 mt-2">
+     let documentUi = el.dataset.doc ? ` <div class="d-flex align-items-center mb-2 mt-2">
                 <a href="${el.dataset.doc}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
                     Doc
-                </a>`;
+                </a>`:'';
     $('#documents').html(documentUi);
       
     //console.log(progressbar)
@@ -252,8 +252,14 @@ function openTaskModal(el) {
                 nameSpan.className = 'text-sm text-gray-700';
                 nameSpan.textContent = user.staffName;
 
+                const prio = document.createElement('span');
+                prioText = (user.userPriority ==1 ? 'High' : (user.userPriority == 2 ? 'Medium' : 'Low'));
+                prio.className = (user.userPriority ==1 ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (user.userPriority == 2 ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
+                prio.textContent = prioText;
+
                 wrapper.appendChild(avatar);
                 wrapper.appendChild(nameSpan);
+                wrapper.appendChild(prio);
 
                 profilesContainer.appendChild(wrapper);
             });

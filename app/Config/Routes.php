@@ -101,6 +101,13 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('task/my-task','TaskController::myTaskList');
     $routes->post('task/replay','ReplayController::save');  
     $routes->post('task-replays','ReplayController::replayHistory');    
+    //projects 
+    $routes->get('settings/projects','ProjectsController::index');
+    $routes->get('project/list','ProjectsController::projectList');
+    $routes->post('project/save','ProjectsController::save');
+    $routes->get('settings/project/edit/(:any)','ProjectsController::create/$1');
+    $routes->post('projects/delete','ProjectsController::delete');
+    $routes->post('project/unlock','ProjectsController::unlock');
 
 });
 $routes->get('qry', 'Home::qry');

@@ -830,6 +830,12 @@ if (!empty($userData)){
                                     <!-- <i class="bi bi-diagram-3"></i> -->
                                     <span>Categories</span>
                                 </a>
+                            <?php endif; 
+                            if(haspermission('','view_projects')) : ?>
+                                <a class="flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200 text-sm text-gray-700 hover:bg-gray-100 <?= strpos(uri_string(), 'settings/projects') === 0 ? 'active' : '' ?>" href="<?= base_url('settings/projects') ?>">
+                                    <!-- <i class="bi bi-diagram-3"></i> -->
+                                    <span>Projects</span>
+                                </a>
                             <?php endif; ?>
 
                              <?php

@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 
 class AssigntaskModel extends Model {
 protected $table = 'task_assignees';
-protected $allowedFields = ['id','task_id','staff_id','role','status'];
+protected $allowedFields = ['id','task_id','staff_id','priority','role','status'];
 protected $primaryKey = 'id';
 
 function getParticipants ($id) {

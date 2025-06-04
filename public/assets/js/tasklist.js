@@ -52,7 +52,6 @@
                     <tbody class="bg-white divide-y divide-gray-200">
             `;
             tasks.forEach(task => {
-                console.log(task)
             const dueDate = new Date(task.overdue_date);
             const today = new Date();
             dueDate.setHours(0, 0, 0, 0);
@@ -250,14 +249,13 @@ function openTaskModal(el) {
 
     const modal = document.getElementById('taskModal');
     const progressEl = document.getElementById('progressIndicator');
-    const progressSlider = document.getElementById('progress');
+    const progressSlider = document.getElementById('progressBar');
     const progressLabel = document.getElementById('progressLabel');
-    console.log(el.dataset.doc)
     const taskId = document.getElementById('taskId');
-    let documentUi = ` <div class="d-flex align-items-center mb-2 mt-2">
+    let documentUi = el.dataset.doc ? ` <div class="d-flex align-items-center mb-2 mt-2">
                 <a href="${el.dataset.doc}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
                     Doc
-                </a>`;
+                </a>`:'';
     $('#documents').html(documentUi);
     modal.classList.remove('hidden');
     // Fill modal fields from data attributes
@@ -290,7 +288,6 @@ function openTaskModal(el) {
     taskEdit.querySelector('#title').value = el.dataset.title || '';
     taskEdit.querySelector('#description').value = el.dataset.desc || '';
     taskEdit.querySelector('#branch').value = el.dataset.store || '';
-    taskEdit.querySelector('#progress').value = el.dataset.progress || 0;
     taskEdit.querySelector('#duedate').value = el.dataset.duedate || 0;
     taskEdit.querySelector('#taskStatus').value = status || 0;
 
@@ -336,8 +333,14 @@ function openTaskModal(el) {
                 nameSpan.className = 'text-sm text-gray-700';
                 nameSpan.textContent = user.staffName;
 
+                const prio = document.createElement('span');
+                prioText = (user.userPriority ==1 ? 'High' : (user.userPriority == 2 ? 'Medium' : 'Low'));
+                prio.className = (user.userPriority ==1 ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (user.userPriority == 2 ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
+                prio.textContent = prioText;
+
                 wrapper.appendChild(avatar);
                 wrapper.appendChild(nameSpan);
+                wrapper.appendChild(prio);
 
                 profilesContainer.appendChild(wrapper);
             });
@@ -400,7 +403,7 @@ function toggleReplay() {
     });
   });
 
-  const progressSlider = document.getElementById('progress');
+  const progressSlider = document.getElementById('progressBar');
   const progressLabel = document.getElementById('progressLabel');
 
   progressSlider.addEventListener('input', () => {
@@ -412,13 +415,26 @@ function toggleReplay() {
     staffListContainer.innerHTML = '';
 
     users.forEach(staff => {
-        console.log(staff)
+      
         const staffHTML = `
-        <div class="flex items-center p-2 border rounded-md cursor-pointer border-gray-300">
-            <input type="hidden" name="role[]" class="h-4 w-4 text-indigo-600 rounded"  value="${staff.role}" >
+        <div class="flex align-items-center p-2 border rounded-md cursor-pointer border-gray-300">
+          
             <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" name="staff[]" value="${staff.userId}" checked>
             <img src="${staff.img}" alt="${staff.staffName}" class="w-6 h-6 rounded-full ml-2">
-            <span class="ml-2 text-sm">${staff.staffName}</span>
+            <span class="ml-2 text-sm mx-4">${staff.staffName}</span>
+            
+            <select name="role[]"  class="role-select mx-4 mt-2 md:mt-0 border rounded px-2 py-1 text-sm" >
+                <option  ${staff.role == "participant" ? "selected" : ""} value="participant" selected>Participant</option>
+                <option ${staff.role == "team_leader" ? 'selected':''} value="team_leader">Team Leader</option>
+                <option ${staff.role == "team_coordinator" ? 'selected':''} value="team_coordinator">Team Coordinator</option>
+            </select>
+            <select name="personpriority[]" class="role-select mx-2 mt-2 md:mt-0 border rounded px-2 py-1 text-sm" >
+                <option desabled value="">Select a Priority</option>
+                <option  ${staff.userPriority == 1 ? "selected" : ""} value="1">High</option>
+                <option  ${staff.userPriority == 2 ? "selected" : ""}  value="2">Medium</option>
+                <option  ${staff.userPriority == 3 ? "selected" : ""} value="3">Low</option>
+            </select>
+
         </div>
         `;
         staffListContainer.insertAdjacentHTML('beforeend', staffHTML);
@@ -445,7 +461,7 @@ $('#taskEditForm').on('submit', function(e) {
         { 
             if(response.success){
                 toastr.success(response.message);
-                webForm[0].reset();
+                //webForm[0].reset();
                 loadTask();
             }else{
                 if(response.errors){

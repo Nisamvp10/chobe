@@ -8,6 +8,7 @@ use App\Models\TaskModel;
 use App\Models\NotificationModel;
 use App\Models\TaskimagesModel;
 use App\Controllers\UploadImages;
+use App\Models\ProjectsModel;
 class TaskController extends Controller {
 
     protected $branchModel;
@@ -16,7 +17,7 @@ class TaskController extends Controller {
     protected $notificationModel;
     protected $taskImgModel;
     protected $uploadImg;
-
+    protected $projects;
     function __construct() {
         $this->branchModel = new BranchesModel();
         $this->taskModel = new TaskModel();
@@ -24,6 +25,8 @@ class TaskController extends Controller {
         $this->notificationModel = new NotificationModel();
         $this->taskImgModel = new TaskimagesModel();
         $this->uploadImg = new UploadImages();
+        $this->projects = new ProjectsModel();
+        
     }
 
     function index() {
@@ -37,7 +40,8 @@ class TaskController extends Controller {
 
         $page = "Create New Task";
         $branches = $this->branchModel->where('status','active')->findAll();
-        return view('admin/task/create',compact('page','branches'));
+        $projects = $this->projects->where('is_active',1)->findAll();
+        return view('admin/task/create',compact('page','branches','projects'));
     }
 
     function save () {
@@ -49,14 +53,18 @@ class TaskController extends Controller {
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['success' => false, 'message' => lang('Custom.invalidRequest')]);
         }
+        $taskId = decryptor($this->request->getPost('taskId'));
 
         $rules = [
             'title' => 'required',
             'description' => 'required|min_length[3]',
             'branch' => 'required',
             'priority' => 'required',
-            'duedate' => 'required'
+            'duedate' => 'required',
+            
         ];
+
+        (empty($taskId) ? $rules['project'] = 'required' : '' );
 
         if(!$this->validate($rules)) {
             return $this->response->setJSON(['success' => false , 'errors' => $this->validator->getErrors()]);
@@ -65,22 +73,31 @@ class TaskController extends Controller {
         $validMsg = '';
 
         $data = [
-            'title' => $this->request->getPost('title'),
-            'description' => $this->request->getPost('description'),
-            'overdue_date' => $this->request->getPost('duedate'),
-            'priority' => $this->request->getPost('priority'),
-            'branch'   => $this->request->getPost('branch'),
-            'status'  => 1,
+            'title'         => $this->request->getPost('title'),
+            'description'   => $this->request->getPost('description'),
+            'overdue_date'  => $this->request->getPost('duedate'),
+            'priority'      => $this->request->getPost('priority'),
+            'branch'        => $this->request->getPost('branch'),
+            'project_id'       => $this->request->getPost('project'),
+            'status'        => 1,
         ];
+       
 
         $file = $this->request->getFile('file');
-        $image =   ($file->isValid() && !$file->hasMoved() ? json_decode($this->uploadImg->uploadimg($file,'taskfiles'),true): ['status'=>false]);
 
-        $taskFiles = [
-          'image_url'   => base_url($image['file']),
-          'file_ext'    => $image['file_ext']
-        ];
-        $taskId = decryptor($this->request->getPost('taskId'));
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $uploadResult = $this->uploadImg->uploadimg($file, 'taskfiles');
+            $image = json_decode($uploadResult, true);
+             $taskFiles = [
+                'image_url'   => base_url($image['file']),
+                'file_ext'    => $image['file_ext']
+                ];
+        } else {
+            $image = ['status' => false];
+        }
+
+       
+       
         if ($taskId) {
           
             $data['progress'] = $this->request->getPost('progress');
@@ -88,9 +105,11 @@ class TaskController extends Controller {
             $update = $this->taskModel->update($taskId,$data);
             $staffs = $this->request->getPost('staff');
             $roles  = $this->request->getPost('role') ?? [];
+            $personPriority  = $this->request->getPost('personpriority') ?? [];
 
             foreach ($staffs as $index => $staffId) {
                 $roleId = $roles[$index];
+                $personPriorityId =  $personPriority[$index];
 
                 // Check if assignment exists
                 $existing = $this->taskassignModel
@@ -105,12 +124,18 @@ class TaskController extends Controller {
                             'role' => $roleId
                         ]);
                     }
+                     if ($existing['priority'] != $personPriorityId) {
+                        $this->taskassignModel->update($existing['id'], [
+                            'priority' => $personPriorityId
+                        ]);
+                    }
                 } else {
                     // Insert new assignment
                     $this->taskassignModel->insert([
                         'task_id'  => $taskId,
                         'staff_id' => $staffId,
-                        'role'     => $roleId
+                        'role'     => $roleId,
+                        'priority' => $personPriorityId
                     ]);
                 }
             }
@@ -118,6 +143,7 @@ class TaskController extends Controller {
             $validStatus = $update;
             $validMsg =  $update ? 'Task updated' : 'Failed to update task';
         }else{
+                $personPriority  = $this->request->getPost('personpriority');
             if ($taskId = $this->taskModel->insert($data)) {
 
                     $taskFiles['task_id'] = $taskId;
@@ -125,12 +151,14 @@ class TaskController extends Controller {
                     
                     $staffs = $this->request->getPost('staff');
                     $role =   $this->request->getPost('role');
+                    $personPriority  = $this->request->getPost('personpriority');
 
                     foreach ($staffs as $index => $staff) {
                         $assign = [
                             'task_id'  => $taskId,
                             'staff_id' => $staff,
                             'role'     => $role[$index], 
+                            'priority'     => $personPriority[$index], 
                         ];
                         $notify = [
                             'user_id' =>  $staff,
@@ -168,7 +196,7 @@ class TaskController extends Controller {
                 'message' => 'Permission Denied'
             ]);
         }
-       $alltask = $this->taskModel->getTasks('',''); // or ->findAll()
+        $alltask = $this->taskModel->getTasks('',''); // or ->findAll()
         $groupData = [];
 
         foreach ($alltask as &$task) {
@@ -197,6 +225,7 @@ class TaskController extends Controller {
                         'staffName' => $task['name'],
                         'userId'    => $task['userId'],
                         'role'      => $task['role'],
+                        'userPriority' => $task['userPriority'],
                     ];
                 }
 
@@ -212,6 +241,7 @@ class TaskController extends Controller {
                         'staffName' => $task['name'],
                         'userId'    => $task['userId'],
                         'role'      => $task['role'],
+                        'userPriority' => $task['userPriority'],
                     ];
                 }
             }
@@ -239,7 +269,6 @@ class TaskController extends Controller {
         $notifiytask = $this->request->getGet('notifiytask');
         $alltasks = $this->taskModel->getMytask('','',$notifiytask); // or ->findAll()
         $groupData = [];
-
         foreach ($alltasks as &$task) {
             $taskId = $task['id'];
 
@@ -266,6 +295,7 @@ class TaskController extends Controller {
                         'staffName' => $task['name'],
                         'userId'    => $task['userId'],
                         'role'      => $task['role'],
+                        'userPriority' => $task['userPriority'],
                     ];
                 }
 
@@ -281,6 +311,7 @@ class TaskController extends Controller {
                         'staffName' => $task['name'],
                         'userId'    => $task['userId'],
                         'role'      => $task['role'],
+                        'userPriority' => $task['userPriority'],
                     ];
                 }
             }
