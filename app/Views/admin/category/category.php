@@ -109,13 +109,13 @@
                     success: function(response) {
                         
                         if (response.success) {
-                            renderTable(response.categories);
+                            renderTablecate(response.categories);
                         }
                     }
                 });
             }
 
-            function renderTable(categories){
+            function renderTablecate(categories){
                 let html = '';
                 let count = 1;
 
@@ -139,7 +139,6 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                     `;
                     categories.forEach(category => {
-              
                         html += `
                             <tr class="hover:bg-gray-50 ${category.is_active ==0 ? 'bg-red-100 bg-opacity-50' :'' }"  >
                                 <td class="px-2 py-2 whitespace-nowrap">
