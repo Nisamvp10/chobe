@@ -40,11 +40,14 @@ class NotificationModel extends Model
         $role = $user['role'] ?? null;
         $userId = $user['id'] ?? null;
 
-        if ($role != 1 && $userId) { 
+        //if ($role != 1 && $userId) { 
             // Join with staff to filter by branch
             $builder->join('users u', 'u.id = n.user_id');
-             $builder->join('users cu', 'cu.id = n.created_by')
-                    ->where('u.id', $userId);
+             $builder->join('users cu', 'cu.id = n.created_by');
+                    
+        //}
+        if ($role != 1 && $userId) { 
+            $builder->where('u.id', $userId);
         }
         if($isread) {
             $builder->where('is_read',0);

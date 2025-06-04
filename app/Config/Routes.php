@@ -33,7 +33,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('notifications/count','Notification::notifications');
     $routes->post('settings/save','Settings::save');
     $routes->get('notifications/fetch','Notification::load');
-    $routes->get('notifications','Notification::myNotifications');
+    $routes->get('notifications','Notification::myNotifications'); 
     $routes->get('notification/list','Notification::allnotification');
     $routes->post('notification/view','Notification::view');
     //permissions 

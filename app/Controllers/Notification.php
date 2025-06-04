@@ -68,6 +68,10 @@ class Notification extends Controller{
         $notify = $this->notifications->getStaffNotifications();
         foreach($notify as &$noti) {
             $noti['id'] = encryptor($noti['id']);
+            $user = session('user_data');
+            $role = $user['role'] ?? null;
+            $by = ($role == 1 && !empty($noti['name'])) ? '[ Send to ' . $noti['name'] . ' ]' : '';
+            $noti['title'] = $noti['title'] .' '.$by;
         }
         return $this->response->setJSON([
                 'success' => true,
@@ -80,6 +84,9 @@ class Notification extends Controller{
             return $this->response->setJSON(['success' => true ,'message' => lang('Custom.invalidRequest')]);
         }
 
+        $user = session('user_data');
+        $role = $user['role'] ?? null;
+
         if(!hasPermission('','view_notification')) {
              return $this->response->setJSON([
                 'success' => false,
@@ -88,7 +95,7 @@ class Notification extends Controller{
         }
 
         $id = decryptor($this->request->getPost('id'));
-        $updated = $this->notifications->update($id,['is_read' => 1]);
+        $updated = ($role !=1 ? $this->notifications->update($id,['is_read' => 1]) : false);
         return $this->response->setJSON([
             'success' => $updated,
             'message' => $updated ? 'Notification Viewd' : 'Failed to Open Notification',
