@@ -6,7 +6,7 @@
             <div class="d-flex justify-content-between align-items-center mb-0">
                 <h1 class="h3 mb-0"><?= $page ?? '' ?></h1>
                 <?php 
-                if(haspermission(session('user_data')['role'],'create_services')) {  ?>        
+                if(haspermission(session('user_data')['role'],'Nt')) {  ?>        
                 <div>
                     <a href="<?= base_url('services/create') ?>" class="btn btn-primary">
                         <i class="bi bi-plus-circle me-1"></i> Add New Service
