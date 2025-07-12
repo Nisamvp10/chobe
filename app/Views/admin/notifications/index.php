@@ -62,14 +62,14 @@
       function loadNotifications(search = '') {
                 let filer = $('#filerStatus').val();
                 $.ajax({
-                    url: App.getSiteurl()+'notification-list',
+                    url: '<?=base_url('notification-list');?>',
                     type: "POST",
                     data: { search: search,filter:filer },
                     dataType: "json",
                     success: function(response) {
                         
                         if (response.success) {
-                            renderTable();
+                            renderTable(response.notification);
                         }else{
                             toastr.error(response.message);
                         }
