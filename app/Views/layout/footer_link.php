@@ -6,9 +6,9 @@
 <script src="https://unpkg.com/alpinejs"></script>
 <script src="<?=base_url('public/assets/js/app.js');?>" ></script>
 <script src="<?=base_url('public/assets/js/script.js');?>" ></script>
-<script src="<?=base_url('public/assets/js/notifications.js');?>" ></script>
+<script src="<?=base_url(relativePath: 'public/assets/js/notifications.js');?>" ></script>
 
-    <script>
+<script>
     App.init({
         'siteUrl' : '<?=base_url()?>'
     })

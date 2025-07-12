@@ -1,14 +1,14 @@
   function loadNotifications(search = '') {
                 let filer = $('#filerStatus').val();
                 $.ajax({
-                    url: App.getSiteurl()+'notification/list',
-                    type: "GET",
+                    url: App.getSiteurl()+'notification-list',
+                    type: "POST",
                     data: { search: search,filter:filer },
                     dataType: "json",
                     success: function(response) {
                         
                         if (response.success) {
-                            renderTable(response.notification);
+                            renderTable();
                         }else{
                             toastr.error(response.message);
                         }
@@ -18,22 +18,22 @@
 
             function renderTable(notify){
 
-                let html = '';
+                let notifyHtml = '';
 
                 if (notify.length === 0) {
-                    html += `
+                    notifyHtml += `
                         <div class="text-center py-8">
                             <h3 class="text-lg font-medium text-gray-700">No Services found</h3>
                             <p class="text-gray-500 mt-1">Try adjusting your search</p>
                         </div>
                     `;
                 }else{
-                    html += `
+                    notifyHtml += `
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
                     notify.forEach(notification => {
                     let genDate = new Date(notification.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-                        html += `
+                        notifyHtml += `
                             <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 ${notification.is_read == 1 ?'border-orange-500': 'border-green-400'} draggable-task" ${notification.is_read == 1 ? '' : `onclick="viewNotification('${notification.id}')"`}>
                                 <div class="flex justify-between items-start mb-2">
                                     <h3 class="font-medium text-gray-800  flex-1 text-capitalize">${notification.title}</h3>
@@ -65,9 +65,9 @@
                         `;
                     });
 
-                    html += `</div>`;
+                    notifyHtml += `</div>`;
                 }
-                $('#notificationList').html(html);
+                $('#notificationList').html(notifyHtml);
             }
             loadNotifications();
 

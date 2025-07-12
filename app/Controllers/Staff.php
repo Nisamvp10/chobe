@@ -188,9 +188,9 @@ class Staff extends BaseController{
         }
         $userModel = new UserModel();
 
-        $search = $this->request->getVar('search');
-        $filter = $this->request->getVar('filter');
-        $branch = $this->request->getVar('branch');
+        $search = $this->request->getPost('search');
+        $filter = $this->request->getPost('filter');
+        $branch = $this->request->getPost('branch');
 
         $staff = $userModel->getUsers($search,$filter,$branch);
 

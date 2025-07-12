@@ -83,7 +83,7 @@
                 let branch = $('#filerBanch').val();
                 $.ajax({
                     url: "<?= site_url('staff/list') ?>",
-                    type: "GET",
+                    type: "POST",
                     data: { search: search,filter:filter,branch:branch},
                     dataType: "json",
                     success: function(response) {

@@ -34,7 +34,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('settings/save','Settings::save');
     $routes->get('notifications/fetch','Notification::load');
     $routes->get('notifications','Notification::myNotifications'); 
-    $routes->get('notification/list','Notification::allnotification');
+    $routes->post('notification-list','Notification::allnotification');
     $routes->post('notification/view','Notification::view');
     //permissions 
     $routes->get('permisions','Permissions::checkpermission');
@@ -47,7 +47,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('staff','Staff::index');
     $routes->get('staff/create','Staff::create');
     $routes->post('staff/save','Staff::save');
-    $routes->get('staff/list','Staff::list');
+    $routes->Post('staff/list','Staff::list');
     $routes->get('staff/edit/(:any)','Staff::create/$1');
     $routes->post('staff/delete','Staff::delete');
     $routes->post('branch-staff','Staff::branchStaff');

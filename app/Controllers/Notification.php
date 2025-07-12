@@ -65,6 +65,9 @@ class Notification extends Controller{
             ]);
         }
 
+        $search = $this->request->getPost('search');
+        $filter = $this->request->getPost('filter');
+        
         $notify = $this->notifications->getStaffNotifications();
         foreach($notify as &$noti) {
             $noti['id'] = encryptor($noti['id']);
