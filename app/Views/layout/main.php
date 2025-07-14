@@ -797,6 +797,14 @@ if (!empty($userData)){
                         <span>Branches</span>
                     </a>
                 </li>
+
+                 <li class="nav-item">
+                    <a class="nav-link <?= strpos(uri_string(), 'dashboard/notifications') === 0 ? 'active' : '' ?>" href="<?= base_url('settings/projects') ?>">
+                        <i class="bi bi-bell"></i>
+                        <span>Branches</span>
+                        <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
+                    </a>
+                </li>
                 
                 <?php if ($userRole ==1): ?>
                     <!-- nav -->
