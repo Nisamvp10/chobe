@@ -79,6 +79,8 @@
 
             function renderTable(notify){
 
+                console.log(notify.length)
+
                 let notifyHtml = '';
 
                 if (notify.length === 0) {
