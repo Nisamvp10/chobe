@@ -131,7 +131,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 capitalize">Assign Staff & Roles</label>
                     <p class="block text-sm font-small text-gray-400 mb-1 capitalize">Assign staff and select their roles for this task.</p>
-                    <div id="participants" class="grid grid-cols-1 gap-4 pb-4"></div>
+                    <div id="participants" class="grid grid-cols-2 gap-4 pb-4"></div>
                 </div>
               </div>
             </div>

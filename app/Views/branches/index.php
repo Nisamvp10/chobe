@@ -41,7 +41,7 @@
                     </svg>
                     </div>
                     <select id="filerStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                    <option value="all">Account Status</option>
+                    <option value="all"></option>
                     <option value="0">Active</option>
                     <!-- <option value="on leave">On Leave</option> -->
                     <option value="1">Inactive</option>
@@ -93,6 +93,12 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Old Name</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rm Nme</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Store Mail ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rm Mail ID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oracle Code</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Polaris Code</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -118,6 +124,24 @@
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">${branch.location}</div>
+                                </td>
+                                 <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${branch.oldstore_name}</div>
+                                </td>
+                                 <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${branch.rm_store}</div>
+                                </td>
+                                 <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${branch.rm_mail}</div>
+                                </td>
+                                 <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${branch.store_mailid}</div>
+                                </td>
+                                 <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${branch.oracle_code}</div>
+                                </td>
+                                 <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${branch.polaris_code}</div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">${joinedDate}</div>

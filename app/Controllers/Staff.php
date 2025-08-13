@@ -8,6 +8,8 @@ use App\Models\UserModel;
 use App\Models\ServiceModel;
 use App\Models\SpecialtiesModel;
 use App\Models\CategoryModel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 
 class Staff extends BaseController{
     protected $branchModel;
@@ -35,6 +37,14 @@ class Staff extends BaseController{
         }
         return view('staff/index',compact('page','active','branches'));
     }
+
+    function bulkindex(){
+        $data = '';
+        $page = "Bulk Team Data Upload";
+      
+        return view('staff/bulk-create',compact('page','data'));
+    }
+    
 
     function create($id = false){
         
@@ -84,7 +94,7 @@ class Staff extends BaseController{
             'position' => 'required|min_length[2]|max_length[50]',
             'hire_date' => 'required|valid_date[Y-m-d]', // assuming YYYY-MM-DD
             'status' => 'required',
-            'branch' => 'required|numeric', // or string based on your table
+            //'branch' => 'required|numeric', // or string based on your table
             'role' => 'required',
         ];
         if (empty($id)) {
@@ -172,6 +182,69 @@ class Staff extends BaseController{
         ]);
     }
 
+    function uploadExcel() {
+        $status = false;
+        $message = '';
+        if(!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => $status ,'msg' => '"Invalid Request"']);
+        }
+        if(!haspermission('','create_staff') ) {
+            return $this->response->setJSON(['success' =>false,'message' => lang('Custom.accessDenied')]);
+        }
+
+         $file = $this->request->getFile('staff_excel');
+        
+        if (!$file->isValid() || $file->getExtension() === '') {
+            return $this->response->setJSON(['success' =>false,'message' => 'Please upload a valid Excel file']);
+        }
+
+        $ext = $file->getClientExtension();
+        if (!in_array($ext, ['xls', 'xlsx'])) {
+            return $this->response->setJSON(['success' =>false,'message' => 'Only .xls or .xlsx files allowed']);
+        }
+
+        $filePath = $file->getTempName();
+        $spreadsheet = IOFactory::load($filePath);
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
+
+        $staffModel = new UserModel();;
+        $count = 0;
+        $insertedMessages = [];
+
+        foreach ($rows as $index => $row) {
+            if ($index === 0) continue; // skip header row
+
+            $staffData = [
+                'name'           => $row[0] ?? '',
+                'email'          => $row[1] ?? '',
+                'phone'          => $row[2] ?? '',
+                'position'       => $row[3] ?? '',
+                'booking_status' => 1,
+                'role'           => 5, //inventory staff
+                'status'         => 2,
+            ];
+
+            if (!empty($staffData['name']) && !empty($staffData['email'])) {
+                if($staffModel->insert($staffData)) {
+                    $insertedMessages[] = " Staff {$staffData['name']} added successfully.";
+                }else {
+                    $insertedMessages[] = "Failed to add staff {$staffData['name']}.";
+                }
+                $count++;
+                
+            }
+        }
+
+        $insertedMessages[] = " All {$count} staff members uploaded successfully.";
+
+        return $this->response->setJSON([
+            'success'  => true,
+            'inserted' => $insertedMessages
+        ]);
+        
+    }
+
     function list() {
 
         if (!$this->request->isAJAX()) {
@@ -241,7 +314,7 @@ class Staff extends BaseController{
 
         $branchId = $this->request->getPost('branch');
         $userModel = new UserModel();
-        $branches = $userModel->getStaandffRole($branchId);
+        $branches = $userModel->getstaffRole($branchId);
 
         return $this->response->setJSON(['branches' => $branches]);
     }

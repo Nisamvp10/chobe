@@ -41,10 +41,10 @@
                     </svg>
                     </div>
                     <select id="filerStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                    <option value="all">Account Status</option>
-                    <option value="0">Active</option>
-                    <!-- <option value="on leave">On Leave</option> -->
-                    <option value="1">Inactive</option>
+                         <option value="all">All</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In_Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
                     </select>
                 </div>
             </div>
@@ -216,7 +216,7 @@
                     <label class="block font-medium">Due Date</label>
                     <input type="date" name="duedate" value="" id="duedate" class="w-full border px-3 py-2 rounded" />
                 </div>
-                <div class="items-center rounded-md cursor-pointer border-gray-300">
+                <div class="items-center rounded-md cursor-pointer border-gray-300 hidden">
                     <label class="block font-medium">Status</label>
                     <select name="status" class="w-full border px-3 py-2 rounded" id="taskStatus">
                         <option value="Pending">Pending</option>

@@ -20,7 +20,7 @@ $('#branch').on('change', function () {
                             <option value="team_leader">Team Leader</option>
                             <option value="team_coordinator">Team Coordinator</option>
                         </select>
-                         <select name="personpriority[]" class="role-select hidden mt-2 md:mt-0 border rounded px-2 py-1 text-sm" data-id="${client.id}">
+                         <select name="personpriority[]" class="role-select hidden mt-2 md:mt-0 border rounded px-2 py-1 text-sm hidden d-none" data-id="${client.id}">
                             <option desabled value="">Select a Priority</option>
                             <option value="1">High</option>
                             <option selected value="2">Medium</option>

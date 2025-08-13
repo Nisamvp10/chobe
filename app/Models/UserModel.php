@@ -13,15 +13,26 @@ Class UserModel extends Model{
     }
 
     function getUsers($search=false,$filter=false,$branch = false) {
-       $builder = $this->db->table('users as u')
-            ->select('u.id, u.name, u.email, u.phone, u.hire_date, u.profileimg, u.booking_status,u.status, u.position, r.role_name, b.branch_name as branch')
-            ->select('GROUP_CONCAT(c.category ORDER BY c.category SEPARATOR ", ") as specialties')
-            ->join('roles as r', 'r.id = u.role')
-            ->join('branches as b', 'b.id = u.store_id')
-            ->join('specialties as sp', 'sp.staff_id = u.id', 'left')
-            ->join('categories as c', 'c.id = sp.speciality', 'left')
-            ->groupBy('u.id')
-            ->orderBy('u.id', 'DESC');
+    //    $builder = $this->db->table('users as u')
+    //         ->select('u.id, u.name, u.email, u.phone, u.hire_date, u.profileimg, u.booking_status,u.status, u.position, r.role_name, b.branch_name as branch')
+    //         ->select('GROUP_CONCAT(c.category ORDER BY c.category SEPARATOR ", ") as specialties')
+    //         ->join('roles as r', 'r.id = u.role')
+    //         ->join('branches as b', 'b.id = u.store_id')
+    //         ->join('specialties as sp', 'sp.staff_id = u.id', 'left')
+    //         ->join('categories as c', 'c.id = sp.speciality', 'left')
+    //         ->groupBy('u.id')
+    //         ->orderBy('u.id', 'DESC');
+
+                $builder = $this->db->table('users as u')
+                ->select('u.id, u.name, u.email, u.phone, u.hire_date, u.profileimg, u.booking_status, u.status, u.position, r.role_name, b.branch_name as branch')
+                ->select('IFNULL(GROUP_CONCAT(c.category ORDER BY c.category SEPARATOR ", "), "") as specialties')
+                ->join('roles as r', 'r.id = u.role', 'left')
+                ->join('branches as b', 'b.id = u.store_id', 'left')
+                ->join('specialties as sp', 'sp.staff_id = u.id', 'left')
+                ->join('categories as c', 'c.id = sp.speciality', 'left')
+                ->groupBy('u.id')
+                ->orderBy('u.id', 'DESC');
+
 
 
             if($filter !== 'all' && !empty($filter)){
@@ -44,12 +55,14 @@ Class UserModel extends Model{
             return $builder->get()->getResultArray();
     }
     
-    function getStaandffRole($branchId =false) {
+    function getstaffRole($branchId =false) {
         $builder = $this->db->table('users as u')
             ->select('u.id,u.name,r.role_name as role')
-            ->join('roles as r','r.id = u.role')
-            ->where('u.store_id',$branchId)
-            ->get()->getResultArray();
-        return $builder;
+            ->join('roles as r','r.id = u.role');
+            if($branchId != 'all' && !empty($branchId)) {
+                $builder->where('u.store_id',$branchId);
+            }
+            
+        return $builder->get()->getResultArray();
     }
 }

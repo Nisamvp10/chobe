@@ -106,7 +106,7 @@
             $.ajax({
                 url : '<?=base_url('permissions/save');?>',
                 method:'POST',
-                data: $(this).serialize(),
+                data: $(this).serialize(), 
                 dataType : 'json',
                 success:function(response)
                 { 

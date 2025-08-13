@@ -51,6 +51,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('staff/edit/(:any)','Staff::create/$1');
     $routes->post('staff/delete','Staff::delete');
     $routes->post('branch-staff','Staff::branchStaff');
+    $routes->get('staff-upload', 'Staff::bulkindex');
+    $routes->post('staff-upload/uploadExcel', 'staff::uploadExcel');
     //branch
     $routes->get('branches','Branches::index');
     $routes->get('branch/create','Branches::create');

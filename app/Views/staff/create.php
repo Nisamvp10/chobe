@@ -17,14 +17,24 @@
     }?>
  <!-- titilebar -->
  <div class="flex items-center justify-between">
-    <div class="flex items-center gap-4">
-        <a href="<?=base_url('staff');?>" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left text-gray-500">
-            <path d="m12 19-7-7 7-7"></path>
-            <path d="M19 12H5"></path>
-            </svg>
-        </a> 
-        <h1 class="h3 mb-0"><?= $page ?? '' ?></h1>
+    <div class="col-lg-12">
+        <div class="d-flex justify-content-between align-items-center mb-0">
+            <a href="<?=base_url('staff');?>" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left text-gray-500">
+                <path d="m12 19-7-7 7-7"></path>
+                <path d="M19 12H5"></path>
+                </svg>
+            </a> 
+            <h1 class="h3 mb-0 text-left"><?= $page ?? '' ?></h1>
+            <?php
+            if(haspermission(session('user_data')['role'],'create_task')) { ?>
+                <div>
+                    <a href="<?= base_url('staff-upload') ?>" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Bulk Team Data Upload 
+                    </a>
+                </div>
+            <?php } ?>
+        </div>
     </div>
 </div><!-- closee titilebar -->
 
@@ -118,19 +128,25 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Hire Date</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-calendar text-xl text-gray-400"></i></div>
-                        <input type="date" value="<?= date('Y-m-d',strtotime($hire_date)) ?>"  name="hire_date"  id="hire_date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Hire Date">
+                        <input type="date" value="<?= ($hire_date ? date('Y-m-d',strtotime($hire_date)) :'') ?>"  name="hire_date"  id="hire_date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Hire Date">
                         <div class="invalid-feedback" id="hire_date_error"></div>
                     </div>
                 </div>
+                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-eye text-xl text-gray-400"></i></div>
+                        <!-- Eye Icon (clickable) -->
+                        <div id="togglePassword" class="absolute inset-y-0 left-0 pl-3 mt-2  items-center cursor-pointer">
+                            <i class="bi bi-eye text-xl text-gray-400"></i>
+                        </div>
+
+                        <!-- Password Input -->
                         <input type="password" name="password"  id="password" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Password">
                         <div class="invalid-feedback" id="password_error"></div>
                     </div>
                 </div>
-                
+                                
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                     <div class="relative">
@@ -286,5 +302,23 @@
       options.forEach(option => dropdown.appendChild(option));
     }
   });
+
+
+    document.getElementById("togglePassword").addEventListener("click", function() {
+        const passwordField = document.getElementById("password");
+        const icon = this.querySelector("i");
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            icon.classList.remove("bi-eye");
+            icon.classList.add("bi-eye-slash");
+        } else {
+            passwordField.type = "password";
+            icon.classList.remove("bi-eye-slash");
+            icon.classList.add("bi-eye");
+        }
+    });
+
+
 </script>
 <?= $this->endSection();?>

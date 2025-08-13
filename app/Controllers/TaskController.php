@@ -158,7 +158,7 @@ class TaskController extends Controller {
                             'task_id'  => $taskId,
                             'staff_id' => $staff,
                             'role'     => $role[$index], 
-                            'priority'     => $personPriority[$index], 
+                            'priority' =>  $this->request->getPost('priority'),// $personPriority[$index], 
                         ];
                         $notify = [
                             'user_id' =>  $staff,

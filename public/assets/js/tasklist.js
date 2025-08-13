@@ -77,7 +77,7 @@
             onclick="openTaskModal(this)"
             data-title="${task.title}"
             data-desc="${task.description}"
-            data-branch="${task.branch_name}"
+            data-branch="${(task.branch_name ? task.branch_name  :'all') }"
             data-status="${task.status}"
             data-progress="${progress}%"
             data-date="${duedateText}"
@@ -85,7 +85,7 @@
             data-duration="${task.duration}"
             data-profiles='${JSON.stringify(task.users)}'
             data-duedate='${task.overdue_date}'
-            data-store='${task.storeId}'
+            data-store="${(task.storeId ? task.storeId  :'all') }"
             data-progressbar="${task.progress}"
             data-cls="${priority}"
             data-doc="${task.ducument}"
@@ -246,7 +246,7 @@
 
 
 function openTaskModal(el) {
-
+    console.log(el.dataset.store)
     const modal = document.getElementById('taskModal');
     const progressEl = document.getElementById('progressIndicator');
     const progressSlider = document.getElementById('progressBar');
@@ -283,7 +283,6 @@ function openTaskModal(el) {
 
     //edit data
     const taskEdit = document.getElementById('taskEditForm');
-
     // Populate fields from data attributes
     taskEdit.querySelector('#title').value = el.dataset.title || '';
     taskEdit.querySelector('#description').value = el.dataset.desc || '';
@@ -428,7 +427,7 @@ function toggleReplay() {
                 <option ${staff.role == "team_leader" ? 'selected':''} value="team_leader">Team Leader</option>
                 <option ${staff.role == "team_coordinator" ? 'selected':''} value="team_coordinator">Team Coordinator</option>
             </select>
-            <select name="personpriority[]" class="role-select mx-2 mt-2 md:mt-0 border rounded px-2 py-1 text-sm" >
+            <select name="personpriority[]" class="role-select mx-2 mt-2 md:mt-0 border rounded px-2 py-1 text-sm hidden" >
                 <option desabled value="">Select a Priority</option>
                 <option  ${staff.userPriority == 1 ? "selected" : ""} value="1">High</option>
                 <option  ${staff.userPriority == 2 ? "selected" : ""}  value="2">Medium</option>

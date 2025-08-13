@@ -10,12 +10,26 @@ class TaskModel extends Model {
  
     function getTasks($limit=false,$orderBy=false) {
 
+        // $builder = $this->db->table('tasks as t')
+        //             ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role,a.priority as userPriority,ti.image_url')
+        //             ->join('branches as b','t.branch = b.id')
+        //             ->join('task_assignees as a','t.id = a.task_id')
+        //             ->join('task_images ti', 't.id = ti.task_id', 'left')
+        //             ->join('users u','a.staff_id =u.id');
+
         $builder = $this->db->table('tasks as t')
-                    ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role,a.priority as userPriority,ti.image_url')
-                    ->join('branches as b','t.branch = b.id')
-                    ->join('task_assignees as a','t.id = a.task_id')
-                    ->join('task_images ti', 't.id = ti.task_id', 'left')
-                    ->join('users u','a.staff_id =u.id');
+            ->select('
+                t.id, t.title, t.description, t.status, t.completed_at, 
+                t.priority, t.overdue_date, b.branch_name, b.id as store, 
+                t.created_at, u.profileimg, u.name, u.id as userId, 
+                t.progress, a.role, a.priority as userPriority, ti.image_url
+            ')
+            ->join('branches as b', 'b.id = t.branch', 'left')
+            ->join('task_assignees as a', 'a.task_id = t.id')
+            ->join('users as u', 'u.id = a.staff_id')
+            ->join('task_images as ti', 'ti.task_id = t.id', 'left')
+            ->orderBy('t.id', 'DESC');
+            
                     if(session('user_data')['role'] != 1 ) {
                         $builder->where('a.staff_id',session('user_data')['id']);
                     }

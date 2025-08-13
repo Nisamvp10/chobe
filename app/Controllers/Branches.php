@@ -58,12 +58,27 @@ class Branches extends Controller{
 
         $branch   = $this->request->getVar('branch');
         $location = $this->request->getVar('location');
+
+        $rmname = $this->request->getVar('rmname');
+        $rm_mail = $this->request->getVar('rm_mail');
+        $oldstore = $this->request->getVar('oldstore');
+        $storemail = $this->request->getVar('storemail');
+        $polaris_code = $this->request->getVar('polaris_code');
+        $oracle_code = $this->request->getVar('oracle_code');
+
         $id       = decryptor($this->request->getVar('branchId'));
 
         $data = [
             'branch_name' => $branch,
             'location'  => $location,
+            'oldstore_name' => $oldstore,
+            'store_mailid' => $storemail,
+            'polaris_code' => $polaris_code,
+            'oracle_code' => $oracle_code,
+            'rm_store'  => $rmname,
+            'rm_mail' => $rm_mail
         ];
+
         if($id){
             if($this->branchModel->update($id, $data)){
                 
