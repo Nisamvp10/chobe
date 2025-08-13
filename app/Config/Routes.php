@@ -36,6 +36,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('notifications','Notification::myNotifications'); 
     $routes->post('notification-list','Notification::allnotification');
     $routes->post('notification/view','Notification::view');
+    $routes->get('admin/task/pending','TaskController::index/pending');
+    $routes->get('admin/task/in-progress','TaskController::index/in-progress');
     //permissions 
     $routes->get('permisions','Permissions::checkpermission');
     $routes->get('permisions/list','Permissions::list');
@@ -98,6 +100,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('task/update_status','TaskController::update_status');
     $routes->post('task/update','TaskController::save');
     $routes->get('tasks/notification-task/(:any)','TaskController::notificationTask/$1');
+    $routes->delete('task/delete/(:any)', 'TaskController::delete/$1');
     //replay
     $routes->get('tasks/my-tasks','TaskController::myTask');
     $routes->get('task/my-task','TaskController::myTaskList');

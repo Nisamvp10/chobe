@@ -1,14 +1,20 @@
 
  //$(document).ready(function() {
-    
-    function loadTask(search = '') {
-
-        let filer = $('#filerStatus').val();
+    $('#taskFilerStatus').on('change',function() {
+        loadTask();
+    })
+    $('#searchInput').on('input',function(){
+        let value = $(this).val();
+        loadTask(value);
+    })
+    function loadTask(search = '',startDate ='', endDate='') {
+        
+        let  filter = $('#taskFilerStatus').val();
         $.ajax({
 
             url: App.getSiteurl()+'task/tasklist',
             type: "GET",
-            data: { search: search,filer:filer },
+            data: { search: search,filter:filter,startDate:startDate,endDate:endDate},
             dataType: "json",
             success: function(response) {
                 
@@ -97,7 +103,7 @@
                 <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${priority}">${task.priority}</span>
             </div>
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
-            <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium">${task.branch_name}</span></div>
+            <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium nixx">${(task.branch_name ==null ? 'All Brach' : task.branch_name)}</span></div>
             <div >
             <div class="d-flex align-items-center mb-2">
                 <div class="w-full justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
@@ -246,7 +252,7 @@
 
 
 function openTaskModal(el) {
-    console.log(el.dataset.store)
+   
     const modal = document.getElementById('taskModal');
     const progressEl = document.getElementById('progressIndicator');
     const progressSlider = document.getElementById('progressBar');
@@ -261,6 +267,8 @@ function openTaskModal(el) {
     // Fill modal fields from data attributes
     let gettaskId =  modal.querySelector('.modal-title').textContent = el.dataset.id;
     taskId.value = gettaskId;
+    $('.delete-task').attr('data-title', el.dataset.title);
+
     modal.querySelector('.modal-title').textContent = el.dataset.title;
     modal.querySelector('.modal-desc').textContent = el.dataset.desc;
     modal.querySelector('.modal-branch').textContent = el.dataset.branch;
@@ -482,3 +490,91 @@ $('#taskEditForm').on('submit', function(e) {
         }
     })
 })
+
+
+$(function() {
+    $('#filterDate').daterangepicker({
+        opens: 'left',
+        autoUpdateInput: false,
+        locale: {
+            cancelLabel: 'Clear',
+            format: 'DD-MM-YYYY'
+        },
+        ranges: {
+           'Today': [moment(), moment()],
+           'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+           'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+           'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+           'This Month': [moment().startOf('month'), moment().endOf('month')],
+           'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    });
+
+    // Apply event
+    $('#filterDate').on('apply.daterangepicker', function(ev, picker) {
+         let startDate = picker.startDate.format('YYYY-MM-DD');
+        let endDate = picker.endDate.format('YYYY-MM-DD');
+        $(this).val(startDate + ' to ' + endDate);
+        let search = $('#searchInput').val();
+        loadTask(search,startDate, endDate)     
+
+        
+    });
+
+    // Cancel event
+    $('#filterDate').on('cancel.daterangepicker', function(ev, picker) {
+        $(this).val('');
+        $('#results').empty();
+    });
+});
+
+let selectedTaskId = null;
+
+function deleteTask(e){
+    let taskTitle ='';
+    selectedTaskId = $('#taskEditForm #taskId').val(); // store the clicked task ID
+    //let taskTitle = $(e).data('title');
+    // Update modal message
+    $('#deleteTaskMessage').text(`Are you sure you want to delete ? This action cannot be undone.`);
+
+    // Show modal "${taskTitle}"
+    //$('#deleteModal').modal('show');
+};
+
+// Confirm delete click
+$('#confirmDeleteTask').on('click', function () {
+     $('#confirmDeleteTask').prop('disabled', true).html(
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...'
+    );
+    if (selectedTaskId) {
+
+        $.ajax({
+            url: App.getSiteurl()+`task/delete/${selectedTaskId}`, 
+            type: 'POST',
+            dataType:'json',
+            data: { _method: 'DELETE' }, // if using method spoofing in CI4
+            success: function (response) {
+               if(response.status == true) {
+                 setTimeout(function () {
+                    $('#deleteModal').modal('hide');
+                    $('.modal-backdrop').remove(); // remove the dark background
+                    $('body').removeClass('modal-open'); // remove scroll lock
+                     $('#confirmDeleteTask').prop('disabled', false).html(
+                        'Delete'
+                    );
+                     loadTask();
+                     closeTaskModal();
+                }, 2000);
+                
+                toastr.success(response.msg);
+               }else{
+                toastr.error(response.msg);
+               }
+               
+            },
+            error: function () {
+                toastr.error('Error deleting task');
+            }
+        });
+    }
+});

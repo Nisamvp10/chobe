@@ -1,5 +1,8 @@
 <?= $this->extend('layout/main') ?>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
 <?= $this->section('content') ?>
+
     <!-- titilebar -->
     <div class="flex items-center justify-between">
         <div class="col-lg-12">
@@ -29,9 +32,16 @@
                     <path d="m21 21-4.3-4.3"></path>
                 </svg>
                 </div>
-                <input type="text" id="searchInput" placeholder="Search branch by name, or location..." class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                <input type="text" id="searchInput" placeholder="Search Task title..." class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
             </div>
-            
+             <div class="flex-1 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+               <i class="bi bi-calendar"></i>
+                </div>
+                <input type="text" id="filterDate" placeholder="Filter by date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+                
+
             <!-- Column 2: Status Dropdown -->
             <div class="w-full md:w-48">
                 <div class="relative">
@@ -40,17 +50,17 @@
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                     </svg>
                     </div>
-                    <select id="filerStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
+                    <select id="taskFilerStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
                          <option value="all">All</option>
-                        <option value="Pending">Pending</option>
-                        <option value="In_Progress">In Progress</option>
+                        <option <?=($taskStatus == 'pending' ? 'selected' :'') ;?> value="Pending">Pending</option>
+                        <option <?=($taskStatus == 'in-progress' ? 'selected' :'') ;?> value="In_Progress">In Progress</option>
                         <option value="Completed">Completed</option>
                     </select>
                 </div>
             </div>
             </div>
             <!-- table -->
-             <div class="overflow-x-auto">
+             <div class="overflow-x-auto" id="tasktbl" >
                 <div class="flex h-full gap-6 p-0">
                     <div class="flex flex-col h-full bg-gray-50 rounded-lg p-4 min-w-[300px]">
                         <div class="flex items-center justify-between mb-4">
@@ -91,7 +101,7 @@
 
 <!-- Modal -->
 <div id="taskModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-100 hidden" onclick="closeTaskModal(event)">
-  <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4  flex flex-col">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-w-3xl flex flex-col">
     <!-- head -->
      <div class="p-4 border-b flex justify-between items-center">
         <h2 class="text-xl font-semibold text-gray-800 modal-title"></h2>
@@ -99,7 +109,11 @@
             <button onclick="toggleHistory()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100" title="View History">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock "><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             </button>
-            <button onclick="toggleEditForm()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen "><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg></button><button class="p-1.5 rounded-md text-gray-500 hover:bg-red-100 hover:text-red-600"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash "><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg></button>
+            <?php if(hasPermission('','task_edit')) {?>
+                <button onclick="toggleEditForm()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen "><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg></button>
+            <?php } if(hasPermission('','task_delete')) {?>
+                <button  class="p-1.5 rounded-md text-gray-500 hover:bg-red-100 hover:text-red-600 delete-task"  data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="deleteTask(this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash "><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg></button>
+            <?php } ?>
             <button onclick="closeTaskModal()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x "><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button></div></div>
      <!-- close Head -->
    
@@ -246,9 +260,41 @@
   </div>
 </div>
 
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Task</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="deleteTaskMessage">Are you sure you want to delete this Task? This action cannot be undone.</p>
+        <p id="deleteTaskMessage">This is Demo version </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="dutton" class="btn btn-danger" id="confirmDeleteTask">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- close Modal -->
 <?= $this->endSection(); ?>
 <?= $this->section('scripts') ?>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Moment.js (must be before daterangepicker.js) -->
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+<!-- Date Range Picker -->
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
 
     <script src="<?=base_url('public/assets/js/tasklist.js') ?>" ></script>
     <script src="<?=base_url('public/assets/js/task.js') ;?>" ></script>

@@ -8,7 +8,7 @@ class TaskModel extends Model {
     protected $allowedFields= ['id','title','description','status','project_id','priority','progress','branch','overdue_date','completed_at'];
     protected $primaryKey ='id';
  
-    function getTasks($limit=false,$orderBy=false) {
+    function getTasks($limit=false,$orderBy=false,$filter = false,$searchInput=false,$startDate=false,$endDate=false) {
 
         // $builder = $this->db->table('tasks as t')
         //             ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role,a.priority as userPriority,ti.image_url')
@@ -29,16 +29,29 @@ class TaskModel extends Model {
             ->join('users as u', 'u.id = a.staff_id')
             ->join('task_images as ti', 'ti.task_id = t.id', 'left')
             ->orderBy('t.id', 'DESC');
+            if($filter && $filter != 'all')  {
+               // $filter = ($filter == 'pending' ? 'Pending' : ($filter == "progress" ? 'In_Progres' :'Completed'));
+                $builder->where('t.status',$filter);
+            }
+            if($searchInput) {
+                 $builder->like('t.title',$searchInput);
+            }
+            if(!empty($startDate) && !empty($endDate)) {
+                $startDate = date('Y-m-d 00:00:00', strtotime($startDate));
+                $endDate   = date('Y-m-d 23:59:59', strtotime($endDate));
+                $builder->where('t.created_at >=', $startDate);
+                $builder->where('t.created_at <=', $endDate);
+            }
             
-                    if(session('user_data')['role'] != 1 ) {
-                        $builder->where('a.staff_id',session('user_data')['id']);
-                    }
-                    if ($orderBy) {
-                        $builder->orderBy($orderBy);
-                    }
-                    if ($limit) {
-                        $builder->limit($limit);
-                    }
+            if(session('user_data')['role'] != 1 ) {
+                $builder->where('a.staff_id',session('user_data')['id']);
+            }
+            if ($orderBy) {
+                $builder->orderBy($orderBy);
+            }
+            if ($limit) {
+                $builder->limit($limit);
+            }
 
         $result = $builder->get()->getResultArray();
         return $result;

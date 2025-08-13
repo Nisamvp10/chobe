@@ -1598,6 +1598,9 @@
     }
   }
   @media (min-width: 768px) {
+    .max-w-3xl {
+      max-width: 62rem; /* 768px */
+    }
   
     .md\:block {
       display: block;

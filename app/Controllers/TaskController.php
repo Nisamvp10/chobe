@@ -29,11 +29,12 @@ class TaskController extends Controller {
         
     }
 
-    function index() {
+    function index($taskStatus= false) {
 
         $page = "Tasks";
         $branches = $this->branchModel->where('status','active')->findAll();
-        return view('admin/task/index',compact('page','branches'));
+        $taskStatus = $taskStatus;
+        return view('admin/task/index',compact('page','branches','taskStatus'));
     }
 
     function create() {
@@ -106,7 +107,7 @@ class TaskController extends Controller {
             $staffs = $this->request->getPost('staff');
             $roles  = $this->request->getPost('role') ?? [];
             $personPriority  = $this->request->getPost('personpriority') ?? [];
-
+           
             foreach ($staffs as $index => $staffId) {
                 $roleId = $roles[$index];
                 $personPriorityId =  $personPriority[$index];
@@ -144,39 +145,44 @@ class TaskController extends Controller {
             $validMsg =  $update ? 'Task updated' : 'Failed to update task';
         }else{
                 $personPriority  = $this->request->getPost('personpriority');
-            if ($taskId = $this->taskModel->insert($data)) {
+                $staffs = $this->request->getPost('staff');
+                if(!empty($staffs)) {
+                        if ($taskId = $this->taskModel->insert($data)) {
 
-                    $taskFiles['task_id'] = $taskId;
-                    $this->taskImgModel->insert($taskFiles);
+                        $taskFiles['task_id'] = $taskId;
+                        $this->taskImgModel->insert($taskFiles);
                     
-                    $staffs = $this->request->getPost('staff');
-                    $role =   $this->request->getPost('role');
-                    $personPriority  = $this->request->getPost('personpriority');
-
-                    foreach ($staffs as $index => $staff) {
-                        $assign = [
-                            'task_id'  => $taskId,
-                            'staff_id' => $staff,
-                            'role'     => $role[$index], 
-                            'priority' =>  $this->request->getPost('priority'),// $personPriority[$index], 
-                        ];
-                        $notify = [
-                            'user_id' =>  $staff,
-                            'task_id'   => $taskId,
-                            'type'    => 'new_task',
-                            'title'   => 'New Task',
-                            'created_by' => session('user_data')['id'],
-                            'message' => 'A new Task has been created by .'.session('user_data')['username']
-                        ];
-                        
-                        $this->taskassignModel->insert($assign);
-                        $this->notificationModel->insert($notify);
-                    }
-                    $validStatus = true;
-                    $validMsg = 'New Task Added Successfully';
-            }
-            else {
-                $validMsg = lang('Custom.formError');
+                        $role =   $this->request->getPost('role');
+                        $personPriority  = $this->request->getPost('personpriority');
+                
+                            foreach ($staffs as $index => $staff) {
+                                $assign = [
+                                    'task_id'  => $taskId,
+                                    'staff_id' => $staff,
+                                    'role'     => $role[$index], 
+                                    'priority' =>  $this->request->getPost('priority'),// $personPriority[$index], 
+                                ];
+                                $notify = [
+                                    'user_id' =>  $staff,
+                                    'task_id'   => $taskId,
+                                    'type'    => 'new_task',
+                                    'title'   => 'New Task',
+                                    'created_by' => session('user_data')['id'],
+                                    'message' => 'A new Task has been created by .'.session('user_data')['username']
+                                ];
+                                
+                                $this->taskassignModel->insert($assign);
+                                $this->notificationModel->insert($notify);
+                            }
+                            $validStatus = true;
+                            $validMsg = 'New Task Added Successfully';
+                    
+                    
+                }else {
+                    $validMsg = lang('Custom.formError');
+                }
+            } else{
+                $validMsg = 'Please select at least one participant for the task ';
             }
         }
         return $this->response->setJSON(['success' => $validStatus,'message' => $validMsg]);
@@ -196,7 +202,11 @@ class TaskController extends Controller {
                 'message' => 'Permission Denied'
             ]);
         }
-        $alltask = $this->taskModel->getTasks('',''); // or ->findAll()
+        $filter = $this->request->getGet('filter');
+        $searchInput = $this->request->getGet('search');
+        $startDate = $this->request->getGet('startDate');
+        $endDate = $this->request->getGet('endDate');
+        $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate); // or ->findAll()
         $groupData = [];
 
         foreach ($alltask as &$task) {
@@ -374,6 +384,22 @@ class TaskController extends Controller {
 
         $taskId = $this->notificationModel->where('id', $notificationId)->first()['task_id'] ?? null; 
         return view('admin/task/mytask',compact('page','taskId'));
+    }
+
+    public function delete($id)
+    {
+        $taskModel =  $this->taskModel;
+
+        if(!hasPermission('','task_delete')) {
+            return $this->response->setJSON(['status' => false,'msg'=>lang('Custom.accessDenied')]);
+        }
+
+        if ($taskModel->find(decryptor($id))) {
+            //$taskModel->delete($id);
+            return $this->response->setJSON(['status' => true,'msg' => 'Task deleted successfully!']);
+        }
+
+        return $this->response->setJSON(['status' => false, 'msg' => 'Task not found']);
     }
     
 }
