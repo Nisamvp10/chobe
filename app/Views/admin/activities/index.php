@@ -115,6 +115,7 @@
         <div class="bg-white rounded-lg  overflow-hidden p-2">
             <form id="taskCreate" method="post">
                  <?= csrf_field() ?>
+                 <input type="hidden" name="taskId" id="taskId" value="<?=encryptor($activityId);?>" >
                 <div class="grid grid-cols-1 gap-4 pb-4">
 
                     <div class="w-full">
@@ -171,7 +172,7 @@
                                     ?>
                                     <div class="staff-wrapper border rounded-md p-3 flex items-center justify-between">
                                         <div class="flex items-center space-x-2">
-                                            <input type="checkbox" name="staff[]" class="staff-checkbox" data-id="1" value="<?=$taffkey['name'];?>" id="staff-1">
+                                            <input type="checkbox" name="staff[]" class="staff-checkbox" data-id="1" value="<?=$taffkey['id'];?>" id="staff-1">
                                             <label for="staff-1"><?=$taffkey['name'];?></label>
                                         </div>
                                     </div>

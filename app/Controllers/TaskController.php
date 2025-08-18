@@ -9,6 +9,7 @@ use App\Models\NotificationModel;
 use App\Models\TaskimagesModel;
 use App\Controllers\UploadImages;
 use App\Models\ProjectsModel;
+use App\Models\ActivityModel;
 class TaskController extends Controller {
 
     protected $branchModel;
@@ -18,6 +19,7 @@ class TaskController extends Controller {
     protected $taskImgModel;
     protected $uploadImg;
     protected $projects;
+    protected $activityModel;
     function __construct() {
         $this->branchModel = new BranchesModel();
         $this->taskModel = new TaskModel();
@@ -26,6 +28,7 @@ class TaskController extends Controller {
         $this->taskImgModel = new TaskimagesModel();
         $this->uploadImg = new UploadImages();
         $this->projects = new ProjectsModel();
+        $this->activityModel = new ActivityModel();
         
     }
 
@@ -33,8 +36,9 @@ class TaskController extends Controller {
 
         $page = "Tasks";
         $branches = $this->branchModel->where('status','active')->findAll();
+        $projects = $this->projects->where('is_active',1)->findAll();
         $taskStatus = $taskStatus;
-        return view('admin/task/index',compact('page','branches','taskStatus'));
+        return view('admin/task/index',compact('page','branches','taskStatus','projects'));
     }
 
     function create() {
@@ -220,6 +224,9 @@ class TaskController extends Controller {
                     'storeId'   => $task['store'],
                     'description' => $task['description'],
                     'branch_name' => $task['branch_name'],
+                    'total_activities' => $this->activityModel->where('task_id',$task['id'])->countAllResults(),
+                    'completed_activities' =>$this->activityModel->where(['task_id'=>$task['id'],'status' => 'completed'])->countAllResults(),//$task['completed_activities'],
+                    'project'   => $task['project_id'],
                     'priority'  => $task['priority'],
                     'status'    => $task['status'],
                     'overdue_date' => $task['overdue_date'],
@@ -276,8 +283,10 @@ class TaskController extends Controller {
                 'message' => 'Permission Denied'
             ]);
         }
+        $filter = $this->request->getGet('filter');
         $notifiytask = $this->request->getGet('notifiytask');
-        $alltasks = $this->taskModel->getMytask('','',$notifiytask); // or ->findAll()
+        $alltasks = $this->taskModel->getMytask('','',$notifiytask,$filter); // or ->findAll()
+        //echo $this->taskModel->getLastQuery();
         $groupData = [];
         foreach ($alltasks as &$task) {
             $taskId = $task['id'];
@@ -290,6 +299,9 @@ class TaskController extends Controller {
                     'storeId'   => $task['store'],
                     'description' => $task['description'],
                     'branch_name' => $task['branch_name'],
+                    'project'   => $task['project_id'],
+                    'total_activities' => $this->activityModel->where('task_id',$task['id'])->countAllResults(),
+                    'completed_activities' =>$this->activityModel->where(['task_id'=>$task['id'],'status' => 'completed'])->countAllResults(),
                     'priority'  => $task['priority'],
                     'status'    => $task['status'],
                     'overdue_date' => $task['overdue_date'],

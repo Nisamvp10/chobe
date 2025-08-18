@@ -196,6 +196,23 @@
         </div>
 
         <div >
+          <label class="block mb-1 font-medium">Project</label>
+          <select id="project" name="project" class="w-full border px-3 py-2 rounded">
+            <option value="">Select Project</option>
+            <option value="all"  >All</option>
+            <?php
+                if(!empty($projects)){
+                    foreach($projects as $project){
+                    ?>
+                        <option  value="<?=$project['id'];?>"><?=$project['project'];?></option>
+                    <?php 
+                    } 
+                } ?>
+          </select>
+           <div class="invalid-feedback" id="project_error"></div>
+        </div>
+
+        <div >
           <label class="block mb-1 font-medium">Branch</label>
           <select id="branch" name="branch" class="w-full border px-3 py-2 rounded">
             <option value="">Select Branch</option>

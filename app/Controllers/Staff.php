@@ -214,12 +214,13 @@ class Staff extends BaseController{
 
         foreach ($rows as $index => $row) {
             if ($index === 0) continue; // skip header row
-
+            
             $staffData = [
                 'name'           => $row[0] ?? '',
                 'email'          => $row[1] ?? '',
                 'phone'          => $row[2] ?? '',
                 'position'       => $row[3] ?? '',
+                'password' => password_hash($row[4] ?? '', PASSWORD_DEFAULT),
                 'booking_status' => 1,
                 'role'           => 5, //inventory staff
                 'status'         => 2,

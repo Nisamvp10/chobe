@@ -19,7 +19,7 @@ class TaskModel extends Model {
 
         $builder = $this->db->table('tasks as t')
             ->select('
-                t.id, t.title, t.description, t.status, t.completed_at, 
+                t.id, t.title, t.description, t.status, t.completed_at, t.project_id,
                 t.priority, t.overdue_date, b.branch_name, b.id as store, 
                 t.created_at, u.profileimg, u.name, u.id as userId, 
                 t.progress, a.role, a.priority as userPriority, ti.image_url
@@ -58,7 +58,7 @@ class TaskModel extends Model {
                     
     }
 
-     function getMytask($limit=false,$orderBy=false,$notificationTask=false) {
+     function getMytask($limit=false,$orderBy=false,$notificationTask=false,$filter=false) {
 
         $userId = session('user_data')['id'];
 
@@ -72,15 +72,33 @@ class TaskModel extends Model {
         $myTaskIds = array_column($taskIds, 'task_id');
 
 
+        //  $builder = $this->db->table('tasks as t')
+        //             ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.project_id,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role,a.priority as userPriority,ti.image_url')
+        //             ->join('branches as b','t.branch = b.id')
+        //             ->join('task_assignees as a','t.id = a.task_id')
+        //              ->join('task_images ti', 't.id = ti.task_id', 'left')
+        //             ->join('users u','a.staff_id =u.id')
+        //              ->whereIn('t.id', $myTaskIds);
          $builder = $this->db->table('tasks as t')
-                    ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role,a.priority as userPriority,ti.image_url')
-                    ->join('branches as b','t.branch = b.id')
-                    ->join('task_assignees as a','t.id = a.task_id')
-                     ->join('task_images ti', 't.id = ti.task_id', 'left')
-                    ->join('users u','a.staff_id =u.id')
-                     ->whereIn('t.id', $myTaskIds);
+            ->select('
+                t.id, t.title, t.description, t.status, t.completed_at, t.project_id,
+                t.priority, t.overdue_date, b.branch_name, b.id as store, 
+                t.created_at, u.profileimg, u.name, u.id as userId, 
+                t.progress, a.role, a.priority as userPriority, ti.image_url
+            ')
+            ->join('branches as b', 'b.id = t.branch', 'left')
+            ->join('task_assignees as a', 'a.task_id = t.id')
+            ->join('users as u', 'u.id = a.staff_id')
+            ->join('task_images as ti', 'ti.task_id = t.id', 'left')
+            ->whereIn('t.id', $myTaskIds)
+            ->orderBy('t.id', 'DESC');
+
                     if ($orderBy) {
                         $builder->orderBy($orderBy);
+                    }
+                     if($filter && $filter != 'all')  {
+                    // $filter = ($filter == 'pending' ? 'Pending' : ($filter == "progress" ? 'In_Progres' :'Completed'));
+                        $builder->where('t.status',$filter);
                     }
                     if($notificationTask) {
                         $builder->where('t.id',$notificationTask);

@@ -1,14 +1,17 @@
 
  //$(document).ready(function() {
-    
+     $('#filerStatus').on('change',function() {
+        loadTask();
+    })
+
     function loadTask(search = '') {
         let notifytask = document.getElementById('taskTable').dataset.tskId;
-        let filer = $('#filerStatus').val();
+        let filter = $('#filerStatus').val();
         $.ajax({
 
             url: App.getSiteurl()+'task/my-task',
             type: "GET",
-            data: { search: search,filer:filer,list:1,notifiytask : notifytask},
+            data: { search: search,filter:filter,list:1,notifiytask : notifytask},
             dataType: "json",
             success: function(response) {
                 

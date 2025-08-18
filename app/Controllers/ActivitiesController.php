@@ -31,8 +31,8 @@ protected $staffModal;
         }
         $data = '';
         
-      
-        return view('admin/activities/index',compact('page','data','id','staff'));
+        $activityId =$id;
+        return view('admin/activities/index',compact('page','data','id','staff','activityId'));
     } 
 
     function save () {
@@ -97,6 +97,19 @@ protected $staffModal;
             }
         
         return $this->response->setJSON(['success' => $validStatus,'message' => $validMsg]);
+    }
+
+    function activitiList() {
+        $activityId = $this->request->getPost('activity');
+
+        if(!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false , 'msg' => lang('Custom.invalidRequest')]);
+        }
+
+        if(!haspermission('','create_task')) {
+            return $this->response->setJSON(['success' => false, 'message' => lang('Custom.accessDenied')]);
+        }
+        
     }
 
 
