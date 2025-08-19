@@ -126,12 +126,11 @@
                 <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
             </div>
            <div class="flex space-x-1 flex justify-between items-center gap-2 ">
-           ${totalTasks > 0 ? `
             <div>
                 <a href="${ectivitUrl}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 ">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity h-4 w-4 mr-2" data-lov-id="src/components/TaskCard.tsx:96:12" data-lov-name="Activity" data-component-path="src/components/TaskCard.tsx" data-component-line="96" data-component-file="TaskCard.tsx" data-component-name="Activity" data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg> View Activities (${task.total_activities ?? 0})
                 </a>
-            </div>` :`
+            </div>
             <div>
                 <a class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-info text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 "  
                         data-id="${task.id}" 
@@ -152,7 +151,7 @@
                         data-cls="${priority}"
                         data-project="${task.project}"
                         data-doc="${task.ducument}">View 
-                    </a>`}
+                    </a>
             </div>
            </div>
         </div>
