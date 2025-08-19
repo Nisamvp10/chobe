@@ -10,11 +10,12 @@
     function loadTask(search = '',startDate ='', endDate='') {
         
         let  filter = $('#taskFilerStatus').val();
+        let taskId = $('#tasktbl').data('task');
         $.ajax({
 
-            url: App.getSiteurl()+'task/tasklist',
+            url: App.getSiteurl()+'task/activities',
             type: "GET",
-            data: { search: search,filter:filter,startDate:startDate,endDate:endDate},
+            data: { task:taskId,search: search,filter:filter,startDate:startDate,endDate:endDate},
             dataType: "json",
             success: function(response) {
                 if (response.success) {
@@ -39,81 +40,73 @@
                 </div>`;
         }else{
             
-            html += `
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% Completed</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">duration</th>
-
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-            `;
+          
             tasks.forEach(task => {
             const dueDate = new Date(task.overdue_date);
+            const createdOn = new Date(task.createdAt);
             const today = new Date();
             dueDate.setHours(0, 0, 0, 0);
             today.setHours(0, 0, 0, 0);
 
             let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
             let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900';
+
+            let createdOnText = createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
             
 
             
                 var priority = (task.priority =='High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
-                var status = (task.status =='Pending' ? 'bg-task-medium text-white' : (task.priority == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.priority == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
-                const progress = task.progress;
+                var status = (task.status =='Pending' ? 'bg-red-500 text-white' : (task.status == "In_Progress" ? 'bg-yellow-500 text-yellow-800' : (task.status == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
+                const progress = task.progress ?? 0;
 
 
                 // 
             let ectivitUrl = App.getSiteurl()+`activities/${task.id}`;
-
-            const totalTasks = task.total_activities ? task.total_activities :0;;
-            const completedTasks = task.completed_activities ? task.completed_activities : 0;
-
-            // Calculate percentage
-           const percent = totalTasks > 0? Math.round((completedTasks / totalTasks) * 100): 0;
-
-            // Update Progress Bar
-            // const progressBar = document.getElementById("progress-bar");
-            // progressBar.style.width = percent + "%";
-            // progressBar.textContent = percent + "%";
                 
              const taskHTML = `
         <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" draggable="true"
              data-id="${task.id}" 
            
             >
-            
+            <a class=" "  
+                        data-id="${task.id}" 
+                        data-status="${task.status}"
+                        onclick="openTaskModal(this)"
+                        data-title="${task.title}"
+                        data-desc="${task.description}"
+                        data-status="${task.status}"
+                        data-progress="${progress}%"
+                        data-date="${duedateText}"
+                        data-created = "${createdOnText}"
+                        data-priority="${task.priority}"
+                        data-duration="${task.duration}"
+                        data-profiles='${JSON.stringify(task.users)}'
+                        data-users='${JSON.stringify(task.allUsers)}'
+                        data-duedate='${task.overdue_date}'
+                        data-store="${(task.storeId ? task.storeId  :'all') }"
+                        data-progressbar="${task.progress}"
+                        data-cls="${priority}"
+                        data-project="${task.project}"
+                        data-doc="${task.ducument}">
             <div class="flex justify-between items-start mb-2">
                 <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
-                <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${priority}">${task.priority}</span>
+                <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 d-none ${priority}">${task.priority}</span>
+                 <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0  ${status}">${task.status}</span>
             </div>
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
-            <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium nixx">${(task.branch_name ==null ? 'All Brach' : task.branch_name)}</span></div>
+            
             <div >
             <div class="d-flex align-items-center mb-2">
                 <div class="w-full justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
-                    <div class="h-2 rounded-full transition-all duration-500 ${(percent < 50 ? 'bg-red-500' : (percent > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${percent}%"></div> 
+                    <div class="h-2 rounded-full transition-all duration-500 ${(task.progress  < 50 ? 'bg-red-500' : (task.progress > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${progress}%"></div> 
                 </div>
-                <span class="text-xs text-gray-500 text-gray-900">  ${task.completed_activities ?? 0} / ${task.total_activities ?? 0} ${percent}%</span>
+                <span class="text-xs text-gray-500 text-gray-900">  ${progress}%</span>
             </div>
-          ${task.ducument ? `
-            <div class="d-flex align-items-center mb-2">
-                <a href="${task.ducument}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
-                    Doc
-                </a>
-            </div>` : ''}
+
             </div>
             <div class="flex justify-between items-center">
                 <div class="flex -space-x-2 profile-stack ">
-                    ${task.users.map(user => `
+                   ${task.users.slice(0, 5).map(user => `
                         ${user.img 
                             ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
                                     <img src="${user.img}" alt="${user.staffName}" title="${user.staffName}" class="w-full h-full object-cover">
@@ -122,41 +115,18 @@
                                     <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
                             </div>`}
                     `).join('')}
+
+                    ${task.users.length > 5 
+                        ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-gray-200 border-white">
+                                <span class="text-gray-700 font-semibold">+${task.users.length - 5}</span>
+                        </div>` 
+                        : ''}
+
                 </div>
                 <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
             </div>
-           <div class="flex space-x-1 flex justify-between items-center gap-2 ">
-           ${totalTasks > 0 ? `
-            <div>
-                <a href="${ectivitUrl}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 ">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity h-4 w-4 mr-2" data-lov-id="src/components/TaskCard.tsx:96:12" data-lov-name="Activity" data-component-path="src/components/TaskCard.tsx" data-component-line="96" data-component-file="TaskCard.tsx" data-component-name="Activity" data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg> View Activities (${task.total_activities ?? 0})
-                </a>
-            </div>` :`
-            <div>
-                <a class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-info text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 "  
-                        data-id="${task.id}" 
-                        data-status="${task.status}"
-                        onclick="openTaskModal(this)"
-                        data-title="${task.title}"
-                        data-desc="${task.description}"
-                        data-branch="${(task.branch_name ? task.branch_name  :'all') }"
-                        data-status="${task.status}"
-                        data-progress="${progress}%"
-                        data-date="${duedateText}"
-                        data-priority="${task.priority}"
-                        data-duration="${task.duration}"
-                        data-profiles='${JSON.stringify(task.users)}'
-                        data-duedate='${task.overdue_date}'
-                        data-store="${(task.storeId ? task.storeId  :'all') }"
-                        data-progressbar="${task.progress}"
-                        data-cls="${priority}"
-                        data-project="${task.project}"
-                        data-doc="${task.ducument}">View 
-                    </a>`}
-            </div>
-           </div>
-        </div>
-    `;
+          </a>
+        </div>`;
             
             
 
@@ -220,7 +190,7 @@
                 }
                 
                 });
-                    html += `</tbody></table>`;
+                   
                 }
                 //$('#taskTable').html(html);
                 $('#taskPending').html(pending);
@@ -284,23 +254,20 @@ function openTaskModal(el) {
     const progressEl = document.getElementById('progressIndicator');
     const progressSlider = document.getElementById('progressBar');
     const progressLabel = document.getElementById('progressLabel');
-    const taskId = document.getElementById('taskId');
-    let documentUi = el.dataset.doc ? ` <div class="d-flex align-items-center mb-2 mt-2">
-                <a href="${el.dataset.doc}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
-                    Doc
-                </a>`:'';
+    const taskId = document.getElementById('activitytaskId');
+    let documentUi ='';
     $('#documents').html(documentUi);
     modal.classList.remove('hidden');
     // Fill modal fields from data attributes
-    let gettaskId =  modal.querySelector('.modal-title').textContent = el.dataset.id;
+    let gettaskId = el.dataset.id ?? '';//modal.querySelector('.modal-title').textContent = el.dataset.id;
     taskId.value = gettaskId;
     $('.delete-task').attr('data-title', el.dataset.title);
 
     modal.querySelector('.modal-title').textContent = el.dataset.title;
     modal.querySelector('.modal-desc').textContent = el.dataset.desc;
-    modal.querySelector('.modal-branch').textContent = el.dataset.branch;
+    // modal.querySelector('.modal-branch').textContent = el.dataset.branch;
     let status = modal.querySelector('.modal-status').textContent = el.dataset.status;
-    modal.querySelector('.modal-date').textContent = el.dataset.date;
+    modal.querySelector('.modal-date').textContent = el.dataset.created;
     let progress = modal.querySelector('.modal-progress-bar').style.width = el.dataset.progress;
 
     let progressbar = el.dataset.progressbar;
@@ -321,8 +288,8 @@ function openTaskModal(el) {
     // Populate fields from data attributes
     taskEdit.querySelector('#title').value = el.dataset.title || '';
     taskEdit.querySelector('#description').value = el.dataset.desc || '';
-    taskEdit.querySelector('#project').value = el.dataset.project || '';
-    taskEdit.querySelector('#branch').value = el.dataset.store || '';
+    //taskEdit.querySelector('#project').value = el.dataset.project || '';
+    // taskEdit.querySelector('#branch').value = el.dataset.store || '';
     taskEdit.querySelector('#duedate').value = el.dataset.duedate || 0;
     taskEdit.querySelector('#taskStatus').value = status || 0;
 
@@ -338,7 +305,8 @@ function openTaskModal(el) {
   });
 
     const users = JSON.parse(el.dataset.profiles);
-    renderStaffList(users);
+    const allstaff = JSON.parse(el.dataset.users);
+    renderStaffList(allstaff,users);
     const priorityEl = modal.querySelector('.modal-priority');
 
     if (priorityEl && el.dataset.cls) {
@@ -361,9 +329,12 @@ function openTaskModal(el) {
                 wrapper.className =  'flex items-center gap-2 bg-gray-50 p-2 rounded mb-2';
 
                 const avatar = document.createElement('div');
-                avatar.className = 'relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs';
-                avatar.innerHTML = `<img src="${user.img}" alt="" class="w-full h-full object-cover">`;
-
+                avatar.className = 'relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs';
+                avatar.innerHTML = user.img 
+                ? `<img src="${user.img}" alt="${user.staffName}" class="w-full h-full object-cover">`
+                : `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                    <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
+                </div>`;
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'text-sm text-gray-700';
                 nameSpan.textContent = user.staffName;
@@ -445,36 +416,33 @@ function toggleReplay() {
     progressLabel.textContent = `Progress: ${progressSlider.value}%`;
   });
 
-  function renderStaffList(users = []) {
-    const staffListContainer = document.getElementById('participants');
+function renderStaffList(users = [], existingUser = []) {
+    
+    const staffListContainer = document.getElementById('participantsactivities');
     staffListContainer.innerHTML = '';
 
+    const assignedIds = existingUser.map(u => u.userId);
+
     users.forEach(staff => {
-      
+        const isChecked = assignedIds.includes(staff.id.toString()) ? 'checked' : '';
+
         const staffHTML = `
         <div class="flex align-items-center p-2 border rounded-md cursor-pointer border-gray-300">
-          
-            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" name="staff[]" value="${staff.userId}" checked>
-            <img src="${staff.img}" alt="${staff.staffName}" class="w-6 h-6 rounded-full ml-2">
-            <span class="ml-2 text-sm mx-4">${staff.staffName}</span>
-            
-            <select name="role[]"  class="role-select mx-4 mt-2 md:mt-0 border rounded px-2 py-1 text-sm" >
-                <option  ${staff.role == "participant" ? "selected" : ""} value="participant" selected>Participant</option>
-                <option ${staff.role == "team_leader" ? 'selected':''} value="team_leader">Team Leader</option>
-                <option ${staff.role == "team_coordinator" ? 'selected':''} value="team_coordinator">Team Coordinator</option>
-            </select>
-            <select name="personpriority[]" class="role-select mx-2 mt-2 md:mt-0 border rounded px-2 py-1 text-sm hidden" >
-                <option desabled value="">Select a Priority</option>
-                <option  ${staff.userPriority == 1 ? "selected" : ""} value="1">High</option>
-                <option  ${staff.userPriority == 2 ? "selected" : ""}  value="2">Medium</option>
-                <option  ${staff.userPriority == 3 ? "selected" : ""} value="3">Low</option>
-            </select>
-
-        </div>
-        `;
+            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" 
+                   name="staff[]" value="${staff.id}" ${isChecked}>
+                   ${staff.profileimg ? 
+                   
+            `<img src="${staff.profileimg ?? 'default.png'}" 
+                 alt="${staff.name}" class="w-6 h-6 rounded-full ml-2">` :
+                 `<div class="h-9 w-9 ml-2 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                                <span class="text-blue-600 font-medium">${staff.name.charAt(0)}</span>
+                                            </div>`}
+            <span class="ml-2 text-sm mx-4">${staff.name}</span>
+        </div>`;
         staffListContainer.insertAdjacentHTML('beforeend', staffHTML);
     });
 }
+
 
 $('#taskEditForm').on('submit', function(e) {
 
@@ -487,7 +455,7 @@ $('#taskEditForm').on('submit', function(e) {
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
     );
     $.ajax({
-        url : App.getSiteurl()+'task/update',
+        url : App.getSiteurl()+'task/activityupdate',
         method:'POST',
         data: formData,
         contentType: false,

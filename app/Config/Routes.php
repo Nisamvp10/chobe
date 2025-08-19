@@ -110,7 +110,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     //activities
     $routes->get('activities/(:any)','ActivitiesController::activities/$1');
     $routes->post('activities/save','ActivitiesController::save');
-    $routes->post('task/activiti','ActivitiesController:activitiList');
+    $routes->get('task/activities','ActivitiesController::activitiList');
+    $routes->post('task/activityupdate','ActivitiesController::update');
     //projects 
     $routes->get('settings/projects','ProjectsController::index');
     $routes->get('project/list','ProjectsController::projectList');

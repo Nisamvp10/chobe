@@ -242,7 +242,7 @@ class TaskController extends Controller {
                         'staffName' => $task['name'],
                         'userId'    => $task['userId'],
                         'role'      => $task['role'],
-                        'userPriority' => $task['userPriority'],
+                        'userPriority' => $task['userPriority'], 
                     ];
                 }
 
