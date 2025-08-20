@@ -122,7 +122,6 @@ class Staff extends BaseController{
             'store_id' => $this->request->getPost('branch'),
             'role' => $this->request->getPost('role'),
             'status' => 2,
-            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
         ];
 
         $selectedServices = $this->request->getPost('services'); 
@@ -152,6 +151,9 @@ class Staff extends BaseController{
                         $row['staff_id'] = $id;
                     }
                 }
+                if(!empty($this->request->getPost('password'))) {
+                    $data['password'] = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
+                }
             if ($userModel->update($id,$data)) {
                 $this->specialityModel->insertBatch($specialtyData);
                 $validSuccess = true;
@@ -160,6 +162,8 @@ class Staff extends BaseController{
                 $validMsg = "Somthing went wrong Please try agin later";
             }
         }else {
+            $data['password'] = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
+
             $data['email'] =  $this->request->getPost('email');
             if ($lastId = $userModel->insert($data)) {
                 

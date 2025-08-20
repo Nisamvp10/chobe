@@ -800,7 +800,7 @@ if (!empty($userData)){
 
                  <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'dashboard/notifications') === 0 ? 'active' : '' ?>" href="<?= base_url('settings/projects') ?>">
-                        <i class="bi bi-bell"></i>
+                        <i class="bi bi-diagram-3-fill"></i>
                         <span>Projects</span>
                         <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
                     </a>
@@ -856,6 +856,14 @@ if (!empty($userData)){
                         
                         </div>
                         </div>
+
+                         <li class="nav-item">
+                            <a class="nav-link <?= strpos(uri_string(), 'dashboard/reports') === 0 ? 'active' : '' ?>" href="<?= base_url('reports') ?>">
+                                <i class="bi bi-file-earmark-medical"></i>
+                                <span>Reports</span>
+                                <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
+                            </a>
+                        </li>
 
                      <!-- close nav -->
              

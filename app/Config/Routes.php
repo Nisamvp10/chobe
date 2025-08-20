@@ -122,6 +122,11 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('settings/project/edit/(:any)','ProjectsController::create/$1');
     $routes->post('projects/delete','ProjectsController::delete');
     $routes->post('project/unlock','ProjectsController::unlock');
+    //report
+    $routes->get('reports','ReportController::index');
+    $routes->get('reports/list','ReportController::list');
+    $routes->get('report/generate', 'ReportController::generateReport');
+
 
 });
 $routes->get('qry', 'Home::qry');

@@ -101,7 +101,7 @@ class Notification extends Controller{
         $updated = ($role !=1 ? $this->notifications->update($id,['is_read' => 1]) : false);
         return $this->response->setJSON([
             'success' => $updated,
-            'message' => $updated ? 'Notification Viewd' : 'Failed to Open Notification',
+            'message' => $updated ? 'Notification Viewd' : 'You are not assigned to this task',
             'id' => encryptor($id)
 
         ]);
