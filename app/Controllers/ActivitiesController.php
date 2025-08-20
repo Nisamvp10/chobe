@@ -40,6 +40,24 @@ protected $userModel;
         return view('admin/activities/index',compact('page','data','id','staff','activityId'));
     } 
 
+    function mYactivities($id=false) {
+        
+        $id = decryptor($id);
+        $task = $this->taskModel->where('id',$id)->first();
+        if(!empty($task)) {
+            $staff =  $this->staffModal->findAll();
+            $page = "Task : " .$task['title'];
+        }else{
+            $page = '';
+            $staff = '';
+        }
+        $data = '';
+        
+        $activityId =$id;
+        return view('admin/activities/myactivities',compact('page','data','id','staff','activityId'));
+    
+    }
+
     function save () {
 
         if(!haspermission('','create_task')) {
@@ -189,6 +207,7 @@ protected $userModel;
         $endDate   = $this->request->getGet('endDate');
 
         $activityTasks = $this->activityModel->getActivities($taskId,$search,$filter,$startDate,$endDate);
+        //echo $this->activityModel->getLastQuery();
         $groupData = [];
         $allusers = $this->userModel->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1])->findAll();
 
@@ -230,6 +249,5 @@ protected $userModel;
         $tasks = array_values($groupData);
         return $this->response->setJSON([ 'success'=>true,'task' => $tasks]);
     }
-
 
 }

@@ -106,7 +106,10 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('tasks/my-tasks','TaskController::myTask');
     $routes->get('task/my-task','TaskController::myTaskList');
     $routes->post('task/replay','ReplayController::save');  
-    $routes->post('task-replays','ReplayController::replayHistory');    
+    $routes->post('task-replays','ReplayController::replayHistory');  
+    $routes->get('task/mytask/activities/(:any)','ActivitiesController::mYactivities/$1');
+    $routes->post('task/activity/replay','ReplayController::activityReplaySave');
+    $routes->post('activity-task-replays','ReplayController::activityReplayHistory');
     //activities
     $routes->get('activities/(:any)','ActivitiesController::activities/$1');
     $routes->post('activities/save','ActivitiesController::save');

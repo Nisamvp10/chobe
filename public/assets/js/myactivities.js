@@ -4,17 +4,17 @@
         loadTask();
     })
 
-    function loadTask(search = '') {
-        let notifytask = document.getElementById('taskTable').dataset.tskId;
-        let filter = $('#filerStatus').val();
+    function loadTask(search = '',startDate ='', endDate='') {
+        
+        let  filter = $('#taskFilerStatus').val();
+        let taskId = $('#tasktbl').data('task');
         $.ajax({
 
-            url: App.getSiteurl()+'task/my-task',
+            url: App.getSiteurl()+'task/activities',
             type: "GET",
-            data: { search: search,filter:filter,list:1,notifiytask : notifytask},
+            data: { task:taskId,search: search,filter:filter,startDate:startDate,endDate:endDate},
             dataType: "json",
             success: function(response) {
-                
                 if (response.success) {
                     renderTable(response.task);
                 }
@@ -29,6 +29,7 @@
         let pending = '';
         let inProgress ='';
         let completed = ''
+        taskHTML = '';
 
         if (tasks.length === 0) {
             taskHTML += `
@@ -62,10 +63,26 @@
              const taskHTML = `
         <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" 
             draggable="true"
-            data-id="${task.id}" 
-            
-           
-            >
+            data-id="${task.id}">
+             <a  
+                data-id="${task.id}" 
+                data-status="${task.status}"
+                onclick="openTaskModal(this)"
+                data-title="${task.title}"
+                data-desc="${task.description}"
+                data-branch="${(task.branch_name ? task.branch_name  :'all') }"
+                data-status="${task.status}"
+                data-progress="${progress}%"
+                data-date="${duedateText}"
+                data-priority="${task.priority}"
+                data-duration="${task.duration}"
+                data-profiles='${JSON.stringify(task.users)}'
+                data-duedate='${task.overdue_date}'
+                data-store="${(task.storeId ? task.storeId  :'all') }"
+                data-progressbar="${task.progress}"
+                data-cls="${priority}"
+                data-project="${task.project}"
+                data-doc="${task.ducument}">
             
             <div class="flex justify-between items-start mb-2">
                 <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
@@ -97,35 +114,7 @@
                 </div>
                 <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
             </div>
-                       <div class="flex space-x-1 flex justify-between items-center gap-2 ">
-            <div>
-                <a href="${ectivitUrl}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 ">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity h-4 w-4 mr-2" data-lov-id="src/components/TaskCard.tsx:96:12" data-lov-name="Activity" data-component-path="src/components/TaskCard.tsx" data-component-line="96" data-component-file="TaskCard.tsx" data-component-name="Activity" data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg> View Activities (${task.total_activities ?? 0})
-                </a>
-            </div>
-            <div>
-                <a class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-info text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 "  
-                        data-id="${task.id}" 
-                        data-status="${task.status}"
-                        onclick="openTaskModal(this)"
-                        data-title="${task.title}"
-                        data-desc="${task.description}"
-                        data-branch="${(task.branch_name ? task.branch_name  :'all') }"
-                        data-status="${task.status}"
-                        data-progress="${progress}%"
-                        data-date="${duedateText}"
-                        data-priority="${task.priority}"
-                        data-duration="${task.duration}"
-                        data-profiles='${JSON.stringify(task.users)}'
-                        data-duedate='${task.overdue_date}'
-                        data-store="${(task.storeId ? task.storeId  :'all') }"
-                        data-progressbar="${task.progress}"
-                        data-cls="${priority}"
-                        data-project="${task.project}"
-                        data-doc="${task.ducument}">View 
-                    </a>
-            </div>
-           </div>
+              </a>        
         </div>
     `;
             
@@ -214,14 +203,14 @@ function openTaskModal(el) {
     taskId.value = gettaskId;
     modal.querySelector('.modal-title').textContent = el.dataset.title;
     modal.querySelector('.modal-desc').textContent = el.dataset.desc;
-    modal.querySelector('.modal-branch').textContent = el.dataset.branch;
+    // modal.querySelector('.modal-branch').textContent = el.dataset.branch;
     let status = modal.querySelector('.modal-status').textContent = el.dataset.status;
     modal.querySelector('.modal-date').textContent = el.dataset.date;
     let progress = modal.querySelector('.modal-progress-bar').style.width = el.dataset.progress;
 
     let progressbar = el.dataset.progressbar;
 
-     let documentUi = el.dataset.doc ? ` <div class="d-flex align-items-center mb-2 mt-2">
+     let documentUi = el.dataset.doc ? ` <div class="d-flex align-items-center mb-2 mt-2 d-none">
                 <a href="${el.dataset.doc}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
                     Doc
                 </a>`:'';
@@ -229,7 +218,7 @@ function openTaskModal(el) {
       
     //console.log(progressbar)
     let priority = modal.querySelector('.modal-priority').textContent = el.dataset.priority;
-    modal.querySelector('.modal-duration').textContent = el.dataset.duration;
+    // modal.querySelector('.modal-duration').textContent = el.dataset.duration;
     progressEl.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
 
     let progressCls = (progressbar  < 50 ? 'bg-red-500' : (progressbar > 80 ? 'bg-green-500' :'bg-yellow-500'));
@@ -343,7 +332,7 @@ function hideReplyForm() {
 
 function renderHistory(id) {
     $.ajax({
-        url: App.getSiteurl()+'task-replays',
+        url: App.getSiteurl()+'activity-task-replays',
         type: "POST",
         data: { taskId: id},
         dataType: "json",
@@ -407,7 +396,7 @@ $('#replyTaskForm').on('submit', function(e) {
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
     );
     $.ajax({
-        url : App.getSiteurl()+'task/replay',
+        url : App.getSiteurl()+'task/activity/replay',
         method:'POST',
         data: formData,
         contentType: false,

@@ -10,6 +10,7 @@ use App\Models\TaskimagesModel;
 use App\Controllers\UploadImages;
 use App\Models\ProjectsModel;
 use App\Models\ActivityModel;
+use App\Models\ActivityStaffModel;
 class TaskController extends Controller {
 
     protected $branchModel;
@@ -283,15 +284,19 @@ class TaskController extends Controller {
                 'message' => 'Permission Denied'
             ]);
         }
+        $activityTasksAssignModel = new ActivityStaffModel();
         $filter = $this->request->getGet('filter');
         $notifiytask = $this->request->getGet('notifiytask');
         $alltasks = $this->taskModel->getMytask('','',$notifiytask,$filter); // or ->findAll()
-        //echo $this->taskModel->getLastQuery();
+       
+        
         $groupData = [];
         foreach ($alltasks as &$task) {
             $taskId = $task['id'];
 
             if (!isset($groupData[$taskId])) {
+                  $activityTasksAssignModel->where(['activity_id'=> $task['id'],'staff_id'=>session('user_data')['id']])->countAllResults();
+        //echo $activityTasksAssignModel->getLastQuery();
                 $groupData[$taskId] = [
 
                     'id'        => encryptor($task['id']),
@@ -300,7 +305,7 @@ class TaskController extends Controller {
                     'description' => $task['description'],
                     'branch_name' => $task['branch_name'],
                     'project'   => $task['project_id'],
-                    'total_activities' => $this->activityModel->where('task_id',$task['id'])->countAllResults(),
+                    'total_activities' => $this->activityModel->getMytaskCount($task['id']),
                     'completed_activities' =>$this->activityModel->where(['task_id'=>$task['id'],'status' => 'completed'])->countAllResults(),
                     'priority'  => $task['priority'],
                     'status'    => $task['status'],

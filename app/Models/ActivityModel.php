@@ -40,4 +40,19 @@ class ActivityModel extends Model
         $result = $builder->get()->getResultArray();
         return $result;
     }
+
+     public function getMytaskCount($taskId) {
+       // Get list
+            $assignedActivities = $this->db->table('activities as a')
+                ->select('a.*')
+                ->join('activity_staff as ats', 'a.id = ats.activity_id')
+                ->where('a.task_id', $taskId)
+                ->where('ats.staff_id', session('user_data')['id'])
+                ->get()
+                ->getResultArray();
+
+            // Get count
+            $totalAssigned = count($assignedActivities);
+            return $totalAssigned;
+    }
 }
