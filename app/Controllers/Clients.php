@@ -6,6 +6,7 @@ use App\Models\BranchesModel;
 use App\Models\ServiceModel;
 use App\Models\ClientsModel;
 use App\Controllers\UploadImages;
+use App\Models\ClientContactsModal;
 
 class Clients extends controller {
     protected $categoryModel;
@@ -81,24 +82,25 @@ class Clients extends controller {
         if (!haspermission(session('user_data')['role'],'create_client')) {
             return $this->response->setJSON(['success'=> false,'message' => 'Permission Denied']);
         }
+        $clientContactsModal = new ClientContactsModal();
         $id = decryptor($this->request->getPost('clientId'));
         $rules = [
             'name' => 'required|min_length[3]',
            // 'phone' => 'required|regex_match[/^\+?[0-9]{10,15}$/]',
-            'joindate' => 'required'
+            //'joindate' => 'required'
         ];
         $messages=[];
-        if(empty($id)) {
+        // if(empty($id)) {
 
-            $rules['phone'] = 'required|regex_match[/^\+?[0-9]{10,15}$/]|is_unique[clients.phone]';
-            $messages = [
-                'phone' => [
-                    'is_unique'    => 'This phone number is already registered.',
-                    'regex_match'  => 'Please enter a valid phone number.',
-                    'required'     => 'Phone number is required.',
-                ],
-            ];
-        }
+        //     $rules['phone'] = 'required|regex_match[/^\+?[0-9]{10,15}$/]|is_unique[clients.phone]';
+        //     $messages = [
+        //         'phone' => [
+        //             'is_unique'    => 'This phone number is already registered.',
+        //             'regex_match'  => 'Please enter a valid phone number.',
+        //             'required'     => 'Phone number is required.',
+        //         ],
+        //     ];
+        // }
 
         $imageUploader = new UploadImages();
 
@@ -111,22 +113,22 @@ class Clients extends controller {
 
             $data = [
                 'name' => $this->request->getPost('name'),
-                'email' => $this->request->getPost('email'),
-                'phone' => $this->request->getPost('phone'),
-                'join_date' => $this->request->getPost('joindate'),
+                //'email' => $this->request->getPost('email'),
+                //'phone' => $this->request->getPost('phone'),
+                //'join_date' => $this->request->getPost('joindate'),
                 'note' => $this->request->getPost('notes'),
             ];
 
-        $file = $this->request->getFile('file');
-        $image =   ($file->isValid() && !$file->hasMoved() ? json_decode($imageUploader->uploadimg($file,'clients'),true): ['status'=>false]);
+        // $file = $this->request->getFile('file');
+        // $image =   ($file->isValid() && !$file->hasMoved() ? json_decode($imageUploader->uploadimg($file,'clients'),true): ['status'=>false]);
 
-         if($image['status'] == true) {
-            if($id) {
-                $user = $this->clientsModel->where('id', $id)->first();
-                updateImage($user['profile']);
-            }
-            $data['profile'] = base_url($image['file']);
-        }
+        //  if($image['status'] == true) {
+        //     if($id) {
+        //         $user = $this->clientsModel->where('id', $id)->first();
+        //         updateImage($user['profile']);
+        //     }
+        //     $data['profile'] = base_url($image['file']);
+        // }
         if ($id) {
             if($this->clientsModel->update($id,$data)) {
                 
@@ -138,6 +140,27 @@ class Clients extends controller {
             }
         }else {
             if ($this->clientsModel->insert($data)) {
+
+                $authorized_personnel = $this->request->getPost('authorized_personnel');
+                $emails = $this->request->getPost('email');
+                $phones = $this->request->getPost('phone');
+                $designations = $this->request->getPost('designation');
+                $contacts = [];
+                if(!empty($authorized_personnel)) {
+                    
+                    foreach ($authorized_personnel as $i => $person) {
+                        $contacts[] = [
+                            'client_id' => $this->clientsModel->insertID(),
+                            'authorized_personnel' => $person,
+                            'email' => $emails[$i],
+                            'phone' => $phones[$i] ?? null,
+                            'designation' => $designations[$i] ?? null,
+                        ];
+                    }
+                }
+                foreach ($contacts as $contact) {
+                    $clientContactsModal->insert($contact);
+                }
 
                 $validStatus = true;
                 $validMsg = 'New Client Added' ;

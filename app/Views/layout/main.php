@@ -710,16 +710,7 @@ if (!empty($userData)){
                         <span>Appoinments</span>
                     </a>
                 </li>
-                <?php 
-                if(haspermission('','view_clients')) { ?>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'clients') === 0 && strpos(uri_string(), 'appointments') === false ? 'active' : '' ?>" href="<?= base_url('clients') ?>">
-                    <span class="flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users "><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
-                        <span>Clients</span>
-                    </a>
-                </li>
                 <?php
-                 }
                  if(haspermission('','view_services')) { ?>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'services-list') === 0 && strpos(uri_string(), 'appointments') === false ? 'active' : '' ?>" href="<?= base_url('services-list') ?>">
@@ -756,8 +747,19 @@ if (!empty($userData)){
                 </li>
                 <?php } 
             }?>
+
+                <?php 
+                if(haspermission('','view_clients')) { ?>
+                <li class="nav-item">
+                    <a class="nav-link <?= strpos(uri_string(), 'clients') === 0 && strpos(uri_string(), 'appointments') === false ? 'active' : '' ?>" href="<?= base_url('clients') ?>">
+                    <span class="flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users "><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></span>
+                        <span>Clients</span>
+                    </a>
+                </li>
                 
-                <?php if (session()->get('role') == 'admin' || session()->get('role') == 'zone_manager'): ?>
+
+                
+                <?php } if (session()->get('role') == 'admin' || session()->get('role') == 'zone_manager'): ?>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'dashboard/branches') === 0 ? 'active' : '' ?>" href="<?= base_url('dashboard/branches') ?>">
                         <i class="bi bi-shop"></i>
