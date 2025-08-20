@@ -291,7 +291,7 @@ function openTaskModal(el) {
     //taskEdit.querySelector('#project').value = el.dataset.project || '';
     // taskEdit.querySelector('#branch').value = el.dataset.store || '';
     taskEdit.querySelector('#duedate').value = el.dataset.duedate || 0;
-    taskEdit.querySelector('#taskStatus').value = status || 0;
+    taskEdit.querySelector('#activityStatus').value = el.dataset.status || 0;
 
     const priorityButtons = taskEdit.querySelectorAll('.priority-btn');
     priorityButtons.forEach(btn => {

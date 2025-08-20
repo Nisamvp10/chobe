@@ -151,7 +151,7 @@ protected $userModel;
             'progress'              => $this->request->getPost('progress'),
             'duedate'               => $this->request->getPost('duedate'),
         ];
-       
+      
         $activityModel = new ActivityModel();
         $activitiesStaff = new ActivityStaffModel();
                

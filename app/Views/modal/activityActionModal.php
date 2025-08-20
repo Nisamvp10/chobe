@@ -94,6 +94,8 @@
           <textarea class="w-full border px-3 py-2 rounded" name="description" id="description"></textarea>
            <div class="invalid-feedback" id="description_error"></div>
         </div>
+      
+
 
         <div class="d-none">
             <label class="block text-sm font-medium text-gray-700 mb-1 ">Priority</label>
@@ -114,9 +116,9 @@
                     <label class="block font-medium">Due Date</label>
                     <input type="date" name="duedate" value="" id="duedate" class="w-full border px-3 py-2 rounded" />
                 </div>
-                <div class="items-center rounded-md cursor-pointer border-gray-300 hidden">
+                <div class="items-center rounded-md cursor-pointer border-gray-300 ">
                     <label class="block font-medium">Status</label>
-                    <select name="status" class="w-full border px-3 py-2 rounded" id="taskStatus">
+                    <select id ="activityStatus" name="status" class="w-full border px-3 py-2 rounded" id="taskStatus">
                         <option value="Pending">Pending</option>
                         <option value="In_Progress">In Progress</option>
                         <option value="Completed">Completed</option>
