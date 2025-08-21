@@ -29,19 +29,45 @@ class Clients extends controller {
 
     function create ($id=false) {
         $page = (!haspermission('','create_client') ? lang('Custom.accessDenied') : 'Add New Client' );
+        $clientGroup = [] ;
         if($id) {
             $page = "Edit Client";
             $id = decryptor($id);
-            $data = $this->clientsModel->where('id',$id)->first();
+            $data = $this->clientsModel->getClinentById($id);
+            if(!empty($data)) {
+                foreach ($data as $client) {
+                    if(!isset($clientGroup[$client['id']])) {
+                        $clientGroup[$client['id']] =[
+                            'id' => $client['id'],
+                            'name'  => $client['name'],
+                            'address' => $client['note'],
+                            'clientInfo' => [],
+                        ];
+                    }
+
+                    if(!empty($client['authorized_personnel'])) {
+                          $clientGroup[$client['id']]['clientInfo'][] = [
+                             'authorized_personnel' => $client['authorized_personnel'],
+                            'email' => $client['email'] ?? '',
+                            'infoId' => $client['infoId'] ?? '',
+                            'phone' => $client['phone'] ?? '',
+                            'designation' => $client['designation'] ?? ''
+                          ];
+                    }
+                }
+            }
         }else
         {    
             $page = "Add New Client";
             $data = [];
         }
+        // echo '<pre>';
+        $clientGroup = array_values($clientGroup);
+        // var_dump($clientGroup);exit();
         $services =$this->serviceModel->where('is_active' , 1)->findAll();
         $branches = $this->branchModel->where('status',1)->findAll();
         $selectedSpecialties = [];
-        return view('admin/clients/create',compact('page','services','selectedSpecialties','branches','data'));
+        return view('admin/clients/create',compact('page','services','selectedSpecialties','branches','clientGroup'));
         
     }
 
@@ -58,18 +84,43 @@ class Clients extends controller {
         $filter = $this->request->getGet('filter');
 
         $clients = $this->clientsModel->getClients($search,$filter);
-        
-       
-        // $clients = $builder->findAll();
-        foreach ($clients as &$client) {
+       //echo  $this->clientsModel->getLastQuery();
+        $contactsGroupped = [];
+        foreach ($clients as $client) {
             $client['encrypted_id'] = encryptor($client['id']);
-            $client['spend'] = number_format($client['spend'],2);
-            $minutes = (int)$client['spend'];
-            $hours = floor($minutes / 60);
-            $remainingMinutes = $minutes % 60;
-            $client['spendtime'] = ($hours > 0 ? $hours . ' hr ' : '') . ($remainingMinutes > 0 ? $remainingMinutes . ' min' : '');
+            if(!isset($contactsGroupped[$client['id']])) {
 
+                $contactsGroupped[$client['id']] = [
+                    'encrypted_id' => encryptor($client['id']),
+                    'name' => $client['name'],
+                    'address' => $client['note'] ?? '',
+                    'clientsInfo' => [],
+                ];
+
+                if(!empty($client['authorized_personnel'])) {
+                      $contactsGroupped[$client['id']]['clientsInfo'][] = [
+                        'authorized_personnel' => $client['authorized_personnel'],
+                        'email' => $client['email'] ?? '',
+                        'phone' => $client['phone'] ?? '',
+                        'designation' => $client['designation'] ?? ''
+                      ];
+                }
+            }else{
+                 if(!isset($contactsGroupped[$client['infoId']])) {
+
+                    if(!empty($client['authorized_personnel'])) {
+                        $contactsGroupped[$client['id']]['clientsInfo'][] = [
+                            'authorized_personnel' => $client['authorized_personnel'],
+                            'email' => $client['email'] ?? '',
+                            'phone' => $client['phone'] ?? '',
+                            'designation' => $client['designation'] ?? ''
+                        ];
+                    }
+                }
+            }
         }
+       
+        $clients = array_values($contactsGroupped);
         return $this->response->setJSON(['success' => true,'clients' => $clients]);
     }
 
@@ -113,9 +164,6 @@ class Clients extends controller {
 
             $data = [
                 'name' => $this->request->getPost('name'),
-                //'email' => $this->request->getPost('email'),
-                //'phone' => $this->request->getPost('phone'),
-                //'join_date' => $this->request->getPost('joindate'),
                 'note' => $this->request->getPost('notes'),
             ];
 
@@ -130,7 +178,49 @@ class Clients extends controller {
         //     $data['profile'] = base_url($image['file']);
         // }
         if ($id) {
+            
             if($this->clientsModel->update($id,$data)) {
+
+                $infoIds   = $this->request->getPost('infoId'); 
+                $names     = $this->request->getPost('authorized_personnel');
+                $emails    = $this->request->getPost('email');
+                $phones    = $this->request->getPost('phone');
+                $designations = $this->request->getPost('designation');
+
+                $submittedIds = []; 
+
+                foreach ($names as $index => $person) {
+                    if (empty(trim($person))) {
+                        continue;
+                    }
+                    $infoId = $infoIds[$index] ?? null;
+
+                    $contactInfo = [
+                        'authorized_personnel' => $person,
+                        'email'       => $emails[$index] ?? null,
+                        'phone'       => $phones[$index] ?? null,
+                        'designation' => $designations[$index] ?? null,
+                        'client_id'   => $id,
+                    ];
+
+                    if (!empty($infoId)) {
+                       //update
+                        $clientContactsModal->update($infoId, $contactInfo);
+                        $submittedIds[] = $infoId;
+                    } else {
+                       //insert
+                        $newId = $clientContactsModal->insert($contactInfo);
+                        $submittedIds[] = $newId;
+                    }
+                }
+
+                //delete
+                if (!empty($submittedIds)) {
+                    $clientContactsModal->where('client_id', $id)
+                                        ->whereNotIn('id', $submittedIds)
+                                        ->delete();
+                }
+
                 
                 $validStatus = true;
                 $validMsg = lang('Custom.updateMsg') ;
@@ -196,5 +286,22 @@ class Clients extends controller {
         }
 
         return $this->response->setJSON($clients);
+    }
+
+    public function delete($id)
+    {
+        $clientModel =  $this->clientsModel;
+
+        if(!hasPermission('','client_delete')) {
+            return $this->response->setJSON(['status' => false,'msg'=>lang('Custom.accessDenied')]);
+        }
+        $id = decryptor($id);
+        if ($clientModel->find($id)) {
+            //$taskModel->delete($id);
+            $clientModel->update($id,['status'=>2]);
+            return $this->response->setJSON(['status' => true,'msg' => 'Task deleted successfully!']);
+        }
+
+        return $this->response->setJSON(['status' => false, 'msg' => 'Task not found']);
     }
 }

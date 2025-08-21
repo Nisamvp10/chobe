@@ -1,16 +1,15 @@
 <?php $this->extend('layout/main') ;?>
 <?= $this->section('content') ?>
 <?php
-    if (!empty($data)) {
-        $id = encryptor($data['id']);
-        $name = $data['name'];
-        $email = $data['email'];
-        $phone = $data['phone'];
-        $join_date = $data['join_date'];
-        $notes = $data['note'];
-        $profile = $data['profile'];
+    if (!empty($clientGroup)) {
+        foreach($clientGroup as $data) {
+            $id = encryptor($data['id']);
+            $name = $data['name'];
+            $address = $data['address'];
+            $contactInfo = $data['clientInfo'];
+        }
     }else {
-        $id=$name=$email=$phone=$profile=$notes='';
+        $id=$name=$profile=$address=$contactInfo='';
        // $join_date_formatted = date('Y-m-d', strtotime($join_date));
         $join_date = date('Y-m-d');
     }?>
@@ -65,13 +64,73 @@
                         <div class="absolute top-3 left-3 pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text text-gray-400"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>
                         </div>
-                        <textarea name="notes" rows="4" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Add any additional notes about this client"><?=$notes;?></textarea>
+                        <textarea name="notes" rows="4" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Add any additional notes about this client"><?=$address;?></textarea>
                     </div>
                 </div>
             </div><!-- close2 -->
         </div>
         <div class="d-inline-block ">
              <div id="contactWrapper">
+                <?php 
+                
+                if(!empty($contactInfo)) {
+                    foreach($contactInfo as $info){ ?>
+                    <div class="flex items-center gap-4 contact-row mt-2">
+                        <!-- Email -->
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Authorized Personnel</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
+                                    <i class="bi bi-file-person text-xl text-gray-400"></i>
+                                </div>
+                                <input type="hidden" name="infoId[]" value="<?=$info['infoId'];?>" />
+                                <input type="text" name="authorized_personnel[]"  value="<?=$info['authorized_personnel'] ?? '';?>"  class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Authorized Personnel">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
+                                    <i class="bi bi-envelope-at text-xl text-gray-400"></i>
+                                </div>
+                                <input type="email" name="email[]" value="<?=$info['email'] ?? '';?>"  class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Your Email">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
+                                    <i class="bi bi-telephone text-xl text-gray-400"></i>
+                                </div>
+                                <input type="number" name="phone[]"  value="<?=$info['phone'] ?? '';?>"  class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Your Phone">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <!-- Designation -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
+                                    <i class="bi bi-file-person text-xl text-gray-400"></i>
+                                </div>
+                                <input type="text" name="designation[]" value="<?=$info['designation'] ?? '';?>" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Designation">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <!-- Remove button -->
+                        <button type="button" class="removeRow text-white text-xl font-bold btn btn-danger ">&times;</button>
+                    </div>
+                        
+                    <?php } 
+
+                } ?>
                     <div class="flex items-center gap-4 contact-row mt-2">
                         <!-- Email -->
                          <div>

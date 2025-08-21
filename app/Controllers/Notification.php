@@ -76,6 +76,7 @@ class Notification extends Controller{
             $by = ($role == 1 && !empty($noti['name'])) ? '[ Send to ' . $noti['name'] . ' ]' : '';
             $noti['title'] = $noti['title'] .' '.$by;
         }
+    //
         return $this->response->setJSON([
                 'success' => true,
                 'notification' => $notify

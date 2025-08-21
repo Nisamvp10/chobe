@@ -8,7 +8,7 @@ class ReportController extends controller
 {
     public function index()
     {
-        $page = (!haspermission('','report') ? lang('Custom.accessDenied') : 'Repoerts' );
+        $page = (!haspermission('','report') ? lang('Custom.accessDenied') : 'Reports' );
         return view('admin/reports/index',compact('page'));
     }
     function list()

@@ -85,6 +85,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('client/save','Clients::save');
     $routes->get('clients/edit/(:any)','Clients::create/$1');
     $routes->post('clients/suggestPhone','Clients::suggestPhone');
+    $routes->delete('client/delete/(:any)', 'Clients::delete/$1');
     //Apppintments
     $routes->get('appointments','Appointments::index');
     $routes->get('appointments/booking','Appointments::booking');
@@ -125,8 +126,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     //report
     $routes->get('reports','ReportController::index');
     $routes->get('reports/list','ReportController::list');
-    $routes->get('report/generate', 'ReportController::generateReport');
-
+    
 
 });
 $routes->get('qry', 'Home::qry');

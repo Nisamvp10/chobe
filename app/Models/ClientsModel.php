@@ -11,19 +11,29 @@ class ClientsModel extends Model {
     function getClients($search,$filter) {
 
         $builder = $this->db->table('clients as c')
-        ->select('c.id, c.name, c.email, c.phone, c.join_date, c.profile, COUNT(a.id) as total_visits,SUM(a.duration) as spendtime , SUM(a.price) spend,a.booking_date as lastvisit')
-        ->join('appointments as a', 'c.id = a.client_id', 'left');
+        ->select('c.id, c.name, c.email, c.note, c.join_date, c.profile,cc.authorized_personnel,cc.email,cc.phone,cc.designation,cc.id as infoId' )
+        ->join('client_contacts as cc', 'c.id = cc.client_id', 'left')
+        ->where('c.status',1);
+        
 
         if (!empty($search)) {
             $builder->groupStart()
                 ->like('c.name', $search)
-                ->orLike('c.phone', $search)
-                ->orLike('c.email', $search)
+                ->orLike('cc.phone', $search)
+                ->orLike('cc.email', $search)
                 ->groupEnd();
         }
 
-        $builder->groupBy('c.id')
-            ->orderBy('c.id', 'DESC');
+        $builder->orderBy('c.id', 'DESC');
         return $builder->get()->getResultArray();
+    }
+
+    function getClinentById($id) {
+         $builder = $this->db->table('clients as c')
+        ->select('c.id, c.name, c.email, c.note, c.join_date, c.profile,cc.authorized_personnel,cc.email,cc.phone,cc.designation,cc.id as infoId' )
+        ->join('client_contacts as cc', 'c.id = cc.client_id', 'left')
+        ->where('c.id',$id)
+        ->get()->getResultArray();
+        return $builder;
     }
 }

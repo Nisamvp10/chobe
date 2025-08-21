@@ -1,4 +1,5 @@
-  function loadNotifications(search = '') {
+
+function loadNotifications(search = '') {
                 let filer = $('#filerStatus').val();
                 $.ajax({
                     url: App.getSiteurl()+'notification-list',
@@ -8,7 +9,7 @@
                     success: function(response) {
                         
                         if (response.success) {
-                            renderTable();
+                            renderTable(response);
                         }else{
                             toastr.error(response.message);
                         }
@@ -18,9 +19,10 @@
 
             function renderTable(notify){
 
+
                 let notifyHtml = '';
 
-                if (notify.length === 0) {
+                if (notify.length == 0 &&  notify=='') {
                     notifyHtml += `
                         <div class="text-center py-8">
                             <h3 class="text-lg font-medium text-gray-700">No Services found</h3>
@@ -28,9 +30,11 @@
                         </div>
                     `;
                 }else{
+                   // notify = Object.values(notify);
                     notifyHtml += `
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
-                    notify.forEach(notification => {
+                    notify.notification.forEach( notification => {
+                       
                     let genDate = new Date(notification.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
                         notifyHtml += `
@@ -43,7 +47,7 @@
                                     <div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs border-2 border-white">
                                     ${notification.created_by_image ? 
                                         `<img src="${notification.created_by_image}" alt="${notification.created_by_name}" class="w-full h-full object-cover">`:
-                                        `<div class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3">${notification.created_by_name.charAt(0)}</div>` 
+                                        `<div class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3">${notification.name.charAt(0)}</div>` 
                                     }
                                     </div>
                                      <span class="text-xs text-gray-500 ">${notification.created_by_name}</span>
