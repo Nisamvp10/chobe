@@ -42,7 +42,7 @@ loadClients();
                    
                     clients.forEach(client => {
                 let joinedDate = new Date(client.join_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-
+                        url = App.getSiteurl()+'clients/edit/'+client.encrypted_id;
                         html += `
                             <tr class="hover:bg-gray-50">
                                 <td class="px-2 py-2 whitespace-nowrap">
@@ -80,7 +80,7 @@ loadClients();
                                 </td>
                                                 
                                 <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="<?=base_url('clients/edit/');?>${client.encrypted_id}" class="text-blue-600 hover:text-blue-800 mr-3">View</a>
+                                    <a href="${url}" class="text-blue-600 hover:text-blue-800 mr-3">View</a>
                                     <button onclick="deleteThis(this)" data-id="${client.encrypted_id}" class="p-1.5 rounded-md text-gray-500 hover:bg-red-100 hover:text-red-600 deleteThis " data-bs-toggle="modal" data-bs-target="#deleteModal"  data-message="Are you sure you want to delete ?">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash "><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg></button>
                                 </td>
