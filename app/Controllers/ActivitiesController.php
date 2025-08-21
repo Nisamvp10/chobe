@@ -182,7 +182,22 @@ protected $userModel;
                 $validStatus = true;
                 $validMsg = ' Task Updated Successfully';
             }
+            $masterTask = $activityModel->where('id',$taskId)->first();
+            $taskStatus = $activityModel->gettotalActivity($masterTask['task_id']);
+            //$activityModel->getLastQuery();
+            if(!empty($taskStatus)) {
+                $totalActivity = $taskStatus['total_activities'] ?? 0;
+                $completedActivity = $taskStatus['completed_activities'] ?? 0 ;
+                $percentage = $totalActivity > 0 ? round(($completedActivity / $totalActivity) * 100) :0;
 
+                $status = $percentage >= 100 ? 'Completed' : 'In_Progress';
+                $taskUpdate = [
+                    'status' => $status,
+                    'progress' => $percentage
+                ];
+                $this->taskModel->update($masterTask['task_id'], $taskUpdate);
+
+            }
         }else{
             $validMsg = 'Please select at least one participant for the task ';
         }

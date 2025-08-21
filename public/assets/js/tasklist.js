@@ -38,40 +38,31 @@
                     <p class="text-gray-500 mt-1"> <?=(!haspermission('','view_clients') ? :'Try adjusting your search');?></p>
                 </div>`;
         }else{
+             let duedateText;
+             let dueClass;
             
             html += `
                 <table class="min-w-full divide-y divide-gray-200">
-                    <thead>
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">% Completed</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">duration</th>
-
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-            `;
+                   
+                    <tbody class="bg-white divide-y divide-gray-200">`;
             tasks.forEach(task => {
-            const dueDate = new Date(task.overdue_date);
-            const today = new Date();
-            dueDate.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
+                if(task.overdue_date != null && task.overdue_date != '0000-00-00'){ 
+                    const dueDate = new Date(task.overdue_date);
+                    const today = new Date();
+                    dueDate.setHours(0, 0, 0, 0);
+                    today.setHours(0, 0, 0, 0);
 
-            let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-            let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900';
-            
+                    duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                    dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900';
+            }else{
+                duedateText = 'No Due Date';
+                dueClass = 'd-none';
+            }
 
-            
-                var priority = (task.priority =='High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
-                var status = (task.status =='Pending' ? 'bg-task-medium text-white' : (task.priority == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.priority == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
-                const progress = task.progress;
+            var priority = (task.priority =='High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
+            var status = (task.status =='Pending' ? 'bg-task-medium text-white' : (task.priority == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.priority == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
+            const progress = task.progress;
 
-
-                // 
             let ectivitUrl = App.getSiteurl()+`activities/${task.id}`;
 
             const totalTasks = task.total_activities ? task.total_activities :0;;
@@ -559,13 +550,8 @@ let selectedTaskId = null;
 
 function deleteTask(e){
     let taskTitle ='';
-    selectedTaskId = $('#taskEditForm #taskId').val(); // store the clicked task ID
-    //let taskTitle = $(e).data('title');
-    // Update modal message
+    selectedTaskId = $('#actionId').val();
     $('#deleteTaskMessage').text(`Are you sure you want to delete ? This action cannot be undone.`);
-
-    // Show modal "${taskTitle}"
-    //$('#deleteModal').modal('show');
 };
 
 // Confirm delete click

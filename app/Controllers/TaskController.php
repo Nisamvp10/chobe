@@ -66,7 +66,7 @@ class TaskController extends Controller {
             'description' => 'required|min_length[3]',
             'branch' => 'required',
             'priority' => 'required',
-            'duedate' => 'required',
+            //'duedate' => 'required',
             
         ];
 
@@ -230,7 +230,7 @@ class TaskController extends Controller {
                     'project'   => $task['project_id'],
                     'priority'  => $task['priority'],
                     'status'    => $task['status'],
-                    'overdue_date' => $task['overdue_date'],
+                    'overdue_date' => $task['overdue_date'] ?? null,
                     'progress'  => $task['progress'],
                     'ducument'  => $task['image_url'],
                     'users'     => [],

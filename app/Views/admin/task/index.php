@@ -237,7 +237,7 @@
                 <button name="priority"  type="button" class="priority-btn px-4 py-2 rounded-md text-sm bg-gray-100 text-gray-800 border border-gray-300" data-priority="High">High</button>
             </div>
         </div>
-        <div>
+        <div class="hidden">
             <label for="progress" class="block text-sm font-medium text-gray-700 mb-1" id="progressLabel">Progress: 60%</label>
             <input type="range" name="progress" id="progressBar" min="0" max="100" step="5" class="w-full" value="">
         </div>

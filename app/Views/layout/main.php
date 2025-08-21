@@ -807,7 +807,7 @@ if (!empty($userData)){
                         <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
                     </a>
                 </li>
-                
+               
                 <?php if ($userRole ==1): ?>
                     <!-- nav -->
                      <div class="relative mb-0 nav-item  <?= strpos(uri_string(), 'settings') === 0 ? 'side-active' : '' ?>" x-data="{ open: false }">

@@ -55,4 +55,16 @@ class ActivityModel extends Model
             $totalAssigned = count($assignedActivities);
             return $totalAssigned;
     }
+
+    function getTotalActivity($taskId) {
+        $builder = $this->db->table('activities');
+            $builder->select("
+                COUNT(*) as total_activities,
+                SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed_activities
+            ");
+            $builder->where('task_id', $taskId);
+            $query = $builder->get();
+            $result = $query->getRowArray();
+            return $result;
+    }
 }
