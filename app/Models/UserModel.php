@@ -30,6 +30,7 @@ Class UserModel extends Model{
                 ->join('branches as b', 'b.id = u.store_id', 'left')
                 ->join('specialties as sp', 'sp.staff_id = u.id', 'left')
                 ->join('categories as c', 'c.id = sp.speciality', 'left')
+                ->where('u.position !=','Develope6')
                 ->groupBy('u.id')
                 ->orderBy('u.id', 'DESC');
 
