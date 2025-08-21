@@ -155,7 +155,9 @@ class Staff extends BaseController{
                     $data['password'] = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
                 }
             if ($userModel->update($id,$data)) {
-                $this->specialityModel->insertBatch($specialtyData);
+                if(!empty($specialtyData)) {
+                    $this->specialityModel->insertBatch($specialtyData);
+                }
                 $validSuccess = true;
                 $validMsg = "Updated Successfully";
             }else {
