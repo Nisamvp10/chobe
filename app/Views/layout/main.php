@@ -748,14 +748,6 @@ if (!empty($userData)){
                 <?php } 
             }?>
 
-             <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'tasks/my-tasks') === 0 ? 'active' : '' ?>" href="<?= base_url('tasks/my-tasks') ?>">
-                        <i class="bi bi-person-check"></i>
-                        <span>My Tasks</span>
-                    </a>
-                </li>
-                
-
                 <?php 
                 if(haspermission('','view_clients')) { ?>
                 <li class="nav-item">
