@@ -67,7 +67,7 @@
                         if(!empty($roles)) {
                             foreach ($roles as $role) {
                                 ?>
-                                    <?= ($role->id !=1 ? '<option value="'.$role->id.'">'.$role->role_name.'</option>' :'') ?>
+                                    <?= '<option value="'.$role->id.'">'.$role->role_name.'</option>'  ?>
                                 <?php
                             }
                         } ?>

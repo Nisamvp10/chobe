@@ -92,8 +92,11 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('booking/save','Appointments::save');
     $routes->get('appointments/load','Appointments::load');
     //$routes->get('appointments/grid','Appointments::grid');
+    //project Unit
+    $routes->get('project-unit','ProjectUnitController::index');
+    $routes->post('project-unit/save','ProjectUnitController::save');
 
-    //tasks
+    //tasks 
     $routes->get('tasks','TaskController::index');
     $routes->get('task/create','TaskController::create');
     $routes->post('task/save','TaskController::save');

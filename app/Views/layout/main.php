@@ -757,9 +757,16 @@ if (!empty($userData)){
                     </a>
                 </li>
                 
+                <?php } ?>
 
+                 <li class="nav-item">
+                    <a class="nav-link " href="<?= base_url('project-unit') ?>">
+                        <i class="bi bi-shop"></i>
+                        <span>Priject Unit</span>
+                    </a>
+                </li>
                 
-                <?php } if (session()->get('role') == 'admin' || session()->get('role') == 'zone_manager'): ?>
+                <?php if (session()->get('role') == 'admin' || session()->get('role') == 'zone_manager'): ?>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'dashboard/branches') === 0 ? 'active' : '' ?>" href="<?= base_url('dashboard/branches') ?>">
                         <i class="bi bi-shop"></i>
@@ -776,6 +783,7 @@ if (!empty($userData)){
                     </a>
                 </li>
                 <?php endif; ?>
+                
                 <?php if(haspermission('','view_report')) {  ?>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'dashboard/reports') === 0 ? 'active' : '' ?>" href="<?= base_url('dashboard/reports') ?>">
@@ -807,6 +815,7 @@ if (!empty($userData)){
                         <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
                     </a>
                 </li>
+                
                
                 <?php if ($userRole ==1): ?>
                     <!-- nav -->
