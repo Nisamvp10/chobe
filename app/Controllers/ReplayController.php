@@ -7,16 +7,19 @@ use App\Models\NotificationModel;
 use App\Models\TaskModel;
 use App\Models\ActivityReplayModel;
 use App\Models\ActivityModel;
+use App\Models\ActivityStaffModel;
 class ReplayController extends Controller {
 
     protected $taskModel;
     protected $notificationModel;
     protected $activityModel;
+    protected $activityStaffModel;
 
     function __construct() {
         $this->taskModel = new TaskModel();
         $this->notificationModel = new NotificationModel();
         $this->activityModel = new ActivityModel();
+        $this->activityStaffModel = new  ActivityStaffModel();
     }
 
 
@@ -112,11 +115,54 @@ class ReplayController extends Controller {
                 'message' => 'You cannot reply because this task is already completed.'
             ]);
         }else{
+            $postStatus = $this->request->getPost('status');
+            
+            $this->activityStaffModel
+                ->where('staff_id', session('user_data')['id'])
+                ->where('activity_id', $id)
+                ->set(['status' => $postStatus])
+                ->update();
+
+            // Get all staff statuses for this activity
+            $result = $this->activityStaffModel
+                ->select('status')
+                ->where('activity_id', $id)
+                ->findAll();
+
+            $total = count($result);
+            if ($total == 0) return; // No assignees
+
+            $completed  = 0;
+            $inProgress = 0;
+
+            foreach ($result as $row) {
+                if ($row['status'] === 'Completed') {
+                    $completed++;
+                } elseif ($row['status'] === 'In_Progress') {
+                    $inProgress++;
+                }
+            }
+
+            $progress = (($completed + ($inProgress * 0.5)) / $total) * 100;
+
+            if ($completed == $total && $total > 0) {
+                $status   = 'Completed';
+                $progress = 100;
+            } elseif ($completed == 0 && $inProgress == 0) {
+                $status   = 'Pending';
+                $progress = 0;
+            } else {
+                $status = 'In_Progress';
+            }
+
             $updateData = [
-                'status' => $this->request->getPost('status'),
-                'progress' => $this->request->getPost('progress'),
+                'status'   => $status,
+                'progress' => round($progress, 2),
             ];
-             $this->activityModel->update($id,$updateData);
+
+            $this->activityModel->update($id, $updateData);
+            $this->masterTaskStatusUpdate( $getTask['task_id']);
+
         }
         
         $data = [
@@ -139,5 +185,39 @@ class ReplayController extends Controller {
             $this->notificationModel->insert($notify);
         }
          return $this->response->setJSON(['success' => true,'message' => 'Done']);
+    }
+
+    private function masterTaskStatusUpdate($taskId) {
+        $activitiesTask = $this->activityModel->where('task_id', $taskId)->findAll();
+
+        $totalTasks      = count($activitiesTask);
+        $completedTasks  = 0;
+        $inProgressTasks = 0;
+
+        foreach ($activitiesTask as $task) {
+            if ($task['status'] === 'Completed') {
+                    $completedTasks++;
+            } elseif ($task['status'] === 'In_Progress') {
+                $inProgressTasks++;
+            }
+        }
+      
+        $masterProgress = (($completedTasks + ($inProgressTasks * 0.5)) / $totalTasks) * 100;
+
+        // Master Task status
+        if ($completedTasks == 0 && $inProgressTasks == 0) {
+            $masterStatus = 'Pending';
+        } elseif ($completedTasks == $totalTasks) {
+            $masterStatus   = 'Completed';
+            $masterProgress = 100;
+        } else {
+            $masterStatus = 'In_Progress';
+        }
+
+        $updateData = [
+            'status'   => $masterStatus,
+            'progress' => round($masterProgress, 2),
+        ];
+        $this->taskModel->update($taskId, $updateData);
     }
 }

@@ -149,12 +149,12 @@
 
      <!-- history -->
      
-    <div id="replyForm" class="w-1/2 p-6 overflow-y-auto border-l hidden h-full flex flex-col">
+    <div id="replyForm" class="w-1/2 p-6 overflow-y-auto border-l hidden h-full flex flex-col" style="height: 80vh">
          <h2 class="text-xl font-semibold mb-4">Comment</h2>
             <form class="mb-4" method="post" id="replyTaskForm">
                 <?= csrf_field() ;?>
                 <input type="hidden" name="taskId" id="taskId" />
-                <div class="grid grid-cols-2 gap-4 pb-4" >
+                <div class="grid grid-cols-1 gap-4 pb-4" >
                      <div class="items-center rounded-md cursor-pointer border-gray-300 ">
                         <label class="block font-medium">Status</label>
                         <select  name="status" class="w-full border px-3 py-2 rounded" id="taskStatus">
@@ -162,11 +162,7 @@
                             <option value="Completed">Completed</option>
                         </select>
                     </div>
-                    <div class="">
-                        <label class="block font-medium">Progress</label>
-                        <input type="number" name="progress" id="progress" class="w-full border px-3 py-2 rounded" placeholder="Enter progress percentage (0-100)" min="0" max="100">
-                        <div class="invalid-feedback" id="progress_error"></div>
-                    </div>
+                    
                  </div>
                   <div class="flex space-x-2" >
 

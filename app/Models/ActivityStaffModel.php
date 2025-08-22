@@ -11,5 +11,6 @@ class ActivityStaffModel extends Model
     protected $allowedFields = [
         'activity_id', 
         'staff_id', 
+        'status'
     ];
 }
