@@ -211,7 +211,8 @@ class TaskController extends Controller {
         $searchInput = $this->request->getGet('search');
         $startDate = $this->request->getGet('startDate');
         $endDate = $this->request->getGet('endDate');
-        $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate); // or ->findAll()
+        $taskProject = $this->request->getGet('taskProject');
+        $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate,$taskProject); // or ->findAll()
         $groupData = [];
 
         foreach ($alltask as &$task) {

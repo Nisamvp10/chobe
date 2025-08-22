@@ -76,8 +76,12 @@ class ReplayController extends Controller {
             return $this->response->setJSON(['success' => false,'message' => 'invalid Request']);
         }
         $id = decryptor($this->request->getVar('taskId'));
-        $result = $replayModel->getHistory($id);
-        return $this->response->setJSON(['success' => true,'replay' => $result]);
+        $getTask =  $this->activityModel->find($id);
+        $history = $replayModel->getHistory($id);
+        foreach($history as &$row) {
+            $row['taskdata'] = $getTask;
+        }
+        return $this->response->setJSON(['success' => true,'replay' => $history]);
     }
 
     
@@ -107,6 +111,12 @@ class ReplayController extends Controller {
                 'status'  => 'error',
                 'message' => 'You cannot reply because this task is already completed.'
             ]);
+        }else{
+            $updateData = [
+                'status' => $this->request->getPost('status'),
+                'progress' => $this->request->getPost('progress'),
+            ];
+             $this->activityModel->update($id,$updateData);
         }
         
         $data = [

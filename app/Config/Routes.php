@@ -95,7 +95,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     //project Unit
     $routes->get('project-unit','ProjectUnitController::index');
     $routes->post('project-unit/save','ProjectUnitController::save');
-
+    $routes->post('project-unit/list','ProjectUnitController::list');
     //tasks 
     $routes->get('tasks','TaskController::index');
     $routes->get('task/create','TaskController::create');

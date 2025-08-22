@@ -1,6 +1,6 @@
 
  //$(document).ready(function() {
-    $('#taskFilerStatus').on('change',function() {
+    $('#taskFilerStatus ,#taskProject').on('change',function() {
         loadTask();
     })
     $('#searchInput').on('input',function(){
@@ -10,11 +10,12 @@
     function loadTask(search = '',startDate ='', endDate='') {
         
         let  filter = $('#taskFilerStatus').val();
+        let taskProject = $('#taskProject').val();
         $.ajax({
 
             url: App.getSiteurl()+'task/tasklist',
             type: "GET",
-            data: { search: search,filter:filter,startDate:startDate,endDate:endDate},
+            data: { search: search,filter:filter,startDate:startDate,endDate:endDate,taskProject:taskProject},
             dataType: "json",
             success: function(response) {
                 if (response.success) {

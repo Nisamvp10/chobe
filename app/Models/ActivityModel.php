@@ -35,7 +35,7 @@ class ActivityModel extends Model
             }
             
             if(session('user_data')['role'] != 1 ) {
-                $builder->where('ats.staff_id',session('user_data')['id']);
+              //  $builder->where('ats.staff_id',session('user_data')['id']);
             }
         $result = $builder->get()->getResultArray();
         return $result;

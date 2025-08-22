@@ -90,9 +90,13 @@
             <div class="flex justify-between items-center">
                 <div class="flex -space-x-2 profile-stack ">
                     ${task.users.map(user => `
-                        <div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs border-2 border-white">
+                        ${user.img ? `
+                        <div class="relative rounded-full overflow-hidden flex items-center justify-center  w-10 h-10 text-xs border-2 border-white">
                             <img src="${user.img}" alt="${user.staffName}" class="w-full h-full object-cover">
                         </div>
+                    `:`<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                                    <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
+                            </div>`}
                     `).join('')}
                 </div>
                 <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
@@ -359,7 +363,7 @@ function renderReplayUi(replay) {
     let html ='';
     if(replay.length ===0) {
         html = `<div class="text-center py-8">
-                    <h3 class="text-lg font-medium text-gray-700">No Replay yet</h3>
+                    <h3 class="text-lg font-medium text-gray-700">No Comments yet</h3>
                 </div>`;
     }else{
          html +=` <ul class="-mb-8">`

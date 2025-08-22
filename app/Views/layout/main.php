@@ -757,16 +757,16 @@ if (!empty($userData)){
                     </a>
                 </li>
                 
-                <?php } ?>
+                <?php } if(hasPermission('','view_project_unit') || hasPermission('','create_project_unit') ) { ?>
 
                  <li class="nav-item">
                     <a class="nav-link " href="<?= base_url('project-unit') ?>">
                         <i class="bi bi-shop"></i>
-                        <span>Priject Unit</span>
+                        <span>Project Unit</span>
                     </a>
                 </li>
                 
-                <?php if (session()->get('role') == 'admin' || session()->get('role') == 'zone_manager'): ?>
+                <?php } if (session()->get('role') == 'admin' || session()->get('role') == 'zone_manager'): ?>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'dashboard/branches') === 0 ? 'active' : '' ?>" href="<?= base_url('dashboard/branches') ?>">
                         <i class="bi bi-shop"></i>

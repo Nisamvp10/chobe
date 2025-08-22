@@ -137,7 +137,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
-                <span>Add Reply</span>
+                <span>Add Comment</span>
                 </button>
             </div>
             </div>
@@ -150,7 +150,7 @@
      <!-- history -->
      
     <div id="replyForm" class="w-1/2 p-6 overflow-y-auto border-l hidden h-full flex flex-col">
-         <h2 class="text-xl font-semibold mb-4">Replay Task</h2>
+         <h2 class="text-xl font-semibold mb-4">Comments</h2>
             <form class="mb-4" method="post" id="replyTaskForm">
                 <?= csrf_field() ;?>
                 <input type="hidden" name="taskId" id="taskId" />

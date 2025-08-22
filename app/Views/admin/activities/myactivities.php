@@ -137,7 +137,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
-                <span>Add Reply</span>
+                <span>Add Comment</span>
                 </button>
             </div>
             </div>
@@ -150,12 +150,27 @@
      <!-- history -->
      
     <div id="replyForm" class="w-1/2 p-6 overflow-y-auto border-l hidden h-full flex flex-col">
-         <h2 class="text-xl font-semibold mb-4">Replay Task</h2>
+         <h2 class="text-xl font-semibold mb-4">Comment</h2>
             <form class="mb-4" method="post" id="replyTaskForm">
                 <?= csrf_field() ;?>
                 <input type="hidden" name="taskId" id="taskId" />
-                <div class="flex space-x-2" >
-                    <textarea placeholder="Enter your reply..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                <div class="grid grid-cols-2 gap-4 pb-4" >
+                     <div class="items-center rounded-md cursor-pointer border-gray-300 ">
+                        <label class="block font-medium">Status</label>
+                        <select  name="status" class="w-full border px-3 py-2 rounded" id="taskStatus">
+                            <option value="In_Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="">
+                        <label class="block font-medium">Progress</label>
+                        <input type="number" name="progress" id="progress" class="w-full border px-3 py-2 rounded" placeholder="Enter progress percentage (0-100)" min="0" max="100">
+                        <div class="invalid-feedback" id="progress_error"></div>
+                    </div>
+                 </div>
+                  <div class="flex space-x-2" >
+
+                    <textarea placeholder="Enter your Comments..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
                      <div class="invalid-feedback" id="replay_error"></div>
                 </div>
                 <div class="flex justify-end space-x-2 mt-2">

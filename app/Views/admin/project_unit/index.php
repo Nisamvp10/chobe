@@ -76,8 +76,8 @@
             function projects(search = '') {
                 let filter = $('#filerStatus').val();
                 $.ajax({
-                    url: "<?= site_url('project/list') ?>",
-                    type: "GET",
+                    url: "<?= site_url('project-unit/list') ?>",
+                    type: "post",
                     data: { search: search,filter:filter },
                     dataType: "json",
                     success: function(response) {
@@ -102,7 +102,7 @@
                     `;
                 }else{
                     html += `
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 border bg-gray-100">
                             <thead>
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.NO</th>
@@ -118,16 +118,27 @@
                     `;
                     projects.forEach(project => {
               
-                        html2 += `
+                        html += `
                             <tr class="hover:bg-gray-50 ${project.is_active ==0 ? 'bg-red-100 bg-opacity-50' :'' }"  >
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="flex items-center">
-                                       
                                         <div class="text-sm font-medium text-gray-900">${count}</div>
                                     </div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">${project.project}</div>
+                                    <div class="text-sm text-gray-900">${project.store}</div>
+                                </td>
+                                 <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${project.contact_person}</div>
+                                </td>
+                                <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">#${project.polaris_code}</div>
+                                </td>
+                                <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">#${project.oracle_code}</div>
+                                </td>
+                                <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${project.rm_mail}</div>
                                 </td>
                               
                                 <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium">
@@ -173,6 +184,7 @@
                     success:function(response)
                     { 
                         if(response.success){
+                              $('#submitBtn').prop('disabled', true).html('save');
                             toastr.success(response.message);
                             webForm[0].reset();
                             closeModal();

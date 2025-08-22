@@ -122,7 +122,7 @@
         <div class="logo">
             <i class="bi bi-grid-1x2-fill"></i>
             <h1>TaskManager</h1>
-            <p>Supermarket Task Management System</p>
+            <p>GCC Task Management System</p>
         </div>
         
         <div class="card">

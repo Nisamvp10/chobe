@@ -40,7 +40,19 @@
                 </div>
                 <input type="text" id="filterDate" placeholder="Filter by date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
             </div>
-                
+            <div class="w-full md:w-48">
+                <select class="w-full border px-3 py-2 rounded" id="taskProject">
+                      <option value="all">All</option>
+                <?php 
+                    if(!empty($projects)) {
+                        foreach($projects as $project) {
+                        ?>
+                        <option value="<?=$project['id'];?>"><?=$project['project'];?></option>
+                        <?php
+                        }
+                }?>
+                </select>
+            </div>
 
             <!-- Column 2: Status Dropdown -->
             <div class="w-full md:w-48">
@@ -147,7 +159,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
-                <span>Add Reply</span>
+                <span>Add Comment</span>
                 </button>
             </div>
             </div>
@@ -247,6 +259,7 @@
                     <label class="block font-medium">Due Date</label>
                     <input type="date" name="duedate" value="" id="duedate" class="w-full border px-3 py-2 rounded" />
                 </div>
+       
                 <div class="items-center rounded-md cursor-pointer border-gray-300 hidden">
                     <label class="block font-medium">Status</label>
                     <select name="status" class="w-full border px-3 py-2 rounded" id="taskStatus">

@@ -107,9 +107,11 @@
             <div class="flex justify-between items-center">
                 <div class="flex -space-x-2 profile-stack ">
                     ${task.users.map(user => `
-                        <div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs border-2 border-white">
+                     ${user.img ? `   <div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
                             <img src="${user.img}" alt="${user.staffName}" class="w-full h-full object-cover">
-                        </div>
+                        </div>` :`<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                                    <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
+                            </div>`}
                     `).join('')}
                 </div>
                 <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
@@ -252,8 +254,10 @@ function openTaskModal(el) {
                 wrapper.className =  'flex items-center gap-2 bg-gray-50 p-2 rounded mb-2';
 
                 const avatar = document.createElement('div');
-                avatar.className = 'relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs';
-                avatar.innerHTML = `<img src="${user.img}" alt="" class="w-full h-full object-cover">`;
+                avatar.className = 'relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs';
+                avatar.innerHTML = `${user.img ? `<img src="${user.img}" alt="" class="w-full h-full object-cover">` :`<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                                    <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
+                            </div>`}`;
 
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'text-sm text-gray-700';
@@ -337,7 +341,7 @@ function renderHistory(id) {
         data: { taskId: id},
         dataType: "json",
         success: function(response) {
-           
+          
             if (response.success) {
                 renderReplayUi(response.replay);
             }
@@ -353,6 +357,7 @@ function renderReplayUi(replay) {
     }else{
          html +=` <ul class="-mb-8">`
         replay.forEach(rply=>{
+             $('#progress').val(rply.taskdata.progress);
             const replyDate = new Date(rply.created_at);
             const formattedDate = replyDate.toLocaleString();
             html +=` <li>
@@ -369,10 +374,15 @@ function renderReplayUi(replay) {
                                 </div>
                                 <div class="whitespace-nowrap text-right text-sm text-gray-500">
                                     <div class="flex items-center space-x-2">
-                                        <div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs ">
-                                            <img src="${rply.profileimg}" alt="John Doe" class="w-full h-full object-cover">
+                                        <div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs ">
+                                           ${rply.profileimg ? `   <div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs border-2 border-white">
+                                                <img src="${rply.profileimg}" alt="${rply.name}" class="w-full h-full object-cover">
+                                            </div>` :`<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                                                        <span class="text-blue-600 font-medium">${rply.name.charAt(0)}</span>
+                                                </div> ` }
+                                           
                                         </div>
-                                            <time datetime="${replyDate.toISOString()}" class="text-gray-500">${formattedDate}</time>
+                                             ${rply.name} <time datetime="${replyDate.toISOString()}" class="text-gray-500">${formattedDate}</time>
                                         </div>
                                     </div>
                                 </div>

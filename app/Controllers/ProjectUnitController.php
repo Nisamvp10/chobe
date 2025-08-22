@@ -3,8 +3,15 @@ namespace App\Controllers;
 
 use CodeIgniter\Controller;
 
+use App\Models\ProjectunitModel;
+
 class ProjectUnitController extends Controller
 {
+    protected $projectUnitModel;
+
+    function __construct() {
+        $this->projectUnitModel = new ProjectunitModel();
+    }
     public function index()
     {
         $page = (!hasPermission('','view_project_unit')) ?  lang('Custom.accessDenied') : 'Project Unit';
@@ -17,7 +24,7 @@ class ProjectUnitController extends Controller
         if(!$this->request->isAJAX()){
             return $this->response->setJSON(['success'=> false, 'message' => 'invalid Request']);
         }
-        if(!haspermission(session('user_data')['role'],'create_branch')) {
+        if(!haspermission(session('user_data')['role'],'create_project_unit')) {
              return $this->response->setJSON(['success' => false, 'message' => 'Permission Denied']);
         }
 
@@ -36,7 +43,7 @@ class ProjectUnitController extends Controller
             ]);
         }
 
-        $store   = $this->request->getVar('branch');
+        $store   = $this->request->getVar('store');
         $location = $this->request->getVar('location');
 
         $contactPerson = $this->request->getVar('rmname');
@@ -50,7 +57,6 @@ class ProjectUnitController extends Controller
 
         $data = [
             'store' => $store,
-            'location'  => $location,
             'oldstore_name' => $oldstore,
             'store_mailid' => $storemail,
             'polaris_code' => $polaris_code,
@@ -61,10 +67,8 @@ class ProjectUnitController extends Controller
             'project_unit_type' => $this->request->getPost('status'),
         ];
 
-
-
         if($id){
-            if($this->branchModel->update($id, $data)){
+            if($this->projectUnitModel->update($id, $data)){
                 
                 $validStatus = true;
                 $validMsg = 'Updated successfully!';
@@ -74,7 +78,7 @@ class ProjectUnitController extends Controller
                 $validMsg = 'something went wrong Please Try again';
             }
         }else{
-            if($this->branchModel->insert($data)){
+            if($this->projectUnitModel->insert($data)){
 
                 $validStatus = true;
                 $validMsg = 'New Branch Adedd';
@@ -87,6 +91,40 @@ class ProjectUnitController extends Controller
         return $this->response->setJSON([
             'success' => $validStatus,
             'message' => $validMsg
+        ]);
+    }
+
+    function list() {
+        if(!$this->request->isAJAX()){
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid Request']);
+        }
+        if(!haspermission('','view_project_unit')) {
+            return $this->response->setJSON(['success' => false,'message' => ' Permission Denied']);
+        }
+        $search = $this->request->getVar('search');
+        $filter = $this->request->getVar('filter');
+
+        $builder = $this->projectUnitModel->select('id,store,contact_person,oracle_code,polaris_code,rm_mail')->orderBy('id DESC');
+
+        if($filter !=='all'){
+            $builder->where('is_active',$filter);
+        }
+
+        if(!empty($search))
+        {
+            $builder->groupStart()
+                ->like('store',$search)
+                ->groupEnd();
+        }
+
+        $projects = $builder->findAll();
+        foreach($projects as &$project){
+            $project['encrypted_id'] = encryptor($project['id']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'projects' => $projects,
         ]);
     }
 }
