@@ -15,13 +15,13 @@ class Category extends Controller{
         if(!haspermission(session('user_data')['role'],'view_category')) {
             $page ="Permission Denied";
         }else{
-            $page = "Category";
+            $page = "Staff Capability";
         }
         return view('admin/category/category',compact('page'));
     }
     function create($id =false)
     {
-        $page = "Edit Category" ; 
+        $page = "Edit Staff Capability" ; 
         $id = decryptor($id);
         $data = $this->categoryModel->where(['id'=> $id,'is_active' =>1])->first();
         return view('admin/category/edit',compact('page','data'));
