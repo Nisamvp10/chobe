@@ -62,7 +62,7 @@
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                     </svg>
                     </div>
-                    <select id="taskFilerStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
+                    <select id="taskFilterStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
                          <option value="all">All</option>
                         <option <?=($taskStatus == 'pending' ? 'selected' :'') ;?> value="Pending">Pending</option>
                         <option <?=($taskStatus == 'in-progress' ? 'selected' :'') ;?> value="In_Progress">In Progress</option>

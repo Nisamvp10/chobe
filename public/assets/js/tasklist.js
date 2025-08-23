@@ -1,6 +1,6 @@
 
  //$(document).ready(function() {
-    $('#taskFilerStatus ,#taskProject').on('change',function() {
+    $('#taskFilterStatus ,#taskProject,#taskProject').on('change',function() {
         loadTask();
     })
     $('#searchInput').on('input',function(){
@@ -9,7 +9,7 @@
     })
     function loadTask(search = '',startDate ='', endDate='') {
         
-        let  filter = $('#taskFilerStatus').val();
+        let  filter = $('#taskFilterStatus').val();
         let taskProject = $('#taskProject').val();
         $.ajax({
 
