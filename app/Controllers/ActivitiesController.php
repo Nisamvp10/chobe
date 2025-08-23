@@ -238,6 +238,7 @@ protected $userModel;
                     'progress'      => $task['progress'],
                     'overdue_date'  => $task['duedate'],
                     'createdAt'     => $task['created_at'],
+                    'staffStatus' => $task['staffStatus'],
                     'allUsers'      => $allusers,
                     'users'         => [],
                 ];

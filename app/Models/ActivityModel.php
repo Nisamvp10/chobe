@@ -16,7 +16,8 @@ class ActivityModel extends Model
         $builder = $this->db->table('activities as a')
             ->select('a.activity_title,a.activity_description,a.status,a.id,a.progress,a.duedate,a.created_at,
             t.priority,
-            u.profileimg, u.name, u.id as userId, ')
+            u.profileimg, u.name, u.id as userId,
+            ats.status as staffStatus ')
             ->join('tasks as t','a.task_id = t.id','left')
             ->join('activity_staff as ats','a.id =  ats.activity_id')
             ->join('users as u', 'u.id = ats.staff_id')
@@ -35,7 +36,7 @@ class ActivityModel extends Model
             }
             
             if(session('user_data')['role'] != 1 ) {
-              //  $builder->where('ats.staff_id',session('user_data')['id']);
+              $builder->where('ats.staff_id',session('user_data')['id']);
             }
         $result = $builder->get()->getResultArray();
         return $result;

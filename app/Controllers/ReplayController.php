@@ -122,7 +122,6 @@ class ReplayController extends Controller {
                 ->where('activity_id', $id)
                 ->set(['status' => $postStatus])
                 ->update();
-
             // Get all staff statuses for this activity
             $result = $this->activityStaffModel
                 ->select('status')
@@ -205,17 +204,19 @@ class ReplayController extends Controller {
         $masterProgress = (($completedTasks + ($inProgressTasks * 0.5)) / $totalTasks) * 100;
 
         // Master Task status
-        if ($completedTasks == 0 && $inProgressTasks == 0) {
-            $masterStatus = 'Pending';
-        } elseif ($completedTasks == $totalTasks) {
-            $masterStatus   = 'Completed';
-            $masterProgress = 100;
-        } else {
-            $masterStatus = 'In_Progress';
-        }
+        if ($completedTasks == $totalTasks && $totalTasks > 0) {
+                $status   = 'Completed';
+                $progress = 100;
+            } elseif ($completedTasks == 0 && $inProgressTasks == 0) {
+                $status   = 'Pending';
+                $progress = 0;
+            } else {
+                $status = 'In_Progress';
+            }
+
 
         $updateData = [
-            'status'   => $masterStatus,
+            'status'   => $status,
             'progress' => round($masterProgress, 2),
         ];
         $this->taskModel->update($taskId, $updateData);

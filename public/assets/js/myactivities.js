@@ -54,6 +54,7 @@
             
                 var priority = (task.priority =='High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
                 var status = (task.status =='Pending' ? 'bg-task-medium text-white' : (task.priority == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.priority == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
+                var statusColor = (task.staffStatus =='Pending' ? 'bg-task-medium text-white' : (task.staffStatus == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.staffStatus == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
                 const progress = task.progress;
 
 
@@ -87,6 +88,7 @@
             <div class="flex justify-between items-start mb-2">
                 <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
                 <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${priority}">${task.priority}</span>
+                 <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${statusColor}">Your task Status : ${task.staffStatus}</span>
             </div>
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
             <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium">${task.branch_name}</span></div>

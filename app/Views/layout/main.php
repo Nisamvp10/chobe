@@ -748,7 +748,18 @@ if (!empty($userData)){
                 <?php } 
             }?>
 
+             <?php
+                 if(haspermission('','view_activity_task')) { ?>
+                <li class="nav-item">
+                    <a class="nav-link "  href="<?=base_url('task-activity-task');?>">
+                    <span class="flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles "><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg></span>
+                        <span>Activity Task</span>
+                    </a>
+                </li>
+
+
                 <?php 
+                 }
                 if(haspermission('','view_clients')) { ?>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'clients') === 0 && strpos(uri_string(), 'appointments') === false ? 'active' : '' ?>" href="<?= base_url('clients') ?>">
@@ -767,7 +778,7 @@ if (!empty($userData)){
                 </li>
                 
                 <?php } if (session()->get('role') == 'admin' || session()->get('role') == 'zone_manager'): ?>
-                <li class="nav-item">
+                <li class="nav-item d-none">
                     <a class="nav-link <?= strpos(uri_string(), 'dashboard/branches') === 0 ? 'active' : '' ?>" href="<?= base_url('dashboard/branches') ?>">
                         <i class="bi bi-shop"></i>
                         <span>Branches</span>
