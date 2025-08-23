@@ -17,7 +17,15 @@ function getParticipants ($id) {
         ->join('roles r','u.role = r.id')
         ->where('ta.task_id',$id);
         $result = $builder->get()->getResultArray();
-        echo $this->db->getLastQuery();
+}
+function getMasterTaskStaff ($id) {
+    $builder = $this->db->table('task_assignees as ta')
+        ->select('u.id,ta.staff_id,u.name,u.profileimg')
+        ->join('users as u','ta.staff_id = u.id')
+        ->where('ta.task_id',$id)
+        ->where('u.role !=',1);
+        $result = $builder->get()->getResultArray();
+        return $result;
 }
 
 }

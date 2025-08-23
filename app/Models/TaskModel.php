@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 
 class TaskModel extends Model {
     protected $table = 'tasks';
-    protected $allowedFields= ['id','title','description','status','project_id','priority','progress','branch','overdue_date','completed_at'];
+    protected $allowedFields= ['id','title','description','status','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
     protected $primaryKey ='id';
  
     function getTasks($limit=false,$orderBy=false,$filter = false,$searchInput=false,$startDate=false,$endDate=false,$taskProject=false) {
@@ -19,7 +19,7 @@ class TaskModel extends Model {
 
         $builder = $this->db->table('tasks as t')
             ->select('
-                t.id, t.title, t.description, t.status, t.completed_at, t.project_id,
+                t.id, t.title, t.description, t.status, t.completed_at, t.project_id,t.project_unit,
                 t.priority, t.overdue_date, b.branch_name, b.id as store, 
                 t.created_at, u.profileimg, u.name, u.id as userId, 
                 t.progress, a.role, a.priority as userPriority, ti.image_url

@@ -55,22 +55,21 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Project Unit</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-diagram-3 text-xl text-gray-400"></i></div>
-                        <select name="branch" id="branch" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
-                            <option value="">Select Branch</option>
-                             <option value="all"  >All</option>
+                        <select name="projectUnit" id="projectUnit" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" >
+                            <option value="">Project Unit</option>
                             <?php
-                                if(!empty($branches)){
-                                    foreach($branches as $branch){
+                                if(!empty($projectUnits)){
+                                    foreach($projectUnits as $unit){
                                     ?>
-                                        <option  value="<?=$branch['id'];?>"><?=$branch['branch_name'];?></option>
+                                        <option  value="<?=$unit['id'];?>"><?=$unit['store'];?></option>
                                     <?php 
                                     } 
                                 } ?>
                         </select>                       
-                        <div class="invalid-feedback" id="branch_error"></div>
+                        <div class="invalid-feedback" id="projectUnit_error"></div>
                     </div>
                 </div>
                 <div >
@@ -131,7 +130,26 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 capitalize">Assign Staff & Roles</label>
                     <p class="block text-sm font-small text-gray-400 mb-1 capitalize">Assign staff and select their roles for this task.</p>
-                    <div id="participants" class="grid grid-cols-2 gap-4 pb-4"></div>
+                    <div id="participants__" class="grid grid-cols-2 gap-4 pb-4">
+                        <?php
+                        if(!empty($staffs)) {
+                            foreach($staffs  as $staff) {
+                            ?>
+                            <div class="staff-wrapper border rounded-md p-3 flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" name="staff[]" class="staff-checkbox" data-id="<?=$staff['id'];?>" value="<?=$staff['id'];?>" id="staff-<?=$staff['id'];?>">
+                                    <label for="staff-1"><?=$staff['name'] ;?></label>
+                                </div>
+                                <select name="role[]" class="role-select hidden mt-2 md:mt-0 border rounded px-2 py-1 text-sm" data-id="<?=$staff['id'];?>">
+                                    <option value="participant" selected="">Participant</option>
+                                    <option value="team_leader">Team Leader</option>
+                                    <option value="team_coordinator">Team Coordinator</option>
+                                </select>
+                            </div>
+                            <?php
+                            }
+                        } ?>
+                    </div>
                 </div>
               </div>
             </div>

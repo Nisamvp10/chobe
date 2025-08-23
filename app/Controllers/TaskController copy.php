@@ -44,9 +44,8 @@ class TaskController extends Controller {
         $page = "Tasks";
         $branches = $this->branchModel->where('status','active')->findAll();
         $projects = $this->projects->where('is_active',1)->findAll();
-        $projectUnits = $this->projectUnitModel->where('status',1)->findAll();
         $taskStatus = $taskStatus;
-        return view('admin/task/index',compact('page','branches','taskStatus','projects','projectUnits'));
+        return view('admin/task/index',compact('page','branches','taskStatus','projects'));
     }
 
     function create() {
@@ -121,11 +120,11 @@ class TaskController extends Controller {
             $update = $this->taskModel->update($taskId,$data);
             $staffs = $this->request->getPost('staff');
             $roles  = $this->request->getPost('role') ?? [];
-            //$personPriority  = $this->request->getPost('personpriority') ?? [];
+            $personPriority  = $this->request->getPost('personpriority') ?? [];
            
             foreach ($staffs as $index => $staffId) {
                 $roleId = $roles[$index];
-                //$personPriorityId =  $personPriority[$index];
+                $personPriorityId =  $personPriority[$index];
 
                 // Check if assignment exists
                 $existing = $this->taskassignModel
@@ -140,18 +139,18 @@ class TaskController extends Controller {
                             'role' => $roleId
                         ]);
                     }
-                    //  if ($existing['priority'] != $personPriorityId) {
-                    //     $this->taskassignModel->update($existing['id'], [
-                    //         'priority' => $personPriorityId
-                    //     ]);
-                    // }
+                     if ($existing['priority'] != $personPriorityId) {
+                        $this->taskassignModel->update($existing['id'], [
+                            'priority' => $personPriorityId
+                        ]);
+                    }
                 } else {
                     // Insert new assignment
                     $this->taskassignModel->insert([
                         'task_id'  => $taskId,
                         'staff_id' => $staffId,
                         'role'     => $roleId,
-                        //'priority' => $personPriorityId
+                        'priority' => $personPriorityId
                     ]);
                 }
             }
@@ -223,13 +222,9 @@ class TaskController extends Controller {
         $endDate = $this->request->getGet('endDate');
         $taskProject = $this->request->getGet('taskProject');
         $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate,$taskProject); // or ->findAll()
-       // echo  $this->taskModel->getLastQuery();exit();
-
-        $allusers = $this->staffModal->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1 ,'role !=' =>1])->findAll();
         $groupData = [];
 
         foreach ($alltask as &$task) {
-
             $taskId = $task['id'];
 
             if (!isset($groupData[$taskId])) {
@@ -240,7 +235,6 @@ class TaskController extends Controller {
                     'storeId'   => $task['store'],
                     'description' => $task['description'],
                     'branch_name' => $task['branch_name'],
-                    'projectUnit' => $task['project_unit'],
                     'total_activities' => $this->activityModel->where('task_id',$task['id'])->countAllResults(),
                     'completed_activities' =>$this->activityModel->where(['task_id'=>$task['id'],'status' => 'completed'])->countAllResults(),//$task['completed_activities'],
                     'project'   => $task['project_id'],
@@ -248,12 +242,11 @@ class TaskController extends Controller {
                     'status'    => $task['status'],
                     'overdue_date' => $task['overdue_date'] ?? null,
                     'progress'  => $task['progress'],
-                    'allUsers'  => $allusers,
                     'ducument'  => $task['image_url'],
                     'users'     => [],
                 ];
 
-                if (!empty($task['name'])) {
+                if (empty($task['name'])) {
                     $groupData[$taskId]['users'][] = [
 
                         'img'       => $task['profileimg'],
@@ -268,8 +261,8 @@ class TaskController extends Controller {
                     ? human_duration($task['created_at'], $task['completed_at'])
                     : human_duration($task['created_at']);
             } else {
-                $existingProfiles = array_column($groupData[$taskId]['users'], 'userId');
-                if (!empty($task['name'])  && !in_array($task['userId'], $existingProfiles)) {
+                $existingProfiles = array_column($groupData[$taskId]['users'], 'img');
+                if (!empty($task['name'])  && !in_array($task['profileimg'], $existingProfiles)) {
                     $groupData[$taskId]['users'][] = [
 
                         'img'       => $task['profileimg'],
@@ -347,8 +340,8 @@ class TaskController extends Controller {
                     ? human_duration($task['created_at'], $task['completed_at'])
                     : human_duration($task['created_at']);
             } else {
-                $existingProfiles = array_column($groupData[$taskId]['users'], 'userId');
-                if (!empty($task['name'])  && !in_array($task['userId'], $existingProfiles)) {
+                $existingProfiles = array_column($groupData[$taskId]['users'], 'img');
+                if (!empty($task['name']) && count($groupData[$taskId]['users']) < 8 && !in_array($task['profileimg'], $existingProfiles)) {
                     $groupData[$taskId]['users'][] = [
 
                         'img'       => $task['profileimg'],

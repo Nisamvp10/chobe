@@ -145,7 +145,7 @@
         <div>
             <h3 class="text-sm font-medium text-gray-500 mb-2">Assigned Staff:</h3>
             <div class="space-y-2">
-                <div class="modal-profiles "></div>
+                <div class="modal-profiles  grid grid-cols-2 gap-2"></div>
             </div>
         </div>
     </div>
@@ -224,7 +224,7 @@
            <div class="invalid-feedback" id="project_error"></div>
         </div>
 
-        <div >
+        <div class="d-none" >
           <label class="block mb-1 font-medium">Branch</label>
           <select id="branch" name="branch" class="w-full border px-3 py-2 rounded">
             <option value="">Select Branch</option>
@@ -240,6 +240,25 @@
           </select>
            <div class="invalid-feedback" id="branch_error"></div>
         </div>
+
+        
+        <div  >
+          <label class="block mb-1 font-medium">Project Unit</label>
+          <select id="projectUnit" name="projectUnit" class="w-full border px-3 py-2 rounded">
+            <option value="">Choose Project Unit</option>
+            <option value="all"  >All</option>
+            <?php
+                if(!empty($projectUnits)){
+                    foreach($projectUnits as $projectUnit){
+                    ?>
+                        <option  value="<?=$projectUnit['id'];?>"><?=$projectUnit['store'];?></option>
+                    <?php 
+                    } 
+                } ?>
+          </select>
+           <div class="invalid-feedback" id="branch_error"></div>
+        </div>
+
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
             <div class="flex space-x-2" id="priorityButtons">
@@ -274,7 +293,7 @@
         </div>
         <div>
           <label class="block mb-2 font-medium">Assign Staff</label>
-          <div class="mt-1 grid grid-cols-1 gap-2" id="participants">
+          <div class="mt-1 grid grid-cols-2 gap-2" id="participants">
           
           </div>
         </div>

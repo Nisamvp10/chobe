@@ -7,7 +7,7 @@ use App\Models\TaskModel;
 use App\Models\UserModel;
 use App\Models\ActivityModel;
 use App\Models\ActivityStaffModel;
-
+use App\Models\AssigntaskModel;
 
 class ActivitiesController extends Controller {
 protected $taskModel;
@@ -15,20 +15,22 @@ protected $staffModal;
 protected $activityModel;
 protected $userModel;
 
-
+protected $taskassignModel;
 
     function __construct(){
         $this->taskModel = new TaskModel();
         $this->staffModal = new UserModel();
         $this->activityModel = new ActivityModel();
         $this->userModel = new UserModel();
+        $this->taskassignModel = new AssigntaskModel();
     }
 
     function activities($id=false) {
         $id = decryptor($id);
         $task = $this->taskModel->where('id',$id)->first();
         if(!empty($task)) {
-            $staff =  $this->staffModal->where('role !=',1)->findAll();
+            $staff =  $this->taskassignModel->getMasterTaskStaff($id);
+            //echo $this->taskassignModel->getLastQuery();
             $page = "Task : " .$task['title'];
         }else{
             $page = '';
@@ -252,7 +254,8 @@ protected $userModel;
         $activityTasks = $this->activityModel->getActivities($taskId,$search,$filter,$startDate,$endDate);
         //echo $this->activityModel->getLastQuery();
         $groupData = [];
-        $allusers = $this->userModel->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1])->findAll();
+        //$allusers = $this->userModel->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1])->findAll();
+           $allusers =   $staff =  $this->taskassignModel->getMasterTaskStaff($taskId);
 
         foreach($activityTasks as &$task) {
             $taskId = $task['id'];
@@ -279,8 +282,8 @@ protected $userModel;
                     ];
                 }
             }else{
-                $existingProfiles = array_column($groupData[$taskId]['users'],'img');
-                if(!empty($task['name'] && count($groupData[$taskId]['users']) < 8 )) {
+                $existingProfiles = array_column($groupData[$taskId]['users'],'userId');
+                if(!empty($task['userId']  )) {
                     $groupData[$taskId]['users'] [] = [
                         'img'       => $task['profileimg'],
                         'staffName' => $task['name'],

@@ -1,5 +1,6 @@
 
  //$(document).ready(function() {
+ loadTask();
     $('#taskFilterStatus ,#taskProject,#taskProject').on('change',function() {
         loadTask();
     })
@@ -8,7 +9,7 @@
         loadTask(value);
     })
     function loadTask(search = '',startDate ='', endDate='') {
-        
+       
         let  filter = $('#taskFilterStatus').val();
         let taskProject = $('#taskProject').val();
         $.ajax({
@@ -18,7 +19,8 @@
             data: { search: search,filter:filter,startDate:startDate,endDate:endDate,taskProject:taskProject},
             dataType: "json",
             success: function(response) {
-                if (response.success) {
+              
+                if (response.success === true) {
                     renderTable(response.task);
                 }
             }
@@ -105,7 +107,7 @@
             </div>
             <div class="flex justify-between items-center">
                 <div class="flex -space-x-2 profile-stack ">
-                    ${task.users.map(user => `
+                    ${task.users.slice(0, 5).map(user => `
                         ${user.img 
                             ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
                                     <img src="${user.img}" alt="${user.staffName}" title="${user.staffName}" class="w-full h-full object-cover">
@@ -114,6 +116,12 @@
                                     <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
                             </div>`}
                     `).join('')}
+
+                    ${task.users.length > 5 ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-gray-200 border-white">
+                                <span class="text-gray-700 font-semibold">+${task.users.length - 5}</span>
+                        </div>` :''}
+
+                   
                 </div>
                 <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
             </div>
@@ -131,12 +139,14 @@
                         data-title="${task.title}"
                         data-desc="${task.description}"
                         data-branch="${(task.branch_name ? task.branch_name  :'all') }"
+                        data-projectUnit="${(task.projectUnit ? task.projectUnit  :'') }"
                         data-status="${task.status}"
                         data-progress="${progress}%"
                         data-date="${duedateText}"
                         data-priority="${task.priority}"
                         data-duration="${task.duration}"
                         data-profiles='${JSON.stringify(task.users)}'
+                        data-users='${JSON.stringify(task.allUsers)}'
                         data-duedate='${task.overdue_date}'
                         data-store="${(task.storeId ? task.storeId  :'all') }"
                         data-progressbar="${task.progress}"
@@ -219,7 +229,7 @@
                 $('#completed').html(completed);
                 
             }
-        loadTask();
+       // loadTask();
 
         // drag
         $(document).on('dragstart', '.draggable-task', function (e) {
@@ -316,6 +326,7 @@ function openTaskModal(el) {
     taskEdit.querySelector('#branch').value = el.dataset.store || '';
     taskEdit.querySelector('#duedate').value = el.dataset.duedate || 0;
     taskEdit.querySelector('#taskStatus').value = status || 0;
+    taskEdit.querySelector('#projectUnit').value = el.dataset.projectunit || '';
 
     const priorityButtons = taskEdit.querySelectorAll('.priority-btn');
     priorityButtons.forEach(btn => {
@@ -329,7 +340,9 @@ function openTaskModal(el) {
   });
 
     const users = JSON.parse(el.dataset.profiles);
-    renderStaffList(users);
+    const allstaff = JSON.parse(el.dataset.users);
+    renderStaffList(allstaff,users);
+    //renderStaffList(users);
     const priorityEl = modal.querySelector('.modal-priority');
 
     if (priorityEl && el.dataset.cls) {
@@ -352,8 +365,13 @@ function openTaskModal(el) {
                 wrapper.className =  'flex items-center gap-2 bg-gray-50 p-2 rounded mb-2';
 
                 const avatar = document.createElement('div');
-                avatar.className = 'relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs';
-                avatar.innerHTML = `<img src="${user.img}" alt="" class="w-full h-full object-cover">`;
+                avatar.className = 'relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs';
+                avatar.innerHTML = `${user.img  ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
+                                    <img src="${user.img}" alt="${user.staffName}" title="${user.staffName}" class="w-full h-full object-cover">
+                            </div>`
+                            : `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                                    <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
+                            </div>`}`;
 
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'text-sm text-gray-700';
@@ -436,36 +454,78 @@ function toggleReplay() {
     progressLabel.textContent = `Progress: ${progressSlider.value}%`;
   });
 
-  function renderStaffList(users = []) {
+//   function renderStaffList(users = []) {
+//     const staffListContainer = document.getElementById('participants');
+//     staffListContainer.innerHTML = '';
+
+//     users.forEach(staff => {
+      
+//         const staffHTML = `
+//         <div class="flex align-items-center p-2 border rounded-md cursor-pointer border-gray-300">
+          
+//             <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" name="staff[]" value="${staff.userId}" checked>
+//             ${dpGen(staff)}
+//             <span class="ml-2 text-sm mx-4">${staff.staffName}</span>
+            
+//             <select name="role[]"  class="role-select mx-4 mt-2 md:mt-0 border rounded px-2 py-1 text-sm" >
+//                 <option  ${staff.role == "participant" ? "selected" : ""} value="participant" selected>Participant</option>
+//                 <option ${staff.role == "team_leader" ? 'selected':''} value="team_leader">Team Leader</option>
+//                 <option ${staff.role == "team_coordinator" ? 'selected':''} value="team_coordinator">Team Coordinator</option>
+//             </select>
+//             <select name="personpriority[]" class="role-select mx-2 mt-2 md:mt-0 border rounded px-2 py-1 text-sm hidden" >
+//                 <option desabled value="">Select a Priority</option>
+//                 <option  ${staff.userPriority == 1 ? "selected" : ""} value="1">High</option>
+//                 <option  ${staff.userPriority == 2 ? "selected" : ""}  value="2">Medium</option>
+//                 <option  ${staff.userPriority == 3 ? "selected" : ""} value="3">Low</option>
+//             </select>
+
+//         </div>
+//         `;
+//         staffListContainer.insertAdjacentHTML('beforeend', staffHTML);
+//     });
+// }
+
+function renderStaffList(users = [], existingUser = []) {
     const staffListContainer = document.getElementById('participants');
     staffListContainer.innerHTML = '';
 
+    const assignedIds = existingUser.map(u => u.userId);
+
     users.forEach(staff => {
-      
+        // find if this staff exists in assigned list
+        const assignedUser = existingUser.find(u => u.userId.toString() === staff.id.toString());
+
+        // role will come from existingUser, fallback = 'participant'
+        const role = assignedUser ? assignedUser.role : 'participant';
+
+        const isChecked = assignedIds.includes(staff.id.toString()) ? 'checked' : '';
+
         const staffHTML = `
         <div class="flex align-items-center p-2 border rounded-md cursor-pointer border-gray-300">
-          
-            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" name="staff[]" value="${staff.userId}" checked>
-            <img src="${staff.img}" alt="${staff.staffName}" class="w-6 h-6 rounded-full ml-2">
-            <span class="ml-2 text-sm mx-4">${staff.staffName}</span>
-            
-            <select name="role[]"  class="role-select mx-4 mt-2 md:mt-0 border rounded px-2 py-1 text-sm" >
-                <option  ${staff.role == "participant" ? "selected" : ""} value="participant" selected>Participant</option>
-                <option ${staff.role == "team_leader" ? 'selected':''} value="team_leader">Team Leader</option>
-                <option ${staff.role == "team_coordinator" ? 'selected':''} value="team_coordinator">Team Coordinator</option>
-            </select>
-            <select name="personpriority[]" class="role-select mx-2 mt-2 md:mt-0 border rounded px-2 py-1 text-sm hidden" >
-                <option desabled value="">Select a Priority</option>
-                <option  ${staff.userPriority == 1 ? "selected" : ""} value="1">High</option>
-                <option  ${staff.userPriority == 2 ? "selected" : ""}  value="2">Medium</option>
-                <option  ${staff.userPriority == 3 ? "selected" : ""} value="3">Low</option>
-            </select>
+            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" 
+                   name="staff[]" value="${staff.id}" ${isChecked}>
 
-        </div>
-        `;
+            ${staff.profileimg 
+                ? `<img src="${staff.profileimg}" alt="${staff.name}" class="w-6 h-6 rounded-full ml-2">`
+                : `<div class="h-9 w-9 ml-2 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                       <span class="text-blue-600 font-medium">${staff.name.charAt(0)}</span>
+                   </div>`
+            }
+
+            <span class="ml-2 text-sm mx-4">${staff.name}</span>
+
+            <select name="role[]" class="role-select mx-4 mt-2 md:mt-0 border rounded px-2 py-1 text-sm">
+                <option value="participant" ${role === "participant" ? "selected" : ""}>Participant</option>
+                <option value="team_leader" ${role === "team_leader" ? "selected" : ""}>Team Leader</option>
+                <option value="team_coordinator" ${role === "team_coordinator" ? "selected" : ""}>Team Coordinator</option>
+            </select>
+            
+        </div>`;
+
         staffListContainer.insertAdjacentHTML('beforeend', staffHTML);
     });
 }
+
 
 $('#taskEditForm').on('submit', function(e) {
 
@@ -547,6 +607,11 @@ $(function() {
     });
 });
 
+function dpGen(user){
+    return `${user.img ? `<img src="${user.img}" alt="${user.staffName}" class="w-10 h-10 rounded-full ml-2">`:`<div class="relative ml-2 rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                                    <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
+                            </div>`}`
+}
 let selectedTaskId = null;
 
 function deleteTask(e){
