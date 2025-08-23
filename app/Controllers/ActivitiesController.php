@@ -205,6 +205,33 @@ protected $userModel;
         return $this->response->setJSON(['success' => $validStatus,'message' => $validMsg]);
     }
 
+    function allActivityList() {
+        $page = (!haspermission('','view_activity_task') ? lang('Custom.accessDenied') : 'Activity Tasks' );
+        $tasks = $this->taskModel->findAll();
+        return view('admin/activities/list',compact('page','tasks'));
+        
+    }
+
+    function getAllActivityList() {
+         if(!haspermission('','view_activity_task')) {
+            return $this->response->setJSON(['success' => false, 'message' => lang('Custom.accessDenied')]);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => lang('Custom.invalidRequest')]);
+        }
+
+        $taskId    = $this->request->getPost('taskFilerStatus');
+        $search    = $this->request->getPost('searchInput');
+        $filter    = $this->request->getPost('filter');
+        $startDate = $this->request->getPost('startDate');
+        $endDate   = $this->request->getPost('endDate');
+
+        $getAlltaskwithActivity = $this->activityModel->getActivitytasks($filter,$taskId,$search,$startDate,$endDate);
+
+        return $this->response->setJSON(['success' => true, 'task' => $getAlltaskwithActivity]);
+    }
+
     function activitiList() {
        
         if(!$this->request->isAJAX()) {

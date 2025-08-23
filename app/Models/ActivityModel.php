@@ -68,4 +68,18 @@ class ActivityModel extends Model
             $result = $query->getRowArray();
             return $result;
     }
+    public function getActivitytasks($filter=false,$taskId=false,$search=false,$startDate=false,$endDate=false) {
+        $builder = $this->db->table('tasks as t')
+            ->select('t.title,a.activity_title,a.created_at,a.status,a.progress,t.priority')
+            ->join('activities as a ' ,'a.task_id = t.id','inner');
+            if($filter && $filter != 'all')  {
+                $builder->where('a.status',$filter);
+            }
+            if($search){
+                $builder->like('a.activity_title',$search)
+                    ->orLike('t.title',$search);
+            }
+            $result = $builder->get()->getResultArray();
+            return  $result;
+    }
 }
