@@ -11,7 +11,7 @@
                 <?php
                 if(haspermission(session('user_data')['role'],'create_task')) { ?>
                 <div>
-                    <a href="<?= base_url('task/create') ?>" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#activities">
+                    <a  class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#activities">
                         <i class="bi bi-plus-circle me-1"></i> Add New Activity
                     </a>
                 </div>
@@ -71,6 +71,7 @@
 
 <!-- Modal -->
 
+<?= view('modal/createactivities');?>
 
 <!-- close Modal -->
 <?= $this->endSection(); ?>
@@ -85,6 +86,8 @@
 <!-- Date Range Picker -->
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script src="<?=base_url('public/assets/js/activities.js') ;?>" ></script>
+
 <script>
     allactivities();
 $('#taskactivityFilterStatus').on('change', function () {

@@ -183,6 +183,7 @@
      <!-- close edit form -->
   </div>
 </div>
+<?= view('modal/createactivities');?>
 
 <!-- close Modal -->
 <?= $this->endSection(); ?>

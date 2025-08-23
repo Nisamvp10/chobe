@@ -11,7 +11,9 @@
         <div class="bg-white rounded-lg  overflow-hidden p-2">
             <form id="taskCreate" method="post">
                  <?= csrf_field() ?>
-                 <input type="hidden" name="taskId" id="taskId" value="<?=encryptor($activityId);?>" >
+                <?php if(isset($activityId) && !empty($activityId)) { ?>
+                                     <input type="hidden" name="taskId" id="taskId" value="<?=encryptor($activityId);?>" >
+                                     <?php } ?>
                 <div class="grid grid-cols-1 gap-4 pb-4">
 
                     <div class="w-full">
@@ -38,7 +40,7 @@
                     </div>
 
                     
-                    <div class="w-full">
+                    <!-- <div class="w-full">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Select Status</label>
                         <div class="responseive">
                         <select id="status" name="status" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
@@ -49,7 +51,24 @@
                         </select>
                         <div class="invalid-feedback" id="status_error"></div>
                     </div>
+                    </div> -->
+                    <?php if(!isset($activityId) && empty($activityId)) { ?>
+                     <div class="w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Select Task</label>
+                        <div class="responseive">
+                        <select id="taskId" name="taskId" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select a Task</option>
+                            <?php 
+                            foreach($tasks as $taskkey) {
+                                ?>
+                                <option value="<?=encryptor($taskkey['id']);?>"><?=$taskkey['title'];?></option>
+                                <?php 
+                            }?>
+                        </select>
+                        <div class="invalid-feedback" id="taskId_error"></div>
                     </div>
+                    </div>
+                    <?php } ?>
 
                 </div>
 

@@ -28,7 +28,7 @@ protected $userModel;
         $id = decryptor($id);
         $task = $this->taskModel->where('id',$id)->first();
         if(!empty($task)) {
-            $staff =  $this->staffModal->findAll();
+            $staff =  $this->staffModal->where('role !=',1)->findAll();
             $page = "Task : " .$task['title'];
         }else{
             $page = '';
@@ -45,7 +45,7 @@ protected $userModel;
         $id = decryptor($id);
         $task = $this->taskModel->where('id',$id)->first();
         if(!empty($task)) {
-            $staff =  $this->staffModal->findAll();
+            $staff =  $this->staffModal->where('role !=',1)->findAll();
             $page = "Task : " .$task['title'];
         }else{
             $page = '';
@@ -72,7 +72,7 @@ protected $userModel;
         $rules = [
             'title' => 'required',
             'description' => 'required|min_length[3]',
-            'status' => 'required',
+            //'status' => 'required',
             
         ];
 
@@ -85,7 +85,7 @@ protected $userModel;
         $data = [
             'activity_title'        => $this->request->getPost('title'),
             'activity_description'  => $this->request->getPost('description'),
-            'status'                => $this->request->getPost('status'),
+            'status'                => 'Pending',//$this->request->getPost('status'),
             'task_id'               => $taskId,
         ];
        
@@ -208,7 +208,8 @@ protected $userModel;
     function allActivityList() {
         $page = (!haspermission('','view_activity_task') ? lang('Custom.accessDenied') : 'Activity Tasks' );
         $tasks = $this->taskModel->findAll();
-        return view('admin/activities/list',compact('page','tasks'));
+        $staff =  $this->staffModal->where('role !=',1)->findAll();
+        return view('admin/activities/list',compact('page','tasks','staff'));
         
     }
 
