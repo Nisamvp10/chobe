@@ -39,6 +39,28 @@
             </div>
             
             <!-- Column 2: Status Dropdown -->
+              <div class="w-full md:w-48">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter text-gray-400">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    </div>
+                    <select id="projectUnitFilter" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
+                        <option value="all">All</option>
+                       <?php
+                        if(!empty($projectUnits)){
+                            foreach($projectUnits as $unit){
+                            ?>
+                                <option  value="<?=$unit['id'];?>"><?=$unit['store'];?></option>
+                            <?php 
+                            } 
+                        } ?>
+
+                    </select>
+                </div>
+            </div>
+            
             <div class="w-full md:w-48">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -81,11 +103,12 @@
 
               window.loadReports = function (search = '', startDate = '', endDate = '') {
                 let filer = $('#filerStatus').val();
+                let projectUnitFilter = $('#projectUnitFilter').val();
 
                 $.ajax({
                     url: "<?= site_url('reports/list') ?>",
                     type: "GET",
-                    data: { search: search,filer:filer ,startDate:startDate,endDate:endDate},
+                    data: { search: search,filer:filer ,startDate:startDate,endDate:endDate,prounit:projectUnitFilter},
                     dataType: "json",
                     success: function(response) {
                         if (response.success) {
@@ -110,6 +133,7 @@
                         <table class="min-w-full divide-y divide-gray-200 border border-collapse">
                             <thead class="bg-gray-100">
                                 <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Unit</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participates</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity Tasks</th>
@@ -129,6 +153,13 @@
 
                         html += `
                             <tr class="hover:bg-gray-50">
+                             <td class="px-2 py-2 whitespace-nowrap">
+                                
+                                    <div class="flex items-center">
+                                        
+                                        <div class="text-sm font-medium text-gray-900">${report.store ?? '-'}</div>
+                                    </div>
+                                </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
                                 
                                     <div class="flex items-center">
@@ -170,7 +201,7 @@
                 let value = $(this).val();
                 loadReports(value);
             })
-            $('#filerStatus').on('change',function(){
+            $('#filerStatus,#projectUnitFilter').on('change',function(){
                 let value = $('#searchInput').val();
                 loadReports(value);
             })

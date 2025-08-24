@@ -7,7 +7,7 @@ class ReportModel extends Model
 {
     protected $table = 'tasks';   // <-- important
     protected $primaryKey = 'id';
-  public function getReports($search = '', $filter = '',$startDate ='' , $endDate = '')
+  public function getReports($search = '', $filter = '',$startDate ='' , $endDate = '', $prounit ='')
     {
         $subQueryActivities = "
             SELECT 
@@ -50,12 +50,16 @@ class ReportModel extends Model
             act.completed_activities,
             tas.total_task_staff,
             actst.total_staff,
-            actst.total_activity_staff
+            actst.total_activity_staff,
+            pu.id as unit_id,
+            pu.store as store
         ");
 
         $builder->join("($subQueryActivities) act", "act.task_id = t.id", "left");
         $builder->join("($subQueryActivityStaff) actst", "actst.task_id = t.id", "left");
         $builder->join("($subQueryTaskAssignees) tas", "tas.task_id = t.id", "left");
+        $builder->join("project_unit as pu", "t.project_unit = pu.id", "left");
+
 
         $builder->groupBy("
             t.id,
@@ -75,6 +79,9 @@ class ReportModel extends Model
 
         if (!empty($filter) && $filter !== 'all') {
             $builder->where('t.status', $filter);
+        }
+        if (!empty($prounit) && $prounit !== 'all') {
+            $builder->where('t.project_unit', $prounit);
         }
          if(!empty($startDate) && !empty($endDate)) {
             $startDate = date('Y-m-d 00:00:00', strtotime($startDate));

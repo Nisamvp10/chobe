@@ -3,13 +3,17 @@ namespace App\Controllers;
 use CodeIgniter\Controller;
 use App\Models\ReportModel;;
 use Mpdf\Mpdf;
+use App\Models\ProjectunitModel;
 
 class ReportController extends controller
 {
     public function index()
-    {
+    {   
         $page = (!haspermission('','report') ? lang('Custom.accessDenied') : 'Reports' );
-        return view('admin/reports/index',compact('page'));
+        $rojectUnitModel = new ProjectunitModel();
+
+        $projectUnits = $rojectUnitModel->where('status',1)->findAll();
+        return view('admin/reports/index',compact('page','projectUnits'));
     }
     function list()
     {   
@@ -18,8 +22,9 @@ class ReportController extends controller
         $filer = $this->request->getGet('filer');
         $startDate = $this->request->getGet('startDate');
         $endDate = $this->request->getGet('endDate');
+        $prounit = $this->request->getGet('prounit');
   
-        $reportResult = $reportModel->getReports($search, $filer,$startDate,$endDate);
+        $reportResult = $reportModel->getReports($search, $filer,$startDate,$endDate,$prounit);
 
        // print_r($reportResult);
         

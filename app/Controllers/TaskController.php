@@ -95,7 +95,7 @@ class TaskController extends Controller {
             'branch'        => 'all',//$this->request->getPost('branch'),
             'project_unit'  => $this->request->getPost('projectUnit'),
             'project_id'       => $this->request->getPost('project'),
-            'status'        => 1,
+            'status'        => 'Pending',
         ];
        
 
@@ -112,8 +112,6 @@ class TaskController extends Controller {
             $image = ['status' => false];
         }
 
-       
-       
         if ($taskId) {
           
             $data['progress'] = $this->request->getPost('progress');
