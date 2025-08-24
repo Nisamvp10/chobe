@@ -84,7 +84,7 @@
                 if (notify.length === 0) {
                     notifyHtml += `
                         <div class="text-center py-8">
-                            <h3 class="text-lg font-medium text-gray-700">No Services found</h3>
+                            <h3 class="text-lg font-medium text-gray-700">No Notification found</h3>
                             <p class="text-gray-500 mt-1">Try adjusting your search</p>
                         </div>
                     `;
