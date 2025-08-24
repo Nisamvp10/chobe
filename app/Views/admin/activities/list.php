@@ -71,7 +71,7 @@
 
 <!-- Modal -->
 
-<?= view('modal/createactivities');?>
+<?= view('modal/masterActivityModal');?>
 
 <!-- close Modal -->
 <?= $this->endSection(); ?>
@@ -98,6 +98,7 @@ $('#searchInput').on('input',function(){
         allactivities(value);
     })
 function allactivities(search = '') {
+
     let activityId = $('#tasktbl').data('task');
     let searchInput = search;
     let filterStatus = $('#taskactivityFilterStatus').val();

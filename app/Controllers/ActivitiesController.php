@@ -97,8 +97,8 @@ protected $taskassignModel;
                 $staffs = $this->request->getPost('staff');
                 if(!empty($staffs)) {
                         if ($activitytaskId = $activityModel->insert($data)) {
-
-                      
+                            $getlastTask =   $this->activityModel->find($activitytaskId);
+                            $this->taskModel->update($getlastTask['task_id'],['status' => 'In_Progress']);
                 
                             foreach ($staffs as $index => $staff) {
                                 $assign = [
@@ -213,6 +213,23 @@ protected $taskassignModel;
         $staff =  $this->staffModal->where('role !=',1)->findAll();
         return view('admin/activities/list',compact('page','tasks','staff'));
         
+    }
+
+    function getStaffBytask() {
+        if(!haspermission('','create_task')) {
+            return $this->response->setJSON(['success' => false, 'message' => lang('Custom.accessDenied')]);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => lang('Custom.invalidRequest')]);
+        }
+        $taskId = decryptor($this->request->getPost('ataskId'));
+        $staff =  $this->taskassignModel->getMasterTaskStaff($taskId);
+        if(!empty($staff)) {
+            return $this->response->setJSON(['success' => true, 'staffs' => $staff]);
+        }else{
+            return $this->response->setJSON(['success' => false, 'message' => 'No staff found for this task']);
+        }
     }
 
     function getAllActivityList() {

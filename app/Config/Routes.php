@@ -121,6 +121,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('task/activityupdate','ActivitiesController::update');
     $routes->get('task-activity-task','ActivitiesController::allActivityList');
     $routes->post('task/all-activities','ActivitiesController::getAllActivityList');
+    $routes->post('activitties/getstaffbytask','ActivitiesController::getStaffBytask');
     //projects 
     $routes->get('settings/projects','ProjectsController::index');
     $routes->get('project/list','ProjectsController::projectList');

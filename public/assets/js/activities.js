@@ -40,3 +40,39 @@ $('#taskCreate').on('submit', function(e) {
         }
     })
 })
+
+$('.activity-tasks').on('change',function(){
+    allactivities();
+    let activityTaskId = $(this).val();
+    if(activityTaskId) {
+        $.ajax({
+            url: App.getSiteurl()+'activitties/getstaffbytask',
+            method : "POST",
+            data : {ataskId:activityTaskId},
+            dataType : 'json',
+            success:function(response)
+            { 
+                if(response.success) {
+                    renderStaffList(response.staffs);
+                }
+            }
+        })
+    }
+})
+
+function renderStaffList(staffs) {
+    html = '';
+    if(staffs.length > 0) {
+        staffs.forEach(staff => {
+            html += ` <div class="staff-wrapper border rounded-md p-3 flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" name="staff[]" class="staff-checkbox" data-id="1" value="${staff.id}" id="staff-1">
+                            <label for="staff-1">${staff.name}</label>
+                        </div>
+                    </div>`;
+        });
+    }else{
+        html = '<p>No Staff Found</p>'
+    }
+    $('#participantsactivityTasks').html(html);
+}
