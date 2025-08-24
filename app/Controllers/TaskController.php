@@ -73,7 +73,7 @@ class TaskController extends Controller {
         $rules = [
             'title' => 'required',
             'description' => 'required|min_length[3]',
-            'projectUnit' => 'required',
+            //'projectUnit' => 'required',
             'priority' => 'required',
             //'duedate' => 'required',
             
