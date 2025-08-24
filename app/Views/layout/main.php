@@ -778,7 +778,7 @@ if (!empty($userData)){
                 </li>
                 
                 <?php } if (session()->get('role') == 'admin' || session()->get('role') == 'zone_manager'): ?>
-                <li class="nav-item d-none">
+                <li class="nav-item d-none hidden">
                     <a class="nav-link <?= strpos(uri_string(), 'dashboard/branches') === 0 ? 'active' : '' ?>" href="<?= base_url('dashboard/branches') ?>">
                         <i class="bi bi-shop"></i>
                         <span>Branches</span>
@@ -812,7 +812,7 @@ if (!empty($userData)){
                 </li>
                <?php 
                  if(haspermission('','view_branch')) : ?>
-                <li class="nav-item">
+                <li class="nav-item d-none">
                     <a class="nav-link <?= strpos(uri_string(), 'branches') === 0 ? 'active' : '' ?>" href="<?= base_url('branches') ?>">
                         <i class="bi bi-shop-window"></i>
                         <span>Branches</span>
