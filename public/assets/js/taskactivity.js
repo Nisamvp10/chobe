@@ -42,6 +42,7 @@
             
           
             tasks.forEach(task => {
+
             const dueDate = new Date(task.overdue_date);
             const createdOn = new Date(task.createdAt);
             const today = new Date();
@@ -49,29 +50,35 @@
             today.setHours(0, 0, 0, 0);
 
             let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-            let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900';
+            let dueClass =    task.status === "pending" && dueDate < today         ? "text-red-600"        : "text-gray-900";
 
-            let createdOnText = createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-            
-
+            let createdOnText = createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });         
             
                 var priority = (task.priority =='High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
-                var status = (task.status =='Pending' ? 'bg-red-500 text-white' : (task.status == "In_Progress" ? 'bg-yellow-500 text-yellow-800' : (task.status == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
+                var status = (task.status =='pending' ? 'bg-red-500 text-white' : (task.status == "In_Progress" ? 'bg-yellow-500 text-yellow-800' : (task.status == "completed" ? 'bg-green-500 text-white' : 'bg-green-500 text-green-800' ) ));
                 const progress = task.progress ?? 0;
 
-
+                let unlock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-unlock h-4 w-4">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                            </svg>`;
+                let lock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock h-4 w-4 ">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
                 // 
             let ectivitUrl = App.getSiteurl()+`activities/${task.id}`;
-                
              const taskHTML = `
-        <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" draggable="true"
-             data-id="${task.id}" 
-           
-            >
-            <a class=" "  
-                        data-id="${task.id}" 
+        <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 ${(task.status == 'pending' ? `border-orange-500` :'border-green-500')} draggable-task" draggable="true"
+             data-id="${task.id}"  >
+         
+            <a class=" " >
+            <div class="flex justify-between items-start gap-2 mb-2">
+                <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
+                <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800  flex-shrink-0  ${priority}">${task.priority}</span>
+                <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800  flex-shrink-0 capitalize ${status}">${task.status}</span>
+                <span class="px-2 py-2 rounded-2 text-xs font-medium text-yellow-800  border flex-shrink-0 capitalize" data-id="${task.id}" 
                         data-status="${task.status}"
                         onclick="openTaskModal(this)"
+                        data-activity = "${task.activityId}"
                         data-title="${task.title}"
                         data-desc="${task.description}"
                         data-status="${task.status}"
@@ -87,18 +94,18 @@
                         data-progressbar="${task.progress}"
                         data-cls="${priority}"
                         data-project="${task.project}"
-                        data-doc="${task.ducument}">
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
-                <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 d-none ${priority}">${task.priority}</span>
-                 <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0  ${status}">${task.status}</span>
+                        data-doc="${task.ducument}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-4 w-4 ">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>  <circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
+
+                <div class="items-center justify-center  bg-gray-300 pointer border rounded-2 p-2  ${task.status == 'pending' ? 'locktotask' : ''}" data-id="${task.activityId}" >${task.status == 'pending' ? unlock : lock}</div>
             </div>
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
             
             <div >
-            <div class="d-flex align-items-center mb-2">
+            <div class="d-flex align-items-center mb-2 d-none">
                 <div class="w-full justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
-                    <div class="h-2 rounded-full transition-all duration-500 ${(task.progress  < 50 ? 'bg-red-500' : (task.progress > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${progress}%"></div> 
+                    <div class="h-2 rounded-full transition-all duration-500 ${(task.progress  == 'pending' ? 'bg-red-500' : 'bg-green-500')} " style="width: ${progress}%"></div> 
                 </div>
                 <span class="text-xs text-gray-500 text-gray-900">  ${progress}%</span>
             </div>
@@ -106,30 +113,28 @@
             </div>
             <div class="flex justify-between items-center">
                 <div class="flex -space-x-2 profile-stack ">
-                   ${task.users.slice(0, 5).map(user => `
+                   ${task.allUsers.slice(0, 5).map(user => `
                         ${user.img 
                             ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
-                                    <img src="${user.img}" alt="${user.staffName}" title="${user.staffName}" class="w-full h-full object-cover">
+                                    <img src="${user.img}" alt="${user.name}" title="${user.name}" class="w-full h-full object-cover">
                             </div>`
                             : `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
-                                    <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
+                                    <span class="text-blue-600 font-medium">${user.name.charAt(0)}</span>
                             </div>`}
                     `).join('')}
 
-                    ${task.users.length > 5 
+                    ${task.allUsers.length > 5 
                         ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-gray-200 border-white">
                                 <span class="text-gray-700 font-semibold">+${task.users.length - 5}</span>
                         </div>` 
                         : ''}
 
                 </div>
-                <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
+                <span class="text-xs text-gray-500 ${dueClass}">${createdOnText}</span>
             </div>
           </a>
         </div>`;
-            
-            
-
+        
                 // 
                 progressBar = `<div class="flex items-center gap-2">
                             <div
@@ -180,8 +185,7 @@
                        
                     </tr>
                 `;
-
-                if (task.status === 'Pending') {
+                if (task.status === 'pending') {
                     pending += taskHTML;
                 } else if (task.status === 'In_Progress') {
                     inProgress += taskHTML;
@@ -274,7 +278,6 @@ function openTaskModal(el) {
     progressSlider.value  = progressbar;
     progressLabel.textContent = 'Progress '+progressbar+'%'
     
-    //console.log(progressbar)
     let priority = modal.querySelector('.modal-priority').textContent = el.dataset.priority;
     modal.querySelector('.modal-duration').textContent = el.dataset.duration;
     progressEl.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
@@ -446,6 +449,7 @@ function renderStaffList(users = [], existingUser = []) {
 
 $('#taskEditForm').on('submit', function(e) {
 
+
     let webForm = $('#taskEditForm');
     e.preventDefault();
     let formData = new FormData(this);
@@ -574,3 +578,22 @@ $('#confirmDeleteTask').on('click', function () {
         });
     }
 });
+
+$(document).on('click', '.locktotask', function (e) {
+    e.preventDefault();
+    let activityId = $(this).data('id');
+    $.ajax({
+        method :  'POST',
+        url : App.getSiteurl() + 'activity/lock',
+        data:{id:activityId},
+        dataType: 'json',
+        success:function(res) {
+           if(res.success) {
+            toastr.success(res.message);
+            loadTask();
+           }else{
+            toastr.error(res.message);
+           }
+        }
+    })
+})

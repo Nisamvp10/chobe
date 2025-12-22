@@ -47,7 +47,8 @@
             today.setHours(0, 0, 0, 0);
 
             let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-            let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900';
+            //let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900'; 
+            let dueClass =    task.status === "Pending" && dueDate < today         ? "text-red-600"        : "text-gray-900";
             
 
             
@@ -69,16 +70,16 @@
             
             <div class="flex justify-between items-start mb-2">
                 <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
-                <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${priority}">${task.priority}</span>
+                <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${priority}">${task.priority}</span>
             </div>
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
             <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium">${task.branch_name}</span></div>
             <div >
-            <div class="d-flex align-items-center mb-2">
-                <div class="w-full justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
+            <div class="d-flex align-items-center mb-2 flex gap-1">
+                <div class="w-[70%] justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
                     <div class="h-2 rounded-full transition-all duration-500 ${(task.progress  < 50 ? 'bg-red-500' : (task.progress > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${progress}%"></div> 
                 </div>
-                <span class="text-xs text-gray-500 text-gray-900">${progress}%</span>
+                <span class="text-xs text-gray-500 text-gray-900"> ${task.completed_activities ?? 0}/${task.total_activities ?? 0} ${task.progress ?? 0}%</span>
             </div>
               ${task.ducument ? `
             <div class="d-flex align-items-center mb-2">
@@ -103,7 +104,7 @@
             </div>
                        <div class="flex space-x-1 flex justify-between items-center gap-2 ">
             <div>
-                <a href="${ectivitUrl}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 ">
+                <a href="${ectivitUrl}" data-id="${task.id}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm viewTaskActivity font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 ">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity h-4 w-4 mr-2" data-lov-id="src/components/TaskCard.tsx:96:12" data-lov-name="Activity" data-component-path="src/components/TaskCard.tsx" data-component-line="96" data-component-file="TaskCard.tsx" data-component-name="Activity" data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg> View Activities (${task.total_activities ?? 0})
                 </a>
             </div>
@@ -360,51 +361,111 @@ function renderHistory(id) {
     });
 }
 function renderReplayUi(replay) {
-    let html ='';
-    if(replay.length ===0) {
-        html = `<div class="text-center py-8">
-                    <h3 class="text-lg font-medium text-gray-700">No Comments yet</h3>
-                </div>`;
-    }else{
-         html +=` <ul class="-mb-8">`
-        replay.forEach(rply=>{
-            const replyDate = new Date(rply.created_at);
-            const formattedDate = replyDate.toLocaleString();
-            html +=` <li>
-                        <div class="relative pb-8">
-                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-                            <div class="relative flex space-x-3"><div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square w-4 h-4 text-green-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            </div>
-                            <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                                <div class="flex-1">
-                                    <div class="space-y-2">
-                                        <p class="text-sm text-gray-400 font-medium">${rply.reply_text} </p>
-                                    </div>
-                                </div>
-                                <div class="whitespace-nowrap text-right text-sm text-gray-500">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs ">
-                                            <img src="${rply.profileimg}" alt="John Doe" class="w-full h-full object-cover">
-                                        </div>
-                                            <time datetime="${replyDate.toISOString()}" class="text-gray-500">${formattedDate}</time>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>`
-        })
-        html += '</ul>'
-    }
+    let html = '';
+
+if (replay.length === 0) {
+    html = `
+        <div class="text-center py-8">
+            <h3 class="text-lg font-medium text-gray-700">No Reply yet</h3>
+        </div>
+    `;
+} else {
+
+    let lastDate = '';
+
+    html += `<ul class="space-y-4">`;
+
+    replay.forEach(rply => {
+
+        const replyDateObj = new Date(rply.created_at);
+
+        const msgDate = replyDateObj.toDateString(); // compare only date
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+        let displayDate = msgDate;
+        if (msgDate === today) displayDate = 'Today';
+        else if (msgDate === yesterday) displayDate = 'Yesterday';
+
+        const time = replyDateObj.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        // Show date separator only when date changes
+        if (msgDate !== lastDate) {
+            html += `
+                <li class="flex justify-center">
+                    <span class="px-4 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
+                        ${displayDate}
+                    </span>
+                </li>
+            `;
+            lastDate = msgDate;
+        }
+
+        const isAdmin = rply.is_admin == 1; // adjust if needed
+
+        html += `
+        <li class="flex ${isAdmin ? 'justify-end' : 'justify-start'}">
+            <div class="max-w-[75%] flex items-end gap-2 ${isAdmin ? 'flex-row-reverse' : 'flex-row'}">
+
+                <!-- Avatar -->
+                <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs bg-gray-200">
+                    ${
+                        rply.profileimg
+                        ? `<img src="${rply.profileimg}" class="w-full h-full object-cover">`
+                        : `<span class="font-semibold text-gray-600">${rply.name.charAt(0)}</span>`
+                    }
+                </div>
+
+                <!-- Message -->
+                <div class="px-4 py-2 rounded-2xl shadow text-sm
+                    ${isAdmin 
+                        ? 'bg-blue-600 text-white rounded-br-sm' 
+                        : 'bg-gray-100 text-gray-800 rounded-bl-sm'}">
+
+                    <p class="mb-0">${rply.reply_text}</p>
+
+                    <div class="mt-1 text-[11px] opacity-70 text-right">
+                        ${time}
+                    </div>
+                </div>
+
+            </div>
+        </li>`;
+    });
+
+    html += `</ul>`;
+}
+html +=`<form class="mb-4" method="post" id="replyTaskForm">
+                <?= csrf_field() ;?>
+                
+                <div class="flex space-x-2" >
+                    <textarea placeholder="Enter your reply..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                     <div class="invalid-feedback" id="replay_error"></div>
+                </div>
+                <div class="flex justify-end space-x-2 mt-2 gap-2">
+                    <button type="button" class="px-3 py-1 border rounded-2 text-gray-600 hover:bg-gray-100 rounded-md" onclick="hideReplyForm()">Cancel</button>
+                    <button type="submit" class="flex rounded-2 items-center space-x-1 px-3 py-1 bg-primary text-white rounded-md hover:bg-indigo-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
+                            <path d="M22 2 11 13"></path><path d="M22 2 15 22 11 13 2 9 22 2z"></path>
+                        </svg>
+                        <span>Send</span>
+                    </button>
+                </div>
+            </form>`
+
     $('#taskreplaysec').html(html);
 }
-$('#replyTaskForm').on('submit', function(e) {
+$(document).on('submit', '#replyTaskForm', function (e) {
      let id =  $('#taskId').val();
     let webForm = $('#replyTaskForm');
    
     e.preventDefault();
     let formData = new FormData(this);
+    formData.append('taskId', id);
+
     $('.is-invalid').removeClass('is-invalid');
     $('.invalid-feedback').empty();
     $('#submitBtn').prop('disabled', true).html(
@@ -421,9 +482,10 @@ $('#replyTaskForm').on('submit', function(e) {
             if(response.success){
                 toastr.success(response.message);
                 webForm[0].reset();
-                loadTask();
-                renderHistory(id);
-                toggleHistory();
+                // loadTask();
+                 renderHistory(id);
+                // toggleHistory();
+                
             }else{
                 if(response.errors){
                     $.each(response.errors,function(field,message)
@@ -431,6 +493,9 @@ $('#replyTaskForm').on('submit', function(e) {
                         $('#'+ field).addClass('is-invalid');
                         $('#' + field + '_error').text(message);
                     })
+                   if(response.errors.replay) {
+                    toastr.error(response.errors.replay);
+                   }
                 }else{
                     toastr.error(response.message);
                 }
@@ -445,3 +510,28 @@ $('#replyTaskForm').on('submit', function(e) {
     })
 })
 
+
+$(document).on('click', '.viewTaskActivity', function (e) {
+    e.preventDefault();
+    let href = $(this).attr('href');
+    let id = $(this).data('id');
+    $.ajax({
+        method :  'POST',
+        url : App.getSiteurl() + 'task/start',
+        data:{id:id},
+       dataType: 'json',
+        success:function(res) {
+           window.location.href = href;
+        }
+    })
+});
+function showStep(step) {
+    // Hide all steps
+    $('.step1, .step2').hide();
+
+    // Remove active button style
+    $('.modal-action-btn').removeClass('bg-gray-200 text-gray-800');
+
+    // Show selected step
+    $('.step' + step).show();
+}

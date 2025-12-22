@@ -71,9 +71,9 @@ class Database extends Config
         $this->default = [
             'DSN'      => '',
             'hostname'     =>  $isLocal ? 'localhost':'localhost',
-            'username'     =>  $isLocal ? 'root':'u473669689_chobeuser',
-            'password'     =>  $isLocal ? '':'$ToSpGm6',
-            'database'     =>  $isLocal ? 'chobetaskmanage':'u473669689_newChobedb',
+            'username'     =>  $isLocal ? 'root':'root',//u473669689_chobeuser
+            'password'     =>  $isLocal ? '':'',//$ToSpGm6
+            'database'     =>  $isLocal ? 'chobetaskmanage':'chobetaskmanage',//u473669689_newChobedb
             'DBDriver'     =>  'MySQLi',
             'DBPrefix' => '',
             'pConnect' => false,

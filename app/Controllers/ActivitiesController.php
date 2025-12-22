@@ -8,13 +8,17 @@ use App\Models\UserModel;
 use App\Models\ActivityModel;
 use App\Models\ActivityStaffModel;
 use App\Models\AssigntaskModel;
+use App\Models\TaskactivityModel;
+use App\Models\TaskStaffActivityModel;
+use DateTime;
 
 class ActivitiesController extends Controller {
 protected $taskModel;
+protected $activityTaskModel;
 protected $staffModal;
 protected $activityModel;
 protected $userModel;
-
+protected $taskStaffActivityModel;
 protected $taskassignModel;
 
     function __construct(){
@@ -23,6 +27,8 @@ protected $taskassignModel;
         $this->activityModel = new ActivityModel();
         $this->userModel = new UserModel();
         $this->taskassignModel = new AssigntaskModel();
+        $this->activityTaskModel = new TaskactivityModel();
+        $this->taskStaffActivityModel = new TaskStaffActivityModel();
     }
 
     function activities($id=false) {
@@ -247,7 +253,7 @@ protected $taskassignModel;
         $startDate = $this->request->getPost('startDate');
         $endDate   = $this->request->getPost('endDate');
 
-        $getAlltaskwithActivity = $this->activityModel->getActivitytasks($filter,$taskId,$search,$startDate,$endDate);
+        $getAlltaskwithActivity = $this->activityModel->getActivity($filter,$taskId,$search,$startDate,$endDate);
 
         return $this->response->setJSON(['success' => true, 'task' => $getAlltaskwithActivity]);
     }
@@ -267,44 +273,91 @@ protected $taskassignModel;
         $filter    = $this->request->getGet('filter');
         $startDate = $this->request->getGet('startDate');
         $endDate   = $this->request->getGet('endDate');
+        $staffId   = (session('user_data')['role'] != 1  && session('user_data')['role'] != 2 ? session('user_data')['id'] : NULL);
 
-        $activityTasks = $this->activityModel->getActivities($taskId,$search,$filter,$startDate,$endDate);
-        //echo $this->activityModel->getLastQuery();
+        //$activityTasks = $this->activityModel->getActivities($taskId,$search,$filter,$startDate,$endDate);
+        $activityTasks = $this->activityModel->getActivities($taskId,$search,$filter,$startDate,$endDate,$staffId);
+        //echo $this->activityModel->getLastQuery(); exit();
         $groupData = [];
-        //$allusers = $this->userModel->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1])->findAll();
+        //$allusers = $this->userModel->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1])->findAll(); 
            $allusers =   $staff =  $this->taskassignModel->getMasterTaskStaff($taskId);
 
         foreach($activityTasks as &$task) {
-            $taskId = $task['id'];
+            $taskId = $task['activityId'];
+            
+             $duration = null;
+
+            if (
+                $task['status'] === 'completed' &&
+                !empty($task['started_at']) &&
+                !empty($task['completed_at'])
+            ) {
+                $start = strtotime($task['started_at']);
+                $end   = strtotime($task['completed_at']);
+
+                if ($start && $end && $end >= $start) {
+                    $seconds = $end - $start;
+
+                    $days    = floor($seconds / 86400);
+                    $hours   = floor(($seconds % 86400) / 3600);
+                    $minutes = floor(($seconds % 3600) / 60);
+
+                    $duration = "{$days}D {$hours}H {$minutes}M";
+                }
+            }
+            
+                
             if(!isset($groupData[$taskId])) {
                 $groupData[$taskId] = [
                     'id'            => encryptor($task['id']),
+                    'activityId'    => encryptor($taskId),
                     'title'         => $task['activity_title'],
                     'description'   => $task['activity_description'],
                     'priority'      =>  $task['priority'],
                     'status'        => $task['status'],
+                    'branch_name'   => $task['branch_name'],
                     'progress'      => $task['progress'],
-                    'overdue_date'  => $task['duedate'],
+                    'overdue_date' => date('Y-m-d', strtotime($task['created_at'] . ' +1 day')),
                     'createdAt'     => $task['created_at'],
-                    'staffStatus' => $task['staffStatus'],
+                    'staffStatus' => 'pending',//$task['staffStatus'],
                     'allUsers'      => $allusers,
+                    'duration'      => $duration,
                     'users'         => [],
+                    'completedBy'   => []
                 ];
 
-                if(!empty($task['profileimage']) || !empty($task['name'])) {
+                if(!empty($task['profileimg']) || !empty($task['name'])) {
                     $groupData[$taskId]['users'][] = [
                         'img'       => $task['profileimg'],
                         'staffName' => $task['name'],
                         'userId'    => $task['userId'],
                     ];
                 }
+                if(!empty($task['cmImg']) || !empty($task['cmName'])) {
+                    $groupData[$taskId]['completedBy'][] = [
+                        'cmImg'       => $task['cmImg'],
+                        'cmName' => $task['cmName'],
+                        'cmId'    => $task['cmId'],
+                    ];
+                }
             }else{
+                if ($duration !== null) {
+                    $groupData[$taskId]['duration'] = $duration;
+                }
                 $existingProfiles = array_column($groupData[$taskId]['users'],'userId');
                 if(!empty($task['userId']  )) {
                     $groupData[$taskId]['users'] [] = [
                         'img'       => $task['profileimg'],
                         'staffName' => $task['name'],
                         'userId'    => $task['userId'],
+                    ];
+                }
+                $cmexistingProfiles = array_column($groupData[$taskId]['completedBy'],'cmId');
+                if(!empty($task['cmImg']) || !empty($task['cmName'])) {
+                    $groupData[$taskId]['completedBy'][] = [
+                        'cmImg'       => $task['cmImg'],
+                        'cmName' => $task['cmName'],
+                        'cmId'    => $task['cmId'],
                     ];
                 }
             }
@@ -314,4 +367,95 @@ protected $taskassignModel;
         return $this->response->setJSON([ 'success'=>true,'task' => $tasks]);
     }
 
+    public function lock() {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid Request'
+            ]);
+        }
+
+        if (!haspermission('', 'task_view')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Permission Denied'
+            ]);
+        }
+
+        $activityId   = decryptor($this->request->getPost('id'));
+        $loggedIn = session('user_data')['id'];
+        $role     = session('user_data')['role'];
+
+        $tasks = $this->taskStaffActivityModel->select('task_id,task_activity_id')->where(['id'=>$activityId])->first();
+        $taskId =  $tasks['task_id'];
+        $taskActivityId =  $tasks['task_activity_id'];
+        // Get assigned staff
+        $assignedStaff = $this->taskStaffActivityModel
+            ->select('staff_id')
+            ->where('task_id', $taskId)
+            ->groupBy('staff_id')
+            ->findAll();
+        $assignedStaffIds = array_column($assignedStaff, 'staff_id');
+
+        // Admin/Super Admin cannot start
+        if ($role == 1 || $role == 2) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Admins cannot start the activity. Only assigned staff can start.'
+            ]);
+        }
+
+        // Logged in staff must be assigned
+        if (!in_array($loggedIn, $assignedStaffIds)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'You are not assigned to this task, so you cannot start it.'
+            ]);
+        }
+
+        // Check if already opened
+        $existing = $this->taskStaffActivityModel
+            ->where('id', $activityId)
+            ->where('status', 'completed')
+            ->first();
+
+        if ($existing) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'This task activity is already Completed. You cannot chanage it again.'
+            ]);
+        }
+
+        // Record only once
+        $this->taskStaffActivityModel
+            ->where('task_activity_id', $taskActivityId)
+            ->set([
+                'completed_at' => date('Y-m-d H:i:s'),
+                'complated_by' => $loggedIn,
+                'status'    => 'completed',
+                'progress'  => 'completed',
+            ])->update();
+
+            $total_activities = $this->taskStaffActivityModel->where('task_id',$taskId)->groupBy('task_activity_id')->countAllResults();
+            $completed_activities = $this->taskStaffActivityModel->where(['task_id'=> $taskId,'status' => 'completed'])->groupBy('task_activity_id')->countAllResults(); 
+            $totalProgress = ($total_activities > 0) ? round(($completed_activities / $total_activities) * 100, 2) : 0;
+
+            if($totalProgress >1 &&  $totalProgress <= 99 ) {
+                $taskUpdate = [
+                    'progress' => $totalProgress,
+                    'status' => 'In_Progress'
+                ];
+                 
+            }else{
+                $taskUpdate = [
+                    'progress' => $totalProgress,
+                    'status' => 'Completed'
+                ];
+            }
+            $this->taskModel->where('id', $taskId)->set($taskUpdate)->update();
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Task activities started successfully'
+        ]);
+    }
 }

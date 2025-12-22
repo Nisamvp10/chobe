@@ -48,27 +48,38 @@
             today.setHours(0, 0, 0, 0);
 
             let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-            let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900';
+           // let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900';
+            let dueClass =    task.status === "pending" && dueDate < today         ? "text-red-600"        : "text-gray-900";
             
-
             
                 var priority = (task.priority =='High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
-                var status = (task.status =='Pending' ? 'bg-task-medium text-white' : (task.priority == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.priority == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
+                var status = (task.status =='pending' ? 'bg-red-400 text-white' : (task.priority == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.status == "completed" ? 'bg-green-500 text-white' : 'bg-green-500 text-green-800' ) ));
                 var statusColor = (task.staffStatus =='Pending' ? 'bg-task-medium text-white' : (task.staffStatus == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.staffStatus == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
                 const progress = task.progress;
 
-
-                // 
-                let ectivitUrl = App.getSiteurl()+`task/mytask/activities/${task.id}`;
                 
+                let unlock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-unlock h-4 w-4">
+                            <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                            </svg>`;
+                let lock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock h-4 w-4 ">
+                                <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+                // 
+
+                let ectivitUrl = App.getSiteurl()+`task/mytask/activities/${task.id}`;
              const taskHTML = `
-        <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" 
-            draggable="true"
-            data-id="${task.id}">
-             <a  
-                data-id="${task.id}" 
+        <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 ${(task.status == 'pending' ? 'border-orange-500' :'border-green-500')} draggable-task" 
+            >
+            
+            <div class="flex justify-between items-start mb-2 gap-2">
+                <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
+               <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800  flex-shrink-0  ${priority}">${task.priority}</span>
+                <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800  flex-shrink-0 capitalize ${status}">${task.status}</span>
+                <span class="px-2 py-2 rounded-2 text-xs font-medium text-yellow-800  border flex-shrink-0 capitalize  " 
+                 data-id="${task.id}" 
                 data-status="${task.status}"
                 onclick="openTaskModal(this)"
+                data-activity="${task.activityId}"
                 data-title="${task.title}"
                 data-desc="${task.description}"
                 data-branch="${(task.branch_name ? task.branch_name  :'all') }"
@@ -83,22 +94,16 @@
                 data-progressbar="${task.progress}"
                 data-cls="${priority}"
                 data-project="${task.project}"
-                data-doc="${task.ducument}">
-            
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
-                <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${priority}">${task.priority}</span>
-                 <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${statusColor}">Your task Status : ${task.staffStatus}</span>
+                data-doc="${task.ducument}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-4 w-4 ">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>  <circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
+
+                <div class="items-center justify-center  bg-gray-300 pointer border rounded-2 p-2  ${task.status == 'pending' ? 'locktotask' : ''}" data-id="${task.activityId}" >${task.status == 'pending' ? unlock : lock}</div>
             </div>
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
             <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium">${task.branch_name}</span></div>
             <div >
-            <div class="d-flex align-items-center mb-2">
-                <div class="w-full justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
-                    <div class="h-2 rounded-full transition-all duration-500 ${(task.progress  < 50 ? 'bg-red-500' : (task.progress > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${progress}%"></div> 
-                </div>
-                <span class="text-xs text-gray-500 text-gray-900">${progress}%</span>
-            </div>
+            
               ${task.ducument ? `
             <div class="d-flex align-items-center mb-2">
                 <a href="${task.ducument}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
@@ -107,17 +112,36 @@
             </div>` : ''}
             </div>
             <div class="flex justify-between items-center">
-                <div class="flex -space-x-2 profile-stack ">
-                    ${task.users.map(user => `
-                     ${user.img ? `   <div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
-                            <img src="${user.img}" alt="${user.staffName}" class="w-full h-full object-cover">
-                        </div>` :`<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                <div class="flex -space-x-2 profile-stack gap-3 items-center ">
+                ${task.status === 'completed'
+                    ? task.completedBy.slice(0, 5).map(user => `
+                        ${user.cmImg
+                            ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
+                                    <img src="${user.cmImg}" alt="${user.cmName}" title="${user.cmName}" class="w-full h-full object-cover">
+                            </div>`
+                            : `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                                    <span class="text-blue-600 font-medium">${user.cmName.charAt(0)}</span>
+                            </div><span class="text-gray-500">Completed By :</span><span class="text-blue-600 font-medium">${user.cmName}</span>`
+                        }
+                    `).join('')
+                    : task.users.map(user => `
+                        ${user.img
+                            ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
+                                    <img src="${user.img}" alt="${user.staffName}" class="w-full h-full object-cover">
+                            </div>`
+                            : `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
                                     <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
-                            </div>`}
-                    `).join('')}
+                            </div><span class="text-blue-600 font-medium">${user.staffName}</span>`
+                        }
+                    `).join('')
+                }
+
                 </div>
-                <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
-            </div>
+                <span class="flex text-xs text-gray-500 ${dueClass}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days h-4 w-4 mr-2">
+                        <rect x="3" y="4" width="18" height="18" rx="2"></rect>  <path d="M8 2v4"></path>  <path d="M16 2v4"></path>  <path d="M3 10h18"></path>  <circle cx="12" cy="16" r="2"></circle></svg>${duedateText}</span>  
+                       ${task.duration != null    ? `<span class="text-xs text-green-600 flex gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock "><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${task.duration}</span>`    : ''}
+
+                </div>
               </a>        
         </div>
     `;
@@ -158,7 +182,7 @@
                         </td>
                         <td class="px-6 py-1 whitespace-nowrap">
                             <div class="text-sm text-gray-900">
-                             <span class="px-2 py-1 text-xs rounded-full capitalize ${status} ">${task.status}</span>
+                             <span class="px-2 py-1 text-xs rounded-full capitalize ${status}">${task.status}</span>
                             </div>
                         </td>
                         <td class="px-2 py-1 whitespace-nowrap">
@@ -174,9 +198,10 @@
                     </tr>
                 `;
 
-                if (task.status === 'Pending') {
+
+                if (task.status === 'pending') {
                     pending += taskHTML;
-                } else if (task.status === 'In_Progress') {
+                } else if (task.status === 'in_Progress') {
                     inProgress += taskHTML;
                 } else {
                     completed += taskHTML;
@@ -195,20 +220,26 @@
 
         
 function openTaskModal(el) {
-
     const modal = document.getElementById('taskModal');
     const progressEl = document.getElementById('progressIndicator');
     
     const progressLabel = document.getElementById('progressLabel');
     const taskId = document.getElementById('taskId');
     modal.classList.remove('hidden');
+
     // Fill modal fields from data attributes
-    let gettaskId =  modal.querySelector('.modal-title').textContent = el.dataset.id;
+    let gettaskId =  modal.querySelector('.modal-title').textContent = el.dataset.activity;
     taskId.value = gettaskId;
     modal.querySelector('.modal-title').textContent = el.dataset.title;
     modal.querySelector('.modal-desc').textContent = el.dataset.desc;
     // modal.querySelector('.modal-branch').textContent = el.dataset.branch;
-    let status = modal.querySelector('.modal-status').textContent = el.dataset.status;
+    let statusEl = modal.querySelector('.modal-status');
+    let status = el.dataset.status;
+
+    statusEl.textContent = status;
+    statusEl.className = `modal-status ${
+        status === 'pending' ? '!text-red-800 capitalize' : 'capitalize !text-green-500'
+    }`;
     modal.querySelector('.modal-date').textContent = el.dataset.date;
     let progress = modal.querySelector('.modal-progress-bar').style.width = el.dataset.progress;
 
@@ -228,10 +259,7 @@ function openTaskModal(el) {
     let progressCls = (progressbar  < 50 ? 'bg-red-500' : (progressbar > 80 ? 'bg-green-500' :'bg-yellow-500'));
     progressEl.classList.add(progressCls);
   
-
     //edit data
-
-
     const users = JSON.parse(el.dataset.profiles);
     //renderStaffList(users);
     const priorityEl = modal.querySelector('.modal-priority');
@@ -351,57 +379,112 @@ function renderHistory(id) {
     });
 }
 function renderReplayUi(replay) {
-    let html ='';
-    if(replay.length ===0) {
-        html = `<div class="text-center py-8">
-                    <h3 class="text-lg font-medium text-gray-700">No Replay yet</h3>
-                </div>`;
-    }else{
-         html +=` <ul class="-mb-8">`
-        replay.forEach(rply=>{
-             $('#progress').val(rply.taskdata.progress);
-            const replyDate = new Date(rply.created_at);
-            const formattedDate = replyDate.toLocaleString();
-            html +=` <li>
-                        <div class="relative pb-8">
-                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-                            <div class="relative flex space-x-3"><div class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 transition-colors duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square w-4 h-4 text-green-500"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                            </div>
-                            <div class="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
-                                <div class="flex-1">
-                                    <div class="space-y-2">
-                                        <p class="text-sm text-gray-400 font-medium">${rply.reply_text} </p>
-                                    </div>
-                                </div>
-                                <div class="whitespace-nowrap text-right text-sm text-gray-500">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs ">
-                                           ${rply.profileimg ? `   <div class="relative rounded-full overflow-hidden flex items-center justify-center w-6 h-6 text-xs border-2 border-white">
-                                                <img src="${rply.profileimg}" alt="${rply.name}" class="w-full h-full object-cover">
-                                            </div>` :`<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
-                                                        <span class="text-blue-600 font-medium">${rply.name.charAt(0)}</span>
-                                                </div> ` }
-                                           
-                                        </div>
-                                             ${rply.name} <time datetime="${replyDate.toISOString()}" class="text-gray-500">${formattedDate}</time>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>`
-        })
-        html += '</ul>'
-    }
-    $('#taskreplaysec').html(html);
+  let html = '';
+  from =`<div>
+            <form class="mb-4" method="post" id="replyTaskForm">
+                <?= csrf_field() ;?>
+                
+                  <div class="flex space-x-2" >
+                    <textarea placeholder="Enter your Comments..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                     <div class="invalid-feedback" id="replay_error"></div>
+                </div>
+                <div class="flex justify-end space-x-2 mt-2 gap-2">
+                    <button type="button" class="px-3 py-1 text-gray-600 zrounded-md border rounded-2" onclick="hideReplyForm()">Cancel</button>
+                    <button type="submit" class="flex items-center rounded-2 space-x-1 px-3 py-1 bg-primary text-white rounded-md hover:bg-indigo-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
+                            <path d="M22 2 11 13"></path><path d="M22 2 15 22 11 13 2 9 22 2z"></path>
+                        </svg>
+                        <span>Send</span>
+                    </button>
+                </div>
+            </form>
+        </div>`
+
+if (replay.length === 0) {
+    html = `
+        <div class="text-center py-8">
+            <h3 class="text-lg font-medium text-gray-700">No Reply yet</h3>
+        </div>`
+} else {
+
+    let lastDate = '';
+
+    html += `<ul class="space-y-4">`;
+
+    replay.forEach(rply => {
+
+        const replyDateObj = new Date(rply.created_at);
+
+        const msgDate = replyDateObj.toDateString(); // compare only date
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+        let displayDate = msgDate;
+        if (msgDate === today) displayDate = 'Today';
+        else if (msgDate === yesterday) displayDate = 'Yesterday';
+
+        const time = replyDateObj.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        // Show date separator only when date changes
+        if (msgDate !== lastDate) {
+            html += `
+                <li class="flex justify-center">
+                    <span class="px-4 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
+                        ${displayDate}
+                    </span>
+                </li>
+            `;
+            lastDate = msgDate;
+        }
+
+        const isAdmin = rply.is_admin == 1; // adjust if needed
+
+        html += `
+        <li class="flex ${isAdmin ? 'justify-end' : 'justify-start'}">
+            <div class="max-w-[75%] flex items-end gap-2 ${isAdmin ? 'flex-row-reverse' : 'flex-row'}">
+
+                <!-- Avatar -->
+                <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs bg-gray-200">
+                    ${
+                        rply.profileimg
+                        ? `<img src="${rply.profileimg}" class="w-full h-full object-cover">`
+                        : `<span class="font-semibold text-gray-600">${rply.name.charAt(0)}</span>`
+                    }
+                </div>
+
+                <!-- Message -->
+                <div class="px-4 py-2 rounded-2xl shadow text-sm
+                    ${isAdmin 
+                        ? 'bg-blue-600 text-white rounded-br-sm' 
+                        : 'bg-gray-100 text-gray-800 rounded-bl-sm'}">
+
+                    <p class="mb-0">${rply.reply_text}</p>
+
+                    <div class="mt-1 text-[11px] opacity-70 text-right">
+                        ${time}
+                    </div>
+                </div>
+
+            </div>
+        </li>`;
+    });
+
+    html += `</ul>`;
 }
-$('#replyTaskForm').on('submit', function(e) {
-     let id =  $('#taskId').val();
+
+$('#taskreplaysec').html(html +from);
+}
+$(document).on('submit', '#replyTaskForm', function (e) {
+
+    let id =  $('#taskId').val();
     let webForm = $('#replyTaskForm');
    
     e.preventDefault();
     let formData = new FormData(this);
+    formData.append('taskId', id);
     $('.is-invalid').removeClass('is-invalid');
     $('.invalid-feedback').empty();
     $('#submitBtn').prop('disabled', true).html(
@@ -442,3 +525,31 @@ $('#replyTaskForm').on('submit', function(e) {
     })
 })
 
+$(document).on('click', '.locktotask', function (e) {
+    e.preventDefault();
+    let activityId = $(this).data('id');
+    $.ajax({
+        method :  'POST',
+        url : App.getSiteurl() + 'activity/lock',
+        data:{id:activityId},
+        dataType: 'json',
+        success:function(res) {
+           if(res.success) {
+            toastr.success(res.message);
+            loadTask();
+           }else{
+            toastr.error(res.message);
+           }
+        }
+    })
+})
+function showStep(step) {
+    // Hide all steps
+    $('.step1, .step2').hide();
+
+    // Remove active button style
+    $('.modal-action-btn').removeClass('bg-gray-200 text-gray-800');
+
+    // Show selected step
+    $('.step' + step).show();
+}

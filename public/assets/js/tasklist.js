@@ -92,11 +92,11 @@
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
             <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium nixx">${(task.branch_name ==null ? 'All Brach' : task.branch_name)}</span></div>
             <div >
-            <div class="d-flex align-items-center mb-2">
-                <div class="w-full justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
-                    <div class="h-2 rounded-full transition-all duration-500 ${(percent < 50 ? 'bg-red-500' : (percent > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${percent}%"></div> 
+            <div class="d-flex align-items-center mb-2 flex gap-1">
+                <div class="w-[70%]  justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
+                    <div class="h-2 rounded-full transition-all duration-500  ${(percent < 50 ? 'bg-red-500' : (percent > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${percent}%"></div> 
                 </div>
-                <span class="text-xs text-gray-500 text-gray-900">  ${task.completed_activities ?? 0} / ${task.total_activities ?? 0} ${percent}%</span>
+                <span class="text-xs text-gray-500 text-gray-900">  ${task.completed_activities ?? 0}/${task.total_activities ?? 0} ${percent}%</span>
             </div>
           ${task.ducument ? `
             <div class="d-flex align-items-center mb-2">
@@ -127,7 +127,7 @@
             </div>
            <div class="flex space-x-1 flex justify-between items-center gap-2 ">
             <div>
-                <a href="${ectivitUrl}" class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 ">
+                <a href="${ectivitUrl}"  data-id="${task.id}"  class="inline-flex items-center justify-center gap-2 viewTaskActivity  whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 ease-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-white mt-3 hover:shadow-hover hover:scale-105 transform h-9 rounded-md px-3 flex-1 ">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity h-4 w-4 mr-2" data-lov-id="src/components/TaskCard.tsx:96:12" data-lov-name="Activity" data-component-path="src/components/TaskCard.tsx" data-component-line="96" data-component-file="TaskCard.tsx" data-component-name="Activity" data-component-content="%7B%22className%22%3A%22h-4%20w-4%20mr-2%22%7D"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"></path></svg> View Activities (${task.total_activities ?? 0})
                 </a>
             </div>
@@ -157,11 +157,9 @@
             </div>
            </div>
         </div>
-    `;
+         <div> `;
             
-            
-
-                // 
+// 
                 progressBar = `<div class="flex items-center gap-2">
                             <div
                                 role="progressbar"
@@ -278,7 +276,7 @@
     });
  //})
 
-
+let taskOpenId= null;
 function openTaskModal(el) {
    
     const modal = document.getElementById('taskModal');
@@ -295,6 +293,7 @@ function openTaskModal(el) {
     // Fill modal fields from data attributes
     let gettaskId =  modal.querySelector('.modal-title').textContent = el.dataset.id;
     taskId.value = gettaskId;
+    taskOpenId = gettaskId;
     $('.delete-task').attr('data-title', el.dataset.title);
 
     modal.querySelector('.modal-title').textContent = el.dataset.title;
@@ -327,6 +326,7 @@ function openTaskModal(el) {
     taskEdit.querySelector('#duedate').value = el.dataset.duedate || 0;
     taskEdit.querySelector('#taskStatus').value = status || 0;
     taskEdit.querySelector('#projectUnit').value = el.dataset.projectunit || '';
+    taskReplays();
 
     const priorityButtons = taskEdit.querySelectorAll('.priority-btn');
     priorityButtons.forEach(btn => {
@@ -423,6 +423,47 @@ function toggleEditForm() {
 function toggleReplay() {
     showOnly('replyForm');
 }
+
+$('#replyForm').on('submit', function (e) {
+    e.preventDefault();
+
+    let webForm = $('#replyForm');
+    let formData = new FormData(this);
+    let saveBtn = $('#formmBtn');
+
+    // append taskId
+    formData.append('taskId', taskOpenId);
+
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').empty();
+
+    saveBtn.prop('disabled', true).html(
+        '<span class="spinner-border spinner-border-sm" role="status"></span> Saving...'
+    );
+
+    $.ajax({
+        url: App.getSiteurl() + 'task/replay',
+        type: 'POST',
+        data: formData,
+        processData: false, 
+        contentType: false, 
+        dataType: 'json',
+        success: function (response) {
+            saveBtn.prop('disabled', false).html('Send');
+
+            if (response.success) {
+                taskReplays();
+                toastr.success(response.message);
+                showStep(2)
+                webForm[0].reset();
+            }
+        },
+        error: function () {
+            saveBtn.prop('disabled', false).html('Send');
+        }
+    });
+});
+
 
  const priorityButtons = document.querySelectorAll('.priority-btn');
 
@@ -657,3 +698,133 @@ $('#confirmDeleteTask').on('click', function () {
         });
     }
 });
+
+$(document).on('click', '.viewTaskActivity', function (e) {
+    e.preventDefault();
+    let href = $(this).attr('href');
+    let id = $(this).data('id');
+    $.ajax({
+        method :  'POST',
+        url : App.getSiteurl() + 'task/start',
+        data:{id:id},
+       dataType: 'json',
+        success:function(res) {
+           window.location.href = href;
+        }
+    })
+});
+
+
+function showStep(step) {
+    // Hide all steps
+    $('.step1, .step2, .step3, .step4').hide();
+
+    // Remove active button style
+    $('.modal-action-btn').removeClass('bg-gray-200 text-gray-800');
+
+    // Show selected step
+    $('.step' + step).show();
+}
+function taskReplays() {
+       let taskReplys = $('#taskReplys');
+        taskReplys.html('<span class="w-100 block text-center text-light-500">Loading....</span>')
+
+        $.ajax({
+            url: App.getSiteurl() + 'task-replays',
+            type: 'POST',
+            data: {taskId:taskOpenId},
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                   renderReplayUi(response.replay)
+                }
+            },
+            error: function () {
+                //saveBtn.prop('disabled', false).html('Send');
+            }
+    });
+}
+
+function renderReplayUi(replay) {
+  let html = '';
+
+if (replay.length === 0) {
+    html = `
+        <div class="text-center py-8">
+            <h3 class="text-lg font-medium text-gray-700">No Reply yet</h3>
+        </div>
+    `;
+} else {
+
+    let lastDate = '';
+
+    html += `<ul class="space-y-4">`;
+
+    replay.forEach(rply => {
+
+        const replyDateObj = new Date(rply.created_at);
+
+        const msgDate = replyDateObj.toDateString(); // compare only date
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+        let displayDate = msgDate;
+        if (msgDate === today) displayDate = 'Today';
+        else if (msgDate === yesterday) displayDate = 'Yesterday';
+
+        const time = replyDateObj.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        // Show date separator only when date changes
+        if (msgDate !== lastDate) {
+            html += `
+                <li class="flex justify-center">
+                    <span class="px-4 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
+                        ${displayDate}
+                    </span>
+                </li>
+            `;
+            lastDate = msgDate;
+        }
+
+        const isAdmin = rply.is_admin == 1; // adjust if needed
+
+        html += `
+        <li class="flex ${isAdmin ? 'justify-end' : 'justify-start'}">
+            <div class="max-w-[75%] flex items-end gap-2 ${isAdmin ? 'flex-row-reverse' : 'flex-row'}">
+
+                <!-- Avatar -->
+                <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs bg-gray-200">
+                    ${
+                        rply.profileimg
+                        ? `<img src="${rply.profileimg}" class="w-full h-full object-cover">`
+                        : `<span class="font-semibold text-gray-600">${rply.name.charAt(0)}</span>`
+                    }
+                </div>
+
+                <!-- Message -->
+                <div class="px-4 py-2 rounded-2xl shadow text-sm
+                    ${isAdmin 
+                        ? 'bg-blue-600 text-white rounded-br-sm' 
+                        : 'bg-gray-100 text-gray-800 rounded-bl-sm'}">
+
+                    <p class="mb-0">${rply.reply_text}</p>
+
+                    <div class="mt-1 text-[11px] opacity-70 text-right">
+                        ${time}
+                    </div>
+                </div>
+
+            </div>
+        </li>`;
+    });
+
+    html += `</ul>`;
+}
+
+$('#taskReplys').html(html);
+
+
+}

@@ -1,8 +1,8 @@
 
 <!-- Modal -->
 <div id="taskModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-100 hidden overflow-y-auto" onclick="closeTaskModal(event)">
-  <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-w-3xl flex flex-col h-screen">
-    <!-- head -->
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl h-[90vh] overflow-y-auto">
+    <!-- head 123123-->
      <div class="p-4 border-b flex justify-between items-center">
         <h2 class="text-xl font-semibold text-gray-800 modal-title"></h2>
         <div class="flex space-x-2">
@@ -38,7 +38,7 @@
         </div>
     </div>
     <!-- history -->
-     <div class="w-1/2 p-6 overflow-y-auto border-l hidden h-full flex flex-col" id="taskHistory">
+     <div class="w-full p-6 overflow-y-auto border-l hidden h-full flex flex-col" id="taskHistory">
         <div class="space-y-4">
             <div class="flex items-center justify-between">
             <h3 class="text-lg font-medium text-gray-900">Task History</h3>
@@ -59,7 +59,7 @@
 
      <!-- history -->
       <!-- Reply Form -->
-        <div id="replyForm" class="w-1/2 p-6 overflow-y-auto border-l hidden h-full flex flex-col">
+        <div id="replyForm" class="w-full p-6 overflow-y-auto border-l hidden h-80 flex flex-col">
             <form class="mb-4">
                 <div class="flex space-x-2">
                     <textarea placeholder="Enter your reply..." class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
@@ -78,7 +78,7 @@
        
     <!-- from  -->
      <!-- Task Edit Panel -->
-    <div id="editForm" class="w-1/2 p-6 overflow-y-auto border-l hidden h-full flex flex-col h-screen" >
+    <div id="editForm" class="w-full p-6 overflow-y-auto border-l hidden h-full flex flex-col h-screen" >
       <h2 class="text-xl font-semibold mb-4">Edit Task</h2>
       <form id="taskEditForm" class="space-y-4">
         <?= csrf_field() ;?>

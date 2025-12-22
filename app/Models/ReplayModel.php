@@ -10,7 +10,7 @@ class ReplayModel extends Model {
 
     function getHistory($taskId = false) {
         $builder = $this->db->table('task_replies t')
-            ->select('u.name,u.profileimg,t.reply_text,t.created_at')
+            ->select('u.name,t.user_id,u.profileimg,t.reply_text,t.created_at')
             ->join('users u','t.user_id = u.id')
             ->where('t.task_id',$taskId);
         $query = $builder->get()->getResultArray();

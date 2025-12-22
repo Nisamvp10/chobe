@@ -1,0 +1,476 @@
+<?php
+namespace App\Controllers;
+
+use App\Models\AssigntaskModel;
+use CodeIgniter\Controller;
+use App\Models\BranchesModel;
+use App\Models\TaskModel;
+use App\Models\NotificationModel;
+use App\Models\TaskimagesModel;
+use App\Controllers\UploadImages;
+use App\Models\ProjectsModel;
+use App\Models\ActivityModel;
+use App\Models\ActivityStaffModel;
+use App\Models\UserModel;
+use App\Models\ProjectunitModel;
+use App\Models\TaskactivityModel;
+class TaskController extends Controller {
+
+    protected $branchModel;
+    protected $taskActivityModel;
+    protected $taskModel;
+    protected $taskassignModel;
+    protected $notificationModel;
+    protected $taskImgModel;
+    protected $uploadImg;
+    protected $projects;
+    protected $activityModel;
+    protected $staffModal;
+    protected $projectUnitModel;
+    function __construct() {
+        $this->branchModel = new BranchesModel();
+        $this->taskModel = new TaskModel();
+        $this->taskassignModel = new AssigntaskModel();
+        $this->notificationModel = new NotificationModel();
+        $this->taskImgModel = new TaskimagesModel();
+        $this->uploadImg = new UploadImages();
+        $this->projects = new ProjectsModel();
+        $this->activityModel = new ActivityModel();
+        $this->staffModal = new UserModel();
+        $this->projectUnitModel = new ProjectunitModel();
+        $this->taskActivityModel = new TaskactivityModel();
+        
+    }
+
+    function index($taskStatus= false) {
+
+        $page = "Tasks";
+        $branches = $this->branchModel->where('status','active')->findAll();
+        $projects = $this->projects->where('is_active',1)->findAll();
+        $projectUnits = $this->projectUnitModel->where('status',1)->findAll();
+        $taskStatus = $taskStatus;
+        return view('admin/task/index',compact('page','branches','taskStatus','projects','projectUnits'));
+    }
+
+    function create() {
+
+        $page = "Create New Task";
+        $branches = $this->branchModel->where('status','active')->findAll();
+        $projects = $this->projects->where('is_active',1)->findAll();
+        $staffs =  $this->staffModal->where('role !=',1)->findAll();
+        $projectUnits = $this->projectUnitModel->where('status',1)->findAll();
+        return view('admin/task/create',compact('page','branches','projects','staffs','projectUnits'));
+    }
+
+    function save () {
+
+        if(!haspermission('','create_task')) {
+            return $this->response->setJSON(['success' => false, 'message' => lang('Custom.accessDenied')]);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON(['success' => false, 'message' => lang('Custom.invalidRequest')]);
+        }
+        $taskId = decryptor($this->request->getPost('taskId'));
+
+        $rules = [
+            'title' => 'required',
+            'description' => 'required|min_length[3]',
+            //'projectUnit' => 'required',
+            'priority' => 'required',
+            //'duedate' => 'required',
+            
+        ];
+
+        (empty($taskId) ? $rules['project'] = 'required' : '' );
+
+        if(!$this->validate($rules)) {
+            return $this->response->setJSON(['success' => false , 'errors' => $this->validator->getErrors()]);
+        }
+        $masterActivities = $this->activityModel->where(['status' => 'active'])->get()->getResult();
+       
+        $validStatus = false;
+        $validMsg = '';
+
+        $data = [
+            'title'         => $this->request->getPost('title'),
+            'description'   => $this->request->getPost('description'),
+            'overdue_date'  => $this->request->getPost('duedate'),
+            'priority'      => $this->request->getPost('priority'),
+            'branch'        => 'all',//$this->request->getPost('branch'),
+            'project_unit'  => $this->request->getPost('projectUnit'),
+            'project_id'    => $this->request->getPost('project'),
+            'status'        => 'Pending',
+            'recurrence'    => 'daily',
+            'next_run_date' => date('Y-m-d', strtotime('+1 day'))
+        ];
+      
+
+        $file = $this->request->getFile('file');
+
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $uploadResult = $this->uploadImg->uploadimg($file, 'taskfiles');
+            $image = json_decode($uploadResult, true);
+             $taskFiles = [
+                'image_url'   => base_url($image['file']),
+                'file_ext'    => $image['file_ext']
+                ];
+        } else {
+            $image = ['status' => false];
+        }
+
+        if ($taskId) {
+          
+            $data['progress'] = $this->request->getPost('progress');
+            $data['status'] = $this->request->getPost('status');
+            $update = $this->taskModel->update($taskId,$data);
+            $staffs = $this->request->getPost('staff');
+            $roles  = $this->request->getPost('role') ?? [];
+            //$personPriority  = $this->request->getPost('personpriority') ?? [];
+           
+            foreach ($staffs as $index => $staffId) {
+                $roleId = $roles[$index];
+                //$personPriorityId =  $personPriority[$index];
+
+                // Check if assignment exists
+                $existing = $this->taskassignModel
+                                ->where('task_id', $taskId)
+                                ->where('staff_id', $staffId)
+                                ->first();
+
+                if ($existing) {
+                    // Update only if role is different
+                    if ($existing['role'] != $roleId) {
+                        $this->taskassignModel->update($existing['id'], [
+                            'role' => $roleId
+                        ]);
+                    }
+                    //  if ($existing['priority'] != $personPriorityId) {
+                    //     $this->taskassignModel->update($existing['id'], [
+                    //         'priority' => $personPriorityId
+                    //     ]);
+                    // }
+                } else {
+                    // Insert new assignment
+                    $this->taskassignModel->insert([
+                        'task_id'  => $taskId,
+                        'staff_id' => $staffId,
+                        'role'     => $roleId,
+                        //'priority' => $personPriorityId
+                    ]);
+                }
+            }
+
+            $validStatus = $update;
+            $validMsg =  $update ? 'Task updated' : 'Failed to update task';
+        }else{
+                $personPriority  = $this->request->getPost('personpriority');
+                $staffs = $this->request->getPost('staff');
+                if(!empty($staffs)) {
+                    if(!empty($masterActivities)) {
+                        if ($taskId = $this->taskModel->insert($data)) {
+
+                            $taskFiles['task_id'] = $taskId;
+                            $this->taskImgModel->insert($taskFiles);
+                        
+                            $role =   $this->request->getPost('role');
+                            $personPriority  = $this->request->getPost('personpriority'); //fixed high
+                            
+                            foreach($masterActivities as $masteractiviy) {
+                                $activities = [
+                                    'task_id'     => $taskId,
+                                    'activity_id' => $masteractiviy->id,
+                                    'duedate'     => date('Y-m-d')
+                                ];
+                                $this->taskActivityModel->insert($activities);
+                            }
+                                foreach ($staffs as $index => $staff) {
+                                    $assign = [
+                                        'task_id'  => $taskId,
+                                        'staff_id' => $staff,
+                                        'role'     => $role[$index], 
+                                        'priority' =>  $this->request->getPost('priority'),// $personPriority[$index], 
+                                    ];
+                                    $notify = [
+                                        'user_id' =>  $staff,
+                                        'task_id'   => $taskId,
+                                        'type'    => 'new_task',
+                                        'title'   => 'New Task',
+                                        'created_by' => session('user_data')['id'],
+                                        'message' => 'A new Task has been created by .'.session('user_data')['username']
+                                    ];
+                                    
+                                    $this->taskassignModel->insert($assign);
+                                    $this->notificationModel->insert($notify);
+                                }
+                                $validStatus = true;
+                                $validMsg = 'New Task Added Successfully';
+                    }else {
+                        $validMsg = lang('Custom.formError');
+                    }
+                    }else{
+                      //activities not fount aet atleast one activity    
+                      $validMsg = 'Activity task not found ';   
+                    }
+            } else{
+                $validMsg = 'Please select at least one participant for the task ';
+            }
+        }
+        return $this->response->setJSON(['success' => $validStatus,'message' => $validMsg]);
+    }
+
+    function list() {
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid Request'
+            ]);
+        }
+        if (!haspermission('','task_view')) {
+             return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Permission Denied'
+            ]);
+        }
+        $filter = $this->request->getGet('filter');
+        $searchInput = $this->request->getGet('search');
+        $startDate = $this->request->getGet('startDate');
+        $endDate = $this->request->getGet('endDate');
+        $taskProject = $this->request->getGet('taskProject');
+        $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate,$taskProject); // or ->findAll()
+       // echo  $this->taskModel->getLastQuery();exit();
+
+        $allusers = $this->staffModal->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1 ,'role !=' =>1])->findAll();
+        $groupData = [];
+
+        foreach ($alltask as &$task) {
+
+            $taskId = $task['id'];
+
+            if (!isset($groupData[$taskId])) {
+                $groupData[$taskId] = [
+
+                    'id'        => encryptor($task['id']),
+                    'title'     => $task['title'],
+                    'storeId'   => $task['store'],
+                    'description' => $task['description'],
+                    'branch_name' => $task['branch_name'],
+                    'projectUnit' => $task['project_unit'],
+                    'total_activities' => $this->taskActivityModel->where('task_id',$task['id'])->countAllResults(),
+                    'completed_activities' =>$this->taskActivityModel->where(['task_id'=>$task['id'],'status' => 'completed'])->countAllResults(),//$task['completed_activities'],
+                    'project'   => $task['project_id'],
+                    'priority'  => $task['priority'],
+                    'status'    => $task['status'],
+                    'action'    => $task['action'],
+                    'overdue_date' => $task['overdue_date'] ?? null,
+                    'progress'  => $task['progress'],
+                    'allUsers'  => $allusers,
+                    'ducument'  => $task['image_url'],
+                    'users'     => [],
+                ];
+
+                if (!empty($task['name'])) {
+                    $groupData[$taskId]['users'][] = [
+
+                        'img'       => $task['profileimg'],
+                        'staffName' => $task['name'],
+                        'userId'    => $task['userId'],
+                        'role'      => $task['role'],
+                        'userPriority' => $task['userPriority'], 
+                    ];
+                }
+
+                $groupData[$taskId]['duration'] = $task['status'] == 'Completed'
+                    ? human_duration($task['created_at'], $task['completed_at'])
+                    : human_duration($task['created_at']);
+            } else {
+                $existingProfiles = array_column($groupData[$taskId]['users'], 'userId');
+                if (!empty($task['name'])  && !in_array($task['userId'], $existingProfiles)) {
+                    $groupData[$taskId]['users'][] = [
+
+                        'img'       => $task['profileimg'],
+                        'staffName' => $task['name'],
+                        'userId'    => $task['userId'],
+                        'role'      => $task['role'],
+                        'userPriority' => $task['userPriority'],
+                    ];
+                }
+            }
+        }
+
+        $tasks = array_values($groupData);
+        return $this->response->setJSON([ 'success'=>true,'task' => $tasks]);
+    }
+
+    // Mt Task
+    function myTaskList() {
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid Request'
+            ]);
+        }
+        if (!haspermission('','task_view')) {
+             return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Permission Denied'
+            ]);
+        }
+        $activityTasksAssignModel = new ActivityStaffModel();
+        $filter = $this->request->getGet('filter');
+        $notifiytask = $this->request->getGet('notifiytask');
+        $alltasks = $this->taskModel->getMytask('','',$notifiytask,$filter); // or ->findAll()
+       
+        
+        $groupData = [];
+        foreach ($alltasks as &$task) {
+            $taskId = $task['id'];
+
+            if (!isset($groupData[$taskId])) {
+                  $activityTasksAssignModel->where(['activity_id'=> $task['id'],'staff_id'=>session('user_data')['id']])->countAllResults();
+        //echo $activityTasksAssignModel->getLastQuery();
+                $groupData[$taskId] = [
+
+                    'id'        => encryptor($task['id']),
+                    'title'     => $task['title'],
+                    'storeId'   => $task['store'],
+                    'description' => $task['description'],
+                    'branch_name' => $task['branch_name'],
+                    'project'   => $task['project_id'],
+                    'total_activities' => $this->taskActivityModel->getMytaskCount($task['id']),
+                    'completed_activities' =>$this->activityModel->where(['task_id'=>$task['id'],'status' => 'completed'])->countAllResults(),
+                    'priority'  => $task['priority'],
+                    'status'    => $task['status'],
+                    'overdue_date' => $task['overdue_date'],
+                    'progress'  => $task['progress'],
+                    'action'    => $task['action'],
+                    'ducument'  => $task['image_url'],
+                    'users'     => [],
+                ];
+
+                if (!empty($task['profileimg']) || !empty($task['name'])) {
+                    $groupData[$taskId]['users'][] = [
+
+                        'img'       => $task['profileimg'],
+                        'staffName' => $task['name'],
+                        'userId'    => $task['userId'],
+                        'role'      => $task['role'],
+                        'userPriority' => $task['userPriority'],
+                    ];
+                }
+
+                $groupData[$taskId]['duration'] = $task['status'] == 'Completed'
+                    ? human_duration($task['created_at'], $task['completed_at'])
+                    : human_duration($task['created_at']);
+            } else {
+                $existingProfiles = array_column($groupData[$taskId]['users'], 'userId');
+                if (!empty($task['name'])  && !in_array($task['userId'], $existingProfiles)) {
+                    $groupData[$taskId]['users'][] = [
+
+                        'img'       => $task['profileimg'],
+                        'staffName' => $task['name'],
+                        'userId'    => $task['userId'],
+                        'role'      => $task['role'],
+                        'userPriority' => $task['userPriority'],
+                    ];
+                }
+            }
+        }
+
+        $tasks = array_values($groupData);
+        return $this->response->setJSON([ 'success'=>true,'task' => $tasks]);
+    }
+
+    function view($id= false) {
+        
+        $id = decryptor($id) ?? NULL;
+
+        if($id) {
+            $participants = $this->taskassignModel->getParticipants($id);
+           // print_r($participants);
+        }
+    }
+
+    public function update_status()
+    {
+        $task_id = $this->request->getPost('task_id');
+        $new_status = $this->request->getPost('new_status');
+
+        if (!$task_id || !$new_status) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid data']);
+        }
+        $task_id = decryptor( $task_id);
+        $getTask = $this->taskModel->find($task_id);
+        $tasks =  $this->taskassignModel->where('task_id',$task_id)->findAll();
+        
+        foreach($tasks as $tsk) {
+            $notify = [
+                'user_id' =>  $tsk['staff_id'],
+                'type'    => 'new_task',
+                'task_id'   => $task_id,
+                'created_by' => session('user_data')['id'],
+                'title'   => 'Task '.$getTask['title'].' Status Change ',
+                'message' => 'Task '.$getTask['title'].' Status Change to '.ucwords(str_replace('_', ' ', $new_status)).' By '.session('user_data')['username']
+            ];
+             $this->notificationModel->insert($notify);
+        }
+      
+        $updated = $this->taskModel->update($task_id, ['status' => $new_status]);
+        return $this->response->setJSON([
+            'success' => $updated,
+            'message' => $updated ? 'Task updated' : 'Failed to update task',
+        ]);
+    }
+
+    function myTask() {
+        $page = "My Tasks";
+        $branches = $this->branchModel->where('status','active')->findAll();
+        return view('admin/task/mytask',compact('page','branches'));
+    }
+
+    function notificationTask($taskId=false){
+        $page = "Notifications";
+        $notificationId = decryptor($taskId);
+
+        $taskId = $this->notificationModel->where('id', $notificationId)->first()['task_id'] ?? null; 
+        return view('admin/task/mytask',compact('page','taskId'));
+    }
+
+    public function delete($id)
+    {
+        $taskModel =  $this->taskModel;
+
+        if(!hasPermission('','task_delete')) {
+            return $this->response->setJSON(['status' => false,'msg'=>lang('Custom.accessDenied')]);
+        }
+
+        if ($taskModel->find(decryptor($id))) {
+            //$taskModel->delete($id);
+            return $this->response->setJSON(['status' => true,'msg' => 'Task deleted successfully!']);
+        }
+
+        return $this->response->setJSON(['status' => false, 'msg' => 'Task not found']);
+    }
+    
+    public function start() {
+         if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid Request'
+            ]);
+        }
+        if (!haspermission('','task_view')) {
+             return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Permission Denied'
+            ]);
+        }
+
+        $id = decryptor($this->request->getPost('id'));
+        $this->taskModel->update( $id,['started_at'=>date(format: 'Y-m-d H:i:s')]);
+        $this->taskActivityModel->where('task_id', $id)->set(['started_at'=>date('Y-m-d H:i:s')])->update();
+
+    }
+}

@@ -8,6 +8,7 @@ use App\Models\TaskModel;
 use App\Models\ActivityReplayModel;
 use App\Models\ActivityModel;
 use App\Models\ActivityStaffModel;
+use App\Models\TaskStaffActivityModel;
 class ReplayController extends Controller {
 
     protected $taskModel;
@@ -15,11 +16,14 @@ class ReplayController extends Controller {
     protected $activityModel;
     protected $activityStaffModel;
 
+    protected $taskstaffactivity;
+
     function __construct() {
         $this->taskModel = new TaskModel();
         $this->notificationModel = new NotificationModel();
         $this->activityModel = new ActivityModel();
         $this->activityStaffModel = new  ActivityStaffModel();
+        $this->taskstaffactivity = new TaskStaffActivityModel();
     }
 
 
@@ -34,7 +38,7 @@ class ReplayController extends Controller {
         }
         $validSuccess = false;
         $rules = [
-            'replay' => 'required|min_length[3]|max_length[150]',
+            'replay' => 'required|min_length[1]|max_length[150]',
         ];
         if(!$this->validate($rules))
         {
@@ -69,6 +73,11 @@ class ReplayController extends Controller {
         }
         $id = decryptor($this->request->getVar('taskId'));
         $result = $replayModel->getHistory($id);
+        foreach($result as &$row) {
+            if($row['user_id'] == session('user_data')['id']) {
+                $row['is_admin'] = 1;
+            }
+        }
         return $this->response->setJSON(['success' => true,'replay' => $result]);
     }
 
@@ -79,11 +88,18 @@ class ReplayController extends Controller {
             return $this->response->setJSON(['success' => false,'message' => 'invalid Request']);
         }
         $id = decryptor($this->request->getVar('taskId'));
-        $getTask =  $this->activityModel->find($id);
-        $history = $replayModel->getHistory($id);
-        foreach($history as &$row) {
-            $row['taskdata'] = $getTask;
+        $getTask =  $this->taskstaffactivity->find($id);
+        if(!empty($getTask)) {
+            $history = $replayModel->getReplay($getTask['task_id'],$getTask['task_activity_id']);
+            foreach($history as &$row) {
+            if($row['user_id'] == session('user_data')['id']) {
+                $row['is_admin'] = 1;
+            }
         }
+        }else{
+            $history = '';
+        }
+        
         return $this->response->setJSON(['success' => true,'replay' => $history]);
     }
 
@@ -107,66 +123,71 @@ class ReplayController extends Controller {
         }
 
         $id = decryptor($this->request->getVar('taskId'));
-        $getTask =  $this->activityModel->find($id);
+        $getTask =  $this->taskstaffactivity->find($id);
+        $taskDetail =  $this->activityModel->find($getTask['task_activity_id']);
 
-        if ( $getTask['status'] == 'Completed') {
+      
+        if ( $getTask['status'] == 'completed') {
             return $this->response->setJSON([
                 'status'  => 'error',
                 'message' => 'You cannot reply because this task is already completed.'
             ]);
         }else{
+              
             $postStatus = $this->request->getPost('status');
             
-            $this->activityStaffModel
-                ->where('staff_id', session('user_data')['id'])
-                ->where('activity_id', $id)
-                ->set(['status' => $postStatus])
-                ->update();
+            // $this->activityStaffModel
+            //     ->where('staff_id', session('user_data')['id'])
+            //     ->where('activity_id', $id)
+            //     ->set(['status' => $getTask['status']])
+            //     ->update();
             // Get all staff statuses for this activity
-            $result = $this->activityStaffModel
-                ->select('status')
-                ->where('activity_id', $id)
-                ->findAll();
+            // $result = $this->activityStaffModel
+            //     ->select('status')
+            //     ->where('activity_id', $id)
+            //     ->findAll();
 
-            $total = count($result);
-            if ($total == 0) return; // No assignees
+            // $total = count($result);
+            // if ($total == 0) return; // No assignees
 
-            $completed  = 0;
-            $inProgress = 0;
+            // $completed  = 0;
+            // $inProgress = 0;
 
-            foreach ($result as $row) {
-                if ($row['status'] === 'Completed') {
-                    $completed++;
-                } elseif ($row['status'] === 'In_Progress') {
-                    $inProgress++;
-                }
-            }
+            // foreach ($result as $row) {
+            //     if ($row['status'] === 'Completed') {
+            //         $completed++;
+            //     } elseif ($row['status'] === 'In_Progress') {
+            //         $inProgress++;
+            //     }
+            // }
 
-            $progress = (($completed + ($inProgress * 0.5)) / $total) * 100;
+            // $progress = (($completed + ($inProgress * 0.5)) / $total) * 100;
 
-            if ($completed == $total && $total > 0) {
-                $status   = 'Completed';
-                $progress = 100;
-            } elseif ($completed == 0 && $inProgress == 0) {
-                $status   = 'Pending';
-                $progress = 0;
-            } else {
-                $status = 'In_Progress';
-            }
+            // if ($completed == $total && $total > 0) {
+            //     $status   = 'Completed';
+            //     $progress = 100;
+            // } elseif ($completed == 0 && $inProgress == 0) {
+            //     $status   = 'Pending';
+            //     $progress = 0;
+            // } else {
+            //     $status = 'In_Progress';
+            // }
 
-            $updateData = [
-                'status'   => $status,
-                'progress' => round($progress, 2),
-            ];
+            // $updateData = [
+            //     'status'   => $status,
+            //     'progress' => round($progress, 2),
+            // ];
 
-            $this->activityModel->update($id, $updateData);
-            $this->masterTaskStatusUpdate( $getTask['task_id']);
+            // $this->activityModel->update($id, $updateData);
+            // $this->masterTaskStatusUpdate( $getTask['task_id']);
 
         }
-        
+       
         $data = [
-            'reply_text'      => $this->request->getPost('replay'),
+            'reply_text'  => $this->request->getPost('replay'),
             'task_id'  => $id,
+            'master_task_id' => $getTask['task_id'],
+            'master_activity_id' => $getTask['task_activity_id'],
             'user_id'  => session('user_data')['id'],
         ];
         if($inc = $replayModel->insert($data))
@@ -176,10 +197,10 @@ class ReplayController extends Controller {
                 'user_id' =>  session('user_data')['id'],
                 'type'    => 'activity_task_replay',
                 'task_id' => $getTask['task_id'],
-                'activity_task_id' => $id,
+                'activity_task_id' => $getTask['task_activity_id'],
                 'created_by' => session('user_data')['id'],
-                'title'   => 'Task '.$getTask['activity_title'].' Replayed ',
-                'message' => 'Task '.$getTask['activity_title'].' replayed  By '.session('user_data')['username']
+                'title'   => 'Task '.$taskDetail['activity_title'].' Replayed ',
+                'message' => 'Task '.$taskDetail['activity_title'].' replayed  By '.session('user_data')['username']
             ];
             $this->notificationModel->insert($notify);
         }

@@ -106,6 +106,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('task/update','TaskController::save');
     $routes->get('tasks/notification-task/(:any)','TaskController::notificationTask/$1');
     $routes->delete('task/delete/(:any)', 'TaskController::delete/$1');
+    $routes->post('task/start','TaskController::start');
     //replay
     $routes->get('tasks/my-tasks','TaskController::myTask');
     $routes->get('task/my-task','TaskController::myTaskList');
@@ -122,6 +123,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('task-activity-task','ActivitiesController::allActivityList');
     $routes->post('task/all-activities','ActivitiesController::getAllActivityList');
     $routes->post('activitties/getstaffbytask','ActivitiesController::getStaffBytask');
+    $routes->post('activity/lock','ActivitiesController::lock');
     //projects 
     $routes->get('settings/projects','ProjectsController::index');
     $routes->get('project/list','ProjectsController::projectList');

@@ -24,6 +24,10 @@ if (!empty($userData)){
 
     <link href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('public/assets/css/style.css') ?>">
+    <link rel="stylesheet" href="<?=base_url('public/assets/css/daterangepicker.css');?>" />
+    <link rel="stylesheet" href="<?= base_url('public/assets/src/output.css') ?>">
+
+
 
 
     <style>
@@ -56,7 +60,9 @@ if (!empty($userData)){
             --gray-800: #343a40;
             --gray-900: #212529;
         }
-
+a{
+    text-decoration: none;
+}
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
             background-color: var(--gray-100);

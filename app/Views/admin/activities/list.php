@@ -123,51 +123,85 @@ function allactivities(search = '') {
             console.error('AJAX Error:', status, error);
         }
     });
-
+}
+let currentPage = 1;
+let rowsPerPage = 20;
+let allData = [];
     function renderTable(tasks) {
+        allData = tasks;
+        let start = (currentPage -1) * rowsPerPage;
+        let end = start + rowsPerPage;
+        let pagination =  tasks.slice(start, end);
         let tableHtml = `
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Master Task </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S/O </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity Task</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
         `;
 
-        tasks.forEach(task => {
-             progressBar = ` <div class="d-flex align-items-center mb-2">
-                <div class="w-full justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
-                    <div class="h-2 rounded-full transition-all duration-500 ${(task.progress  < 50 ? 'bg-red-500' : (task.progress > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${task.progress}%"></div> 
-                </div>
-                <span class="text-xs text-gray-500 text-gray-900">  ${task.progress}%</span>
-            </div>`;
+        pagination.forEach(function(task ,indx) {
+            
             tableHtml += `
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">${task.title}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${start + indx+1}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${task.activity_title}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${task.status}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${task.priority}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${progressBar}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${task.created_at}</td>
                 </tr>
             `;
         });
 
+        tableHtml +=`</tbody>
+        </table></div>`;
+
+        let totalPages = Math.ceil( tasks.length / rowsPerPage);
         tableHtml += `
-                </tbody>
-            </table>
-        `;
+            <div class="flex justify-between items-center mt-4">
+                <div>
+                    <label class="mr-2">Rows per page:</label>
+                    <select onchange="changeRowsPerPage(this.value)" class="px-2 py-1 border rounded">
+                
+                        <option value="10"  ${rowsPerPage == 10 ? 'selected' : ''}>10</option>
+                        <option value="20"  ${rowsPerPage == 20 ? 'selected' : ''}>20</option>
+                        <option value="50"  ${rowsPerPage == 50 ? 'selected' : ''}>50</option>
+                        <option value="100" ${rowsPerPage == 100 ? 'selected' : ''}>100</option>
+                    </select>
+                </div>
+                <div>
+                    <button onclick="prevPage()" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Prev</button>
+                    <span class="mx-2">Page ${currentPage} of ${totalPages}</span>
+                    <button onclick="nextPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Next</button>
+                </div>
+            </div>`;
 
         $('#taskTable').html(tableHtml);
     }
+
+
+// Change rows per page
+function changeRowsPerPage(value) {
+    rowsPerPage = parseInt(value);
+    currentPage = 1;
+    renderTable(allData);
 }
 
+// Pagination functions
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderTable(allData);
+    }
+}
+function nextPage(totalPages) {
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderTable(allData);
+    }
+}
 
 </script>
 
