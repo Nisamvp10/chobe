@@ -10,12 +10,6 @@ class TaskModel extends Model {
  
     function getTasks($limit=false,$orderBy=false,$filter = false,$searchInput=false,$startDate=false,$endDate=false,$taskProject=false) {
 
-        // $builder = $this->db->table('tasks as t')
-        //             ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role,a.priority as userPriority,ti.image_url')
-        //             ->join('branches as b','t.branch = b.id')
-        //             ->join('task_assignees as a','t.id = a.task_id')
-        //             ->join('task_images ti', 't.id = ti.task_id', 'left')
-        //             ->join('users u','a.staff_id =u.id');
 
         $builder = $this->db->table('tasks as t')
             ->select('
@@ -75,13 +69,6 @@ class TaskModel extends Model {
         $myTaskIds = array_column($taskIds, 'task_id');
 
 
-        //  $builder = $this->db->table('tasks as t')
-        //             ->select('t.id,t.title,t.description,t.status,t.completed_at,t.priority,t.project_id,t.overdue_date,b.branch_name,b.id as store,t.created_at,u.profileimg,u.name,u.id as userId,t.progress,a.role,a.priority as userPriority,ti.image_url')
-        //             ->join('branches as b','t.branch = b.id')
-        //             ->join('task_assignees as a','t.id = a.task_id')
-        //              ->join('task_images ti', 't.id = ti.task_id', 'left')
-        //             ->join('users u','a.staff_id =u.id')
-        //              ->whereIn('t.id', $myTaskIds);
          $builder = $this->db->table('tasks as t')
             ->select('
                 t.id, t.title, t.description, t.status, t.completed_at, t.project_id,

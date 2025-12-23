@@ -226,6 +226,7 @@ function openTaskModal(el) {
     const progressLabel = document.getElementById('progressLabel');
     const taskId = document.getElementById('taskId');
     modal.classList.remove('hidden');
+    
 
     // Fill modal fields from data attributes
     let gettaskId =  modal.querySelector('.modal-title').textContent = el.dataset.activity;
@@ -307,20 +308,22 @@ function openTaskModal(el) {
         } catch (e) {
             console.error('Invalid profile data:', e);
         }
-
+        
         renderHistory(gettaskId)
+        startPolling(gettaskId);   
 }
 
 function closeTaskModal() {
   document.getElementById('taskModal').classList.add('hidden');
+  
 }
 
 function closeTaskModal(event) {
   if (!event || event.target.id === "taskModal" || event.target.innerText === "✕") {
     document.getElementById("taskModal").classList.add("hidden");
+    stopPolling()
   }
 }
-
 let isHistoryOpen = false;
 
 function toggleHistory() {
@@ -362,168 +365,373 @@ function hideReplyForm() {
     details.classList.remove('hidden');
     isHistoryOpen = false;
 }
+// // set like poll
+// let replyPolling = null;
+// let lastReplyId = 0;
 
 
-function renderHistory(id) {
-    $.ajax({
-        url: App.getSiteurl()+'activity-task-replays',
-        type: "POST",
-        data: { taskId: id},
-        dataType: "json",
-        success: function(response) {
+// function startPolling(taskId) {
+//     if (replyPolling) return;
+
+//     replyPolling = setInterval(() => {
+//         renderHistory(taskId);
+//     }, 5000); // 5 seconds
+// }
+
+// function stopPolling() {
+//     if (replyPolling) {
+//         clearInterval(replyPolling);
+//         replyPolling = null;
+//     }
+// }
+
+// function renderHistory(id) {
+//     $.ajax({
+//         url: App.getSiteurl()+'activity-task-replays',
+//         type: "POST",
+//         data: { taskId: id},
+//         dataType: "json",
+//         success: function(response) {
           
+//             if (response.success) {
+//                 renderReplayUi(response.replay);
+//             }
+//         }
+//     });
+// }
+// function renderReplayUi(replay) {
+//   let html = '';
+//   from =`<div>
+//             <form class="mb-4" method="post" id="replyTaskForm">
+//                 <?= csrf_field() ;?>
+                
+//                   <div class="flex space-x-2" >
+//                     <textarea placeholder="Enter your Comments..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+//                      <div class="invalid-feedback" id="replay_error"></div>
+//                 </div>
+//                 <div class="flex justify-end space-x-2 mt-2 gap-2">
+//                     <button type="button" class="px-3 py-1 text-gray-600 zrounded-md border rounded-2" onclick="hideReplyForm()">Cancel</button>
+//                     <button type="submit" class="flex items-center rounded-2 space-x-1 px-3 py-1 bg-primary text-white rounded-md hover:bg-indigo-700">
+//                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
+//                             <path d="M22 2 11 13"></path><path d="M22 2 15 22 11 13 2 9 22 2z"></path>
+//                         </svg>
+//                         <span>Send</span>
+//                     </button>
+//                 </div>
+//             </form>
+//         </div>`
+
+// if (replay.length === 0) {
+//   $('.msgNotification').html(``);
+//     html = `
+//         <div class="text-center py-8">
+//             <h3 class="text-lg font-medium text-gray-700">No Reply yet</h3>
+//         </div>`
+// } else {
+
+//     let lastDate = '';
+
+//     html += `<ul class="space-y-4">`;
+
+//     replay.forEach(rply => {
+//         $('.msgNotification').html(`
+//             <span class="absolute right-0 top-0 flex items-center justify-center 
+//                         !w-[20px] !h-[20px] rounded-full bg-green-500 text-white text-xs">
+//                 ${rply.message_count}
+//             </span>
+//         `);
+//         lastReplyId = rply.rpId
+        
+//         const replyDateObj = new Date(rply.created_at);
+
+//         const msgDate = replyDateObj.toDateString(); // compare only date
+//         const today = new Date().toDateString();
+//         const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+//         let displayDate = msgDate;
+//         if (msgDate === today) displayDate = 'Today';
+//         else if (msgDate === yesterday) displayDate = 'Yesterday';
+
+//         const time = replyDateObj.toLocaleTimeString([], {
+//             hour: '2-digit',
+//             minute: '2-digit'
+//         });
+
+//         // Show date separator only when date changes
+//         if (msgDate !== lastDate) {
+//             html += `
+//                 <li class="flex justify-center">
+//                     <span class="px-4 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
+//                         ${displayDate}
+//                     </span>
+//                 </li>
+//             `;
+//             lastDate = msgDate;
+//         }
+
+//         const isAdmin = rply.is_admin == 1; // adjust if needed
+
+//         html += `
+//         <li class="flex ${isAdmin ? 'justify-end' : 'justify-start'}">
+//             <div class="max-w-[75%] flex items-end gap-2 ${isAdmin ? 'flex-row-reverse' : 'flex-row'}">
+
+//                 <!-- Avatar -->
+//                 <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs bg-gray-200">
+//                     ${
+//                         rply.profileimg
+//                         ? `<img src="${rply.profileimg}" class="w-full h-full object-cover">`
+//                         : `<span class="font-semibold text-gray-600">${rply.name.charAt(0)}</span>`
+//                     }
+//                 </div>
+
+//                 <!-- Message -->
+//                 <div class="px-4 py-2 rounded-2xl shadow text-sm
+//                     ${isAdmin 
+//                         ? 'bg-blue-600 text-white rounded-br-sm' 
+//                         : 'bg-gray-100 text-gray-800 rounded-bl-sm'}">
+
+//                     <p class="mb-0">${rply.reply_text}</p>
+
+//                     <div class="mt-1 text-[11px] opacity-70 text-right">
+//                         ${time}
+//                     </div>
+//                 </div>
+
+//             </div>
+//         </li>`;
+//     });
+
+//     html += `</ul>`;
+// }
+
+// $('#taskreplaysec').html(html +from);
+// }
+
+/*******************************
+ * POLLING VARIABLES
+ *******************************/
+let replyPolling = null;
+let lastReplyId = 0;
+
+/*******************************
+ * START / STOP POLLING
+ *******************************/
+function startPolling(taskId) {
+    if (replyPolling) return;
+
+    replyPolling = setInterval(() => {
+        renderHistory(taskId);
+    }, 5000); // 5 seconds
+}
+
+function stopPolling() {
+    if (replyPolling) {
+        clearInterval(replyPolling);
+        replyPolling = null;
+    }
+}
+
+/*******************************
+ * LOAD REPLY HISTORY (AJAX)
+ *******************************/
+function renderHistory(taskId) {
+    $.ajax({
+        url: App.getSiteurl() + 'activity-task-replays',
+        type: "POST",
+        data: { taskId: taskId },
+        dataType: "json",
+        success: function (response) {
             if (response.success) {
                 renderReplayUi(response.replay);
             }
         }
     });
 }
+
+/*******************************
+ * RENDER CHAT UI
+ *******************************/
 function renderReplayUi(replay) {
-  let html = '';
-  from =`<div>
-            <form class="mb-4" method="post" id="replyTaskForm">
-                <?= csrf_field() ;?>
-                
-                  <div class="flex space-x-2" >
-                    <textarea placeholder="Enter your Comments..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                     <div class="invalid-feedback" id="replay_error"></div>
-                </div>
-                <div class="flex justify-end space-x-2 mt-2 gap-2">
-                    <button type="button" class="px-3 py-1 text-gray-600 zrounded-md border rounded-2" onclick="hideReplyForm()">Cancel</button>
-                    <button type="submit" class="flex items-center rounded-2 space-x-1 px-3 py-1 bg-primary text-white rounded-md hover:bg-indigo-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
-                            <path d="M22 2 11 13"></path><path d="M22 2 15 22 11 13 2 9 22 2z"></path>
-                        </svg>
-                        <span>Send</span>
-                    </button>
-                </div>
-            </form>
-        </div>`
 
-if (replay.length === 0) {
-    html = `
-        <div class="text-center py-8">
-            <h3 class="text-lg font-medium text-gray-700">No Reply yet</h3>
-        </div>`
-} else {
+    let html = '';
+    let form = `
+        
+    `;
 
-    let lastDate = '';
+    /*******************************
+     * NO REPLIES
+     *******************************/
+    if (replay.length === 0) {
+        $('.msgNotification').html('');
+        html = `
+            <div class="text-center py-8">
+                <h3 class="text-lg font-medium text-gray-700">No Reply yet</h3>
+            </div>
+        `;
+    }
+    /*******************************
+     * HAS REPLIES
+     *******************************/
+    else {
+        let lastDate = '';
+        html += `<ul class="space-y-4">`;
 
-    html += `<ul class="space-y-4">`;
+        replay.forEach(rply => {
 
-    replay.forEach(rply => {
+            // 🔔 Notification badge
+            $('.msgNotification').html(`
+                <span class="absolute right-0 top-0 flex items-center justify-center
+                    w-[20px] h-[20px] rounded-full bg-green-500 text-white text-xs">
+                    ${rply.message_count}
+                </span>
+            `);
 
-        const replyDateObj = new Date(rply.created_at);
+            lastReplyId = rply.rpId; //is last_reply_id
 
-        const msgDate = replyDateObj.toDateString(); // compare only date
-        const today = new Date().toDateString();
-        const yesterday = new Date(Date.now() - 86400000).toDateString();
+            const replyDate = new Date(rply.created_at);
+            const msgDate = replyDate.toDateString();
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
 
-        let displayDate = msgDate;
-        if (msgDate === today) displayDate = 'Today';
-        else if (msgDate === yesterday) displayDate = 'Yesterday';
+            let displayDate = msgDate;
+            if (msgDate === today) displayDate = 'Today';
+            else if (msgDate === yesterday) displayDate = 'Yesterday';
 
-        const time = replyDateObj.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+            const time = replyDate.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
 
-        // Show date separator only when date changes
-        if (msgDate !== lastDate) {
+            // Date separator
+            if (msgDate !== lastDate) {
+                html += `
+                    <li class="flex justify-center">
+                        <span class="px-4 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
+                            ${displayDate}
+                        </span>
+                    </li>
+                `;
+                lastDate = msgDate;
+            }
+
+            const isAdmin = rply.is_admin == 1;
+
             html += `
-                <li class="flex justify-center">
-                    <span class="px-4 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
-                        ${displayDate}
-                    </span>
+                <li class="flex ${isAdmin ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[75%] flex items-end gap-2
+                        ${isAdmin ? 'flex-row-reverse' : 'flex-row'}">
+
+                        <!-- Avatar -->
+                        <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs">
+                            ${
+                                rply.profileimg
+                                ? `<img src="${rply.profileimg}" class="w-full h-full object-cover">`
+                                : `<span class="font-semibold">${rply.name.charAt(0)}</span>`
+                            }
+                        </div>
+
+                        <!-- Message -->
+                        <div class="px-4 py-2 rounded-2xl shadow text-sm
+                            ${isAdmin
+                                ? 'bg-blue-600 text-white rounded-br-sm'
+                                : 'bg-gray-100 text-gray-800 rounded-bl-sm'}">
+                            <p>${rply.reply_text}</p>
+                            <div class="mt-1 text-[11px] opacity-70 text-right">
+                                ${time}
+                            </div>
+                        </div>
+                    </div>
                 </li>
             `;
-            lastDate = msgDate;
-        }
+        });
 
-        const isAdmin = rply.is_admin == 1; // adjust if needed
+        html += `</ul>`;
+    }
 
-        html += `
-        <li class="flex ${isAdmin ? 'justify-end' : 'justify-start'}">
-            <div class="max-w-[75%] flex items-end gap-2 ${isAdmin ? 'flex-row-reverse' : 'flex-row'}">
-
-                <!-- Avatar -->
-                <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-xs bg-gray-200">
-                    ${
-                        rply.profileimg
-                        ? `<img src="${rply.profileimg}" class="w-full h-full object-cover">`
-                        : `<span class="font-semibold text-gray-600">${rply.name.charAt(0)}</span>`
-                    }
-                </div>
-
-                <!-- Message -->
-                <div class="px-4 py-2 rounded-2xl shadow text-sm
-                    ${isAdmin 
-                        ? 'bg-blue-600 text-white rounded-br-sm' 
-                        : 'bg-gray-100 text-gray-800 rounded-bl-sm'}">
-
-                    <p class="mb-0">${rply.reply_text}</p>
-
-                    <div class="mt-1 text-[11px] opacity-70 text-right">
-                        ${time}
-                    </div>
-                </div>
-
-            </div>
-        </li>`;
-    });
-
-    html += `</ul>`;
+    $('#taskreplaysec').html(html);
+    //$('#taskreplayForm').html(form);
 }
 
-$('#taskreplaysec').html(html +from);
-}
+/*******************************
+ * SUBMIT REPLY FORM
+ *******************************/
 $(document).on('submit', '#replyTaskForm', function (e) {
-
-    let id =  $('#taskId').val();
-    let webForm = $('#replyTaskForm');
-   
     e.preventDefault();
+
+    let taskId = $('#taskId').val();
     let formData = new FormData(this);
-    formData.append('taskId', id);
-    $('.is-invalid').removeClass('is-invalid');
-    $('.invalid-feedback').empty();
-    $('#submitBtn').prop('disabled', true).html(
+    formData.append('taskId', taskId);
+
+   $('#submitBtn').prop('disabled', true).html(
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
     );
+
     $.ajax({
-        url : App.getSiteurl()+'task/activity/replay',
-        method:'POST',
+        url:App.getSiteurl()+'task/activity/replay',
+        method: 'POST',
         data: formData,
-        contentType: false,
         processData: false,
-        success:function(response)
-        { 
-            if(response.success){
-                toastr.success(response.message);
-                webForm[0].reset();
-                loadTask();
-                renderHistory(id);
-                toggleHistory();
-            }else{
-                if(response.errors){
-                    $.each(response.errors,function(field,message)
-                    {
-                        $('#'+ field).addClass('is-invalid');
-                        $('#' + field + '_error').text(message);
-                    })
-                }else{
-                    toastr.error(response.message);
-                }
+        contentType: false,
+        success: function (res) {
+            if (res.success) {
+                $('#replyTaskForm')[0].reset();
+                renderHistory(taskId); // 🔄 refresh immediately
             }
-        },error: function() {
-            toastr.error('An error occurred while saving Service');
         },
-        complete: function() {
-            // Re-enable submit button
-            $('#submitBtn').prop('disabled', false).text('Save Branch');
+        complete: function () {
+            $('#submitBtn').prop('disabled', false).text('Send');
         }
-    })
-})
+    });
+});
+
+
+// $(document).on('submit', '#replyTaskForm', function (e) {
+
+//     let id =  $('#taskId').val();
+//     let webForm = $('#replyTaskForm');
+   
+//     e.preventDefault();
+//     let formData = new FormData(this);
+//     formData.append('taskId', id);
+//     $('.is-invalid').removeClass('is-invalid');
+//     $('.invalid-feedback').empty();
+//     $('#submitBtn').prop('disabled', true).html(
+//         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+//     );
+//     $.ajax({
+//         url : App.getSiteurl()+'task/activity/replay',
+//         method:'POST',
+//         data: formData,
+//         contentType: false,
+//         processData: false,
+//         success:function(response)
+//         { 
+//             if(response.success){
+//                 toastr.success(response.message);
+//                 webForm[0].reset();
+//                 loadTask();
+//                 renderHistory(id);
+//                 toggleHistory();
+//             }else{
+//                 if(response.errors){
+//                     $.each(response.errors,function(field,message)
+//                     {
+//                         $('#'+ field).addClass('is-invalid');
+//                         $('#' + field + '_error').text(message);
+//                     })
+//                 }else{
+//                     toastr.error(response.message);
+//                 }
+//             }
+//         },error: function() {
+//             toastr.error('An error occurred while saving Service');
+//         },
+//         complete: function() {
+//             // Re-enable submit button
+//             $('#submitBtn').prop('disabled', false).text('Save Branch');
+//         }
+//     })
+// })
 
 $(document).on('click', '.locktotask', function (e) {
     e.preventDefault();

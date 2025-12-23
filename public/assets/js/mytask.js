@@ -9,7 +9,7 @@
         let filter = $('#filerStatus').val();
         $.ajax({
 
-            url: App.getSiteurl()+'task/my-task',
+            url: App.getSiteurl()+'task/my-task', 
             type: "GET",
             data: { search: search,filter:filter,list:1,notifiytask : notifytask},
             dataType: "json",
@@ -49,6 +49,12 @@
             let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
             //let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900'; 
             let dueClass =    task.status === "Pending" && dueDate < today         ? "text-red-600"        : "text-gray-900";
+
+            const totalTasks = task.total_activities ? task.total_activities :0;;
+            const completedTasks = task.completed_activities ? task.completed_activities : 0;
+
+            // Calculate percentage
+            const percent = totalTasks > 0? Math.round((completedTasks / totalTasks) * 100): 0;
             
 
             
@@ -59,14 +65,11 @@
 
                 // 
                 let ectivitUrl = App.getSiteurl()+`task/mytask/activities/${task.id}`;
-                
+                console.log(task)
              const taskHTML = `
         <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" 
             draggable="true"
-            data-id="${task.id}" 
-            
-           
-            >
+            data-id="${task.id}">
             
             <div class="flex justify-between items-start mb-2">
                 <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
@@ -75,12 +78,14 @@
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
             <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium">${task.branch_name}</span></div>
             <div >
+
             <div class="d-flex align-items-center mb-2 flex gap-1">
-                <div class="w-[70%] justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
-                    <div class="h-2 rounded-full transition-all duration-500 ${(task.progress  < 50 ? 'bg-red-500' : (task.progress > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${progress}%"></div> 
+                <div class="w-[70%]  justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
+                    <div class="h-2 rounded-full transition-all duration-500  ${(percent < 50 ? 'bg-red-500' : (percent > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${percent}%"></div> 
                 </div>
-                <span class="text-xs text-gray-500 text-gray-900"> ${task.completed_activities ?? 0}/${task.total_activities ?? 0} ${task.progress ?? 0}%</span>
+                <span class="text-xs text-gray-500 text-gray-900">  ${task.completed_activities ?? 0}/${task.total_activities ?? 0} ${percent}%</span>
             </div>
+
               ${task.ducument ? `
             <div class="d-flex align-items-center mb-2">
                 <a href="${task.ducument}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">

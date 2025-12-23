@@ -115,7 +115,7 @@ class ReplayController extends Controller {
         }
         $validSuccess = false;
         $rules = [
-            'replay' => 'required|min_length[3]|max_length[150]',
+            'replay' => 'required|min_length[1]|max_length[150]',
         ];
         if(!$this->validate($rules))
         {

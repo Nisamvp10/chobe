@@ -10,7 +10,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock "><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             </button>
             <?php if(hasPermission('','task_edit')) {?>
-                <button onclick="toggleEditForm()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen "><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg></button>
+                <!-- <button onclick="toggleEditForm()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen "><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg></button> -->
             <?php } if(hasPermission('','task_delete')) {?>
                 <button  class="p-1.5 rounded-md text-gray-500 hover:bg-red-100 hover:text-red-600 delete-task"  data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="deleteTask(this)"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash "><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg></button>
             <?php } ?>
@@ -78,7 +78,7 @@
        
     <!-- from  -->
      <!-- Task Edit Panel -->
-    <div id="editForm" class="w-full p-6 overflow-y-auto border-l hidden h-full flex flex-col h-screen" >
+    <!-- <div id="editForm" class="w-full p-6 overflow-y-auto border-l hidden h-full flex flex-col h-screen" >
       <h2 class="text-xl font-semibold mb-4">Edit Task</h2>
       <form id="taskEditForm" class="space-y-4">
         <?= csrf_field() ;?>
@@ -142,6 +142,8 @@
             </div>
       </form>
     </div>
+
+     -->
      <!-- close edit form -->
   </div>
 </div>

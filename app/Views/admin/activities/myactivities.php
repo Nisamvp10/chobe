@@ -99,7 +99,7 @@
             <button onclick="showStep(1)" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100" title="View History">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock "><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             </button>
-            <button onclick="showStep(2)" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square "><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
+            <button onclick="showStep(2)" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 relative "><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square "><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="msgNotification"></span></button>
             
             <button onclick="closeTaskModal()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x "><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
         </div>
@@ -136,7 +136,36 @@
             <input type="hidden" name="taskId" id="taskId" />
             </div>
            <!-- flw root -->
-            <div class="flow-root" id="taskreplaysec"></div>
+            <div class="flow-root" id="taskreplaysec">
+
+            </div>
+            <div id="taskreplayForm">
+                <div>
+                    <form class="mb-4" method="post" id="replyTaskForm">
+                        <div class="flex space-x-2">
+                            <textarea 
+                                placeholder="Enter your Comments..." 
+                                name="replay" 
+                                class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500"></textarea>
+                            <div class="invalid-feedback" id="replay_error"></div>
+                        </div>
+
+                        <div class="flex justify-end gap-2 mt-2">
+                            <button type="button" class="px-3 py-1 border rounded-md" onclick="closeTaskModal()()">Cancel</button>
+                            <button type="submit" id="submitBtn"
+                                class="flex items-center gap-1 px-3 py-1 bg-primary text-white rounded-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M22 2 11 13"></path>
+                                    <path d="M22 2 15 22 11 13 2 9 22 2z"></path>
+                                </svg>
+                                <span>Send</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
             <!-- close Flow root -->
         </div>
         </div>

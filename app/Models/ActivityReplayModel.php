@@ -19,7 +19,15 @@ class ActivityReplayModel extends Model{
 
     public function getReplay($taskId,$activityId) {
         $builder = $this->db->table('task_staff_activities as tsa')
-                  ->select('u.name,atr.user_id,u.profileimg,atr.created_at,atr.reply_text')
+                  ->select([
+                        'u.name',
+                        'atr.id as rpId',
+                        'atr.user_id',
+                        'u.profileimg',
+                        'atr.created_at',
+                        'atr.reply_text',
+                        'COUNT(atr.master_task_id) OVER() AS message_count'
+                    ])
                   ->join('activity_task_replies as atr','tsa.id = atr.task_id')
                   ->join('users u','atr.user_id = u.id')
                   ->where('atr.master_task_id',$taskId)

@@ -19,7 +19,6 @@
             data: { search: search,filter:filter,startDate:startDate,endDate:endDate,taskProject:taskProject},
             dataType: "json",
             success: function(response) {
-              
                 if (response.success === true) {
                     renderTable(response.task);
                 }
