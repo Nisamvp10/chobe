@@ -9,7 +9,7 @@ class ActivityModel extends Model
     protected $table = 'activities';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'task_id','activity_title','activity_description','status','progress','duedate'
+        'task_id','activity_title','activity_description','status','progress','activity_type','duedate'
     ];
 
     public function getActivities($taskId=false,$searchInput=false,$filter=false,$startDate=false,$endDate=false,$staffId=null) {
@@ -124,6 +124,7 @@ class ActivityModel extends Model
                 $builder->where('a.created_at >=', $startDate);
                 $builder->where('a.created_at <=', $endDate);
             }
+             $builder->where('a.activity_type', 1);
                $result = $builder->get()->getResultArray();
         return $result;
             

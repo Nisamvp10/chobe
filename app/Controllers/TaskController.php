@@ -138,7 +138,7 @@ class TaskController extends Controller {
         }
 
         // Fetch active master activities
-        $masterActivities = $this->activityModel->where('status', 'active')->findAll();
+        $masterActivities = $this->activityModel->where(['status'=> 'active','activity_type' => 1])->findAll();
 
         $staffs = $this->request->getPost('staff') ?? [];
         $roles  = $this->request->getPost('role') ?? [];

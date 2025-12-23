@@ -94,13 +94,14 @@ protected $taskassignModel;
             'activity_title'        => $this->request->getPost('title'),
             'activity_description'  => $this->request->getPost('description'),
             'status'                => 'Pending',//$this->request->getPost('status'),
+            'activity_type'         => 2,
             'task_id'               => $taskId,
         ];
        
             $activityModel = new ActivityModel();
             $activitiesStaff = new ActivityStaffModel();
                
-                $staffs = $this->request->getPost('staff');
+                $staffs = $this->taskStaffActivityModel->where('task_id',$taskId)->groupBy('staff_id')->get()->getResult(); //$this->request->getPost('staff');
                 if(!empty($staffs)) {
                         if ($activitytaskId = $activityModel->insert($data)) {
                             $getlastTask =   $this->activityModel->find($activitytaskId);
@@ -108,10 +109,18 @@ protected $taskassignModel;
                 
                             foreach ($staffs as $index => $staff) {
                                 $assign = [
-                                    'activity_id'  => $activitytaskId,
-                                    'staff_id' => $staff,
+                                    'task_id'       => $taskId,
+                                    'task_activity_id'  => $activitytaskId,
+                                    'staff_id' => $staff->staff_id,
+                                    'status'    => 'pending',
+                                    'started_at'   => date('Y-m-d H:i:s'),
+                                    'progress'  => 'pending',
+                                    'created_at' => date('Y-m-d H:i:s'),
+                                    'is_open'   => $staff->is_open,
+                                    'started_by'  => $staff->progress
+                                    
                                 ];
-                                $activitiesStaff->insert($assign);
+                               $this->taskStaffActivityModel->insert($assign);
                                // $this->notificationModel->insert($notify);
                             }
                             $validStatus = true;
