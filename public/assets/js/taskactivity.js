@@ -258,32 +258,31 @@ function openTaskModal(el) {
     const progressEl = document.getElementById('progressIndicator');
     const progressSlider = document.getElementById('progressBar');
     const progressLabel = document.getElementById('progressLabel');
-    const taskId = document.getElementById('activitytaskId');
+    const taskId = document.getElementById('taskId');
+    
     let documentUi ='';
     $('#documents').html(documentUi);
     modal.classList.remove('hidden');
     // Fill modal fields from data attributes
-    let gettaskId = el.dataset.id ?? '';//modal.querySelector('.modal-title').textContent = el.dataset.id;
-    taskId.value = gettaskId;
+    let gettaskId = el.dataset.activity ?? '';//modal.querySelector('.modal-title').textContent = el.dataset.id;
+    taskId.value =  gettaskId;
     $('.delete-task').attr('data-title', el.dataset.title);
-
     modal.querySelector('.modal-title').textContent = el.dataset.title;
     modal.querySelector('.modal-desc').textContent = el.dataset.desc;
     // modal.querySelector('.modal-branch').textContent = el.dataset.branch;
     let status = modal.querySelector('.modal-status').textContent = el.dataset.status;
     modal.querySelector('.modal-date').textContent = el.dataset.created;
-    let progress = modal.querySelector('.modal-progress-bar').style.width = el.dataset.progress;
+    //let progress = modal.querySelector('.modal-progress-bar').style.width = el.dataset.progress;
 
-    let progressbar = el.dataset.progressbar;
-    progressSlider.value  = progressbar;
-    progressLabel.textContent = 'Progress '+progressbar+'%'
+    // let progressbar = el.dataset.progressbar;
+    // progressSlider.value  = progressbar;
+    // progressLabel.textContent = 'Progress '+progressbar+'%'
     
     let priority = modal.querySelector('.modal-priority').textContent = el.dataset.priority;
     modal.querySelector('.modal-duration').textContent = el.dataset.duration;
-    progressEl.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
+    //progressEl.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
 
-    let progressCls = (progressbar  < 50 ? 'bg-red-500' : (progressbar > 80 ? 'bg-green-500' :'bg-yellow-500'));
-    progressEl.classList.add(progressCls);
+  
     document.getElementById('priorityInput').value = priority;
 
     //edit data
@@ -306,7 +305,6 @@ function openTaskModal(el) {
       btn.classList.remove('bg-orange-100', 'text-orange-800', 'border-orange-300');
     }
   });
-
     const users = JSON.parse(el.dataset.profiles);
     const allstaff = JSON.parse(el.dataset.users);
     renderStaffList(allstaff,users);
@@ -323,7 +321,7 @@ function openTaskModal(el) {
         modal.classList.remove('hidden'); 
     }
         const profilesContainer = modal.querySelector('.modal-profiles');
-        profilesContainer.innerHTML = '';
+       // profilesContainer.innerHTML = '';
 
         try {
            
@@ -351,11 +349,13 @@ function openTaskModal(el) {
                 wrapper.appendChild(nameSpan);
                 wrapper.appendChild(prio);
 
-                profilesContainer.appendChild(wrapper);
+                //profilesContainer.appendChild(wrapper);
             });
         } catch (e) {
             console.error('Invalid profile data:', e);
         }
+        renderHistory(gettaskId)
+        startPolling(gettaskId);   
 }
 
 function closeTaskModal() {
@@ -418,34 +418,47 @@ function toggleReplay() {
   progressSlider.addEventListener('input', () => {
     progressLabel.textContent = `Progress: ${progressSlider.value}%`;
   });
-
+// sadssdsdsdsd 123
 function renderStaffList(users = [], existingUser = []) {
-    
-    const staffListContainer = document.getElementById('participantsactivities');
-    staffListContainer.innerHTML = '';
-
-    const assignedIds = existingUser.map(u => u.userId);
+    const assignedIds = existingUser.map(u => String(u.userId));
+    let staffHTML = '';
 
     users.forEach(staff => {
-        const isChecked = assignedIds.includes(staff.id.toString()) ? 'checked' : '';
+        const isChecked = assignedIds.includes(String(staff.id)) ? 'checked' : '';
+        staffHTML += `<div class="flex items-center p-2 border rounded-md cursor-pointer border-gray-300 gap-2">
+        
+            
+            <input type="checkbox" class="h-4 w-4 hidden text-indigo-600 rounded" name="staff[]" value="${staff.id}"
+                   ${isChecked}>
 
-        const staffHTML = `
-        <div class="flex align-items-center p-2 border rounded-md cursor-pointer border-gray-300">
-            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" 
-                   name="staff[]" value="${staff.id}" ${isChecked}>
-                   ${staff.profileimg ? 
-                   
-            `<img src="${staff.profileimg ?? 'default.png'}" 
-                 alt="${staff.name}" class="w-6 h-6 rounded-full ml-2">` :
-                 `<div class="h-9 w-9 ml-2 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                                <span class="text-blue-600 font-medium">${staff.name.charAt(0)}</span>
-                                            </div>`}
-            <span class="ml-2 text-sm mx-4">${staff.name}</span>
+            ${
+                staff.profileimg
+                ? `<img src="${staff.profileimg}" 
+                        alt="${staff.name}" 
+                        class="w-8 h-8 rounded-full">`
+                : `<div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span class="text-blue-600 font-medium">
+                            ${staff.name.charAt(0).toUpperCase()}
+                        </span>
+                   </div>`
+            }
+
+            <span class="text-sm font-medium">${staff.name}</span>
         </div>`;
-        staffListContainer.insertAdjacentHTML('beforeend', staffHTML);
     });
+    document.getElementById('modal-profiles').innerHTML = staffHTML;
 }
 
+function showStep(step) {
+    // Hide all steps
+    $('.step1, .step2').hide();
+
+    // Remove active button style
+    $('.modal-action-btn').removeClass('bg-gray-200 text-gray-800');
+
+    // Show selected step
+    $('.step' + step).show();
+}
 
 $('#taskEditForm').on('submit', function(e) {
 
@@ -597,3 +610,181 @@ $(document).on('click', '.locktotask', function (e) {
         }
     })
 })
+
+
+
+
+/*******************************
+ * POLLING VARIABLES
+ *******************************/
+let replyPolling = null;
+let lastReplyId = 0;
+
+/*******************************
+ * START / STOP POLLING
+ *******************************/
+function startPolling(taskId) {
+    if (replyPolling) return;
+
+    replyPolling = setInterval(() => {
+        renderHistory(taskId);
+    }, 5000); // 5 seconds
+}
+
+function stopPolling() {
+    if (replyPolling) {
+        clearInterval(replyPolling);
+        replyPolling = null;
+    }
+}
+
+/*******************************
+ * LOAD REPLY HISTORY (AJAX)
+ *******************************/
+function renderHistory(taskId) {
+    $.ajax({
+        url: App.getSiteurl() + 'activity-task-replays',
+        type: "POST",
+        data: { taskId: taskId },
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                renderReplayUi(response.replay);
+            }
+        }
+    });
+}
+
+/*******************************
+ * RENDER CHAT UI
+ *******************************/
+function renderReplayUi(replay) {
+
+    let html = '';
+    let form = ``;
+
+    /*******************************
+     * NO REPLIES
+     *******************************/
+    if (replay.length === 0) {
+        $('.msgNotification').html('');
+        html = `
+            <div class="text-center py-8">
+                <h3 class="text-lg font-medium text-gray-700">No Reply yet</h3>
+            </div>
+        `;
+    }
+    /*******************************
+     * HAS REPLIES
+     *******************************/
+    else {
+        let lastDate = '';
+        html += `<ul class="space-y-4">`;
+
+        replay.forEach(rply => {
+
+            // 🔔 Notification badge
+            $('.msgNotification').html(`
+                <span class="absolute right-0 top-0 flex items-center justify-center
+                    w-[20px] h-[20px] rounded-full bg-green-500 text-white text-xs">
+                    ${rply.message_count}
+                </span>
+            `);
+
+            lastReplyId = rply.rpId; //is last_reply_id
+
+            const replyDate = new Date(rply.created_at);
+            const msgDate = replyDate.toDateString();
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+            let displayDate = msgDate;
+            if (msgDate === today) displayDate = 'Today';
+            else if (msgDate === yesterday) displayDate = 'Yesterday';
+
+            const time = replyDate.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Date separator
+            if (msgDate !== lastDate) {
+                html += `
+                    <li class="flex justify-center">
+                        <span class="px-4 py-1 text-xs text-gray-500 bg-gray-100 rounded-full">
+                            ${displayDate}
+                        </span>
+                    </li>
+                `;
+                lastDate = msgDate;
+            }
+
+            const isAdmin = rply.is_admin == 1;
+
+            html += `
+                <li class="flex ${isAdmin ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[75%] flex items-end gap-2
+                        ${isAdmin ? 'flex-row-reverse' : 'flex-row'}">
+
+                        <!-- Avatar -->
+                        <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs">
+                            ${
+                                rply.profileimg
+                                ? `<img src="${rply.profileimg}" class="w-full h-full object-cover">`
+                                : `<span class="font-semibold">${rply.name.charAt(0)}</span>`
+                            }
+                        </div>
+
+                        <!-- Message -->
+                        <div class="px-4 py-2 rounded-2xl shadow text-sm
+                            ${isAdmin
+                                ? 'bg-blue-600 text-white rounded-br-sm'
+                                : 'bg-gray-100 text-gray-800 rounded-bl-sm'}">
+                            <p>${rply.reply_text}</p>
+                            <div class="mt-1 text-[11px] opacity-70 text-right">
+                                ${time}
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            `;
+        });
+
+        html += `</ul>`;
+    }
+
+    $('#taskreplaysec').html(html);
+    //$('#taskreplayForm').html(form);
+}
+
+/*******************************
+ * SUBMIT REPLY FORM
+ *******************************/
+$(document).on('submit', '#replyTaskForm', function (e) {
+    e.preventDefault();
+
+    let taskId = $('#taskId').val();
+    let formData = new FormData(this);
+    formData.append('taskId', taskId);
+
+   $('#replaysubmitBtn').prop('disabled', true).html(
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+    );
+
+    $.ajax({
+        url:App.getSiteurl()+'task/activity/replay',
+        method: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (res) {
+            if (res.success) {
+                $('#replyTaskForm')[0].reset();
+                renderHistory(taskId); // 🔄 refresh immediately
+            }
+        },
+        complete: function () {
+            $('#replaysubmitBtn').prop('disabled', false).text('Send');
+        }
+    });
+});

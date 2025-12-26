@@ -24,7 +24,6 @@
     }
 
     function renderTable(tasks){
-
         let html = '';
         let pending = '';
         let inProgress ='';

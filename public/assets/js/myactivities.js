@@ -578,7 +578,6 @@ function renderReplayUi(replay) {
 
         replay.forEach(rply => {
 
-            // 🔔 Notification badge
             $('.msgNotification').html(`
                 <span class="absolute right-0 top-0 flex items-center justify-center
                     w-[20px] h-[20px] rounded-full bg-green-500 text-white text-xs">

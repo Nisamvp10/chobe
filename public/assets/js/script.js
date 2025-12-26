@@ -16,3 +16,15 @@ function toggleModal(modalId, show = true) {
   }
 }
 
+document.addEventListener('click', function (e) {
+  // Close button clicked
+  if (e.target.closest('[data-close]')) {
+    const modalId = e.target.closest('[data-close]').getAttribute('data-close');
+    toggleModal(modalId, false);
+  }
+
+  // Click outside modal content (backdrop)
+  if (e.target.classList.contains('wrapModal')) {
+    //e.target.classList.add('hidden');
+  }
+});

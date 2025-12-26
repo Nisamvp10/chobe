@@ -125,7 +125,7 @@ class ReplayController extends Controller {
         $id = decryptor($this->request->getVar('taskId'));
         $getTask =  $this->taskstaffactivity->find($id);
         $taskDetail =  $this->activityModel->find($getTask['task_activity_id']);
-
+     
       
         if ( $getTask['status'] == 'completed') {
             return $this->response->setJSON([

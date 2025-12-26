@@ -11,6 +11,7 @@ class StaffModel extends Model
     protected $allowedFields = [
         'name',
         'position',
+        'position_id',
         'phone',
         'email',
         'hire_date',

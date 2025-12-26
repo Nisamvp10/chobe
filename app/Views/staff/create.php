@@ -69,14 +69,27 @@
                         <div class="invalid-feedback" id="phone_error"></div>
                     </div>
                 </div>
-                <div >
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+             
+
+                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Clients</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-bag-dash text-xl text-gray-400"></i></div>
-                        <input type="text" value="<?= $position ?>"  name="position"  id="position" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Your Position">
-                        <div class="invalid-feedback" id="position_error"></div>
+                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-diagram-3 text-xl text-gray-400"></i></div>
+                        <select name="branch" id="branch" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
+                            <option  desabled>Select Branch</option>
+                            <?php
+                                if(!empty($branches)){
+                                    foreach($branches as $branch){
+                                    ?>
+                                        <option <?= ($ebranch == $branch['id'] ? 'selected' :'') ?> value="<?=$branch['id'];?>"><?=$branch['name'];?></option>
+                                    <?php 
+                                    } 
+                                } ?>
+                        </select>                       
+                        <div class="invalid-feedback" id="branch_error"></div>
                     </div>
                 </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Profile / IMG URL</label>
                     <div class="relative">
@@ -160,22 +173,23 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Branch</label>
+               <!-- here -->
+                   <div >
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-diagram-3 text-xl text-gray-400"></i></div>
-                        <select name="branch" id="branch" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
+                        <select name="position" id="position" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
                             <option  desabled>Select Branch</option>
                             <?php
-                                if(!empty($branches)){
-                                    foreach($branches as $branch){
+                                if(!empty($positiondata)){
+                                    foreach($positiondata as $pos){
                                     ?>
-                                        <option <?= ($ebranch == $branch['id'] ? 'selected' :'') ?> value="<?=$branch['id'];?>"><?=$branch['branch_name'];?></option>
+                                        <option  value="<?=$pos['id'];?>"><?=$pos['name'];?></option>
                                     <?php 
                                     } 
                                 } ?>
                         </select>                       
-                        <div class="invalid-feedback" id="branch_error"></div>
+                        <div class="invalid-feedback" id="position_error"></div>
                     </div>
                 </div>
 

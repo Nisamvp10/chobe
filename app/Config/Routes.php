@@ -96,6 +96,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('project-unit','ProjectUnitController::index');
     $routes->post('project-unit/save','ProjectUnitController::save');
     $routes->post('project-unit/list','ProjectUnitController::list');
+    $routes->post('projectunit/bulk-upload','ProjectUnitController::bulkUpload');
     //tasks 
     $routes->get('tasks','TaskController::index');
     $routes->get('task/create','TaskController::create');
@@ -134,9 +135,20 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     //report
     $routes->get('reports','ReportController::index');
     $routes->get('reports/list','ReportController::list');
-    
+    //role by staff
+    $routes->get('role-master','RolemasterController::index');
+    $routes->post('rolemaster/save','RolemasterController::save');
+    $routes->get('rolemaster/list','RolemasterController::masterList');
+    $routes->get('edit-rolemaster/(:any)','RolemasterController::getRoleinfo/$1');
+
 
 });
+
+$routes->group('api',['filter' => 'auth'], function ($routes) {
+    $routes->get('clients/(:num)/projects', 'Clients::clientBystaff/$1');
+});
+
+
 $routes->get('qry', 'Home::qry');
 //$routes->set404Override('App\Controllers\Errors::show404');
 

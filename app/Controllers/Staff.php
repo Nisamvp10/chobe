@@ -9,7 +9,8 @@ use App\Models\ServiceModel;
 use App\Models\SpecialtiesModel;
 use App\Models\CategoryModel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-
+use App\Models\ClientsModel;
+use App\Models\MasterroleModel;
 
 class Staff extends BaseController{
     protected $branchModel;
@@ -17,13 +18,17 @@ class Staff extends BaseController{
     protected $imageUploader;
     protected $specialityModel ;
     protected $categoryModel;
-    
+    protected $clientsModel;
+    protected $masterroleModel;
+
     function __construct(){
         $this->branchModel = new BranchesModel();
         $this->roleModel = new RolesModel();
         $this->imageUploader = new UploadImages();
         $this->specialityModel = new SpecialtiesModel();
         $this->categoryModel = new CategoryModel();
+        $this->clientsModel = new ClientsModel();
+        $this->masterroleModel = new MasterroleModel();
     }
 
     function index()
@@ -62,12 +67,12 @@ class Staff extends BaseController{
             $data = '';
             $page = "Add Team";
         }
-        
-        $branches = $this->branchModel->where('status',1)->findAll();
+        $branches = $this->clientsModel->where('status',1)->findAll();
+        $positiondata = $this->masterroleModel->where('status','active')->findAll();
         $roles = $this->roleModel->findAll();
         $services = $this->categoryModel->getCategory();
       
-        return view('staff/create',compact('page','branches','roles','data','services','selectedSpecialties'));
+        return view('staff/create',compact('page','branches','roles','data','services','selectedSpecialties','positiondata'));
     }
     function save(){
 
@@ -91,7 +96,7 @@ class Staff extends BaseController{
         $rules = [
             'name' => 'required|min_length[3]|max_length[100]',
             'phone' => 'required|numeric|min_length[10]|max_length[15]',
-            'position' => 'required|min_length[2]|max_length[50]',
+            'position' => 'required',
             'hire_date' => 'required|valid_date[Y-m-d]', // assuming YYYY-MM-DD
             'status' => 'required',
             //'branch' => 'required|numeric', // or string based on your table
@@ -116,7 +121,7 @@ class Staff extends BaseController{
         $data = [
             'name' => $this->request->getPost('name'),
             'phone' => $this->request->getPost('phone'),
-            'position' => $this->request->getPost('position'),
+            'position_id' => $this->request->getPost('position'),
             'hire_date' => $this->request->getPost('hire_date'),
             'booking_status' => $this->request->getPost('status'),
             'store_id' => $this->request->getPost('branch'),

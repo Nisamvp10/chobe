@@ -3,14 +3,21 @@
     <!-- titilebar -->
     <div class="flex items-center justify-between">
         <div class="col-lg-12">
-            <div class="d-flex justify-content-between align-items-center mb-0">
+            <div class="d-flex gap-2 align-items-center mb-0">
                 <h1 class="h3 mb-0"><?= $page ?? '' ?></h1>
                 <?php if(haspermission('','create_project_unit')) : ?>
-                <div>
+                    <div class="flex justify-end gap-2">
+                          <div>
                     <button onclick="openModal()"  class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#projectUnitModal">
                         <i class="bi bi-plus-circle me-1"></i> Add New Project Unit
                     </button>
                 </div>
+                <div>
+                    <button class="btn btn-primary" onclick="openModalbulk()">
+                        <i class="bi bi-plus-circle me-1"></i> Bulk  Data Upload 
+                    </button>
+                </div>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -59,8 +66,10 @@
             </div>
             <!-- close table -->
 </div><!-- body -->
+<?= view('modal/unitbulModal'); ?>
 <?= $this->endSection(); ?>
 <?= $this->section('scripts') ?>
+<script src="<?= base_url('public/assets/js/projectunit.js') ?>"></script>
     <script>
          projects();
           // modal
@@ -83,13 +92,13 @@
                     success: function(response) {
                         
                         if (response.success) {
-                            renderTable(response.projects);
+                            renderunitTable(response.projects);
                         }
                     }
                 });
             }
 
-            function renderTable(projects){
+            function renderunitTable(projects){
                 let html = '';
                 let count = 1;
 
@@ -107,17 +116,19 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.NO</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Person</th> 
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Old Store</th> 
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oracle code</th> 
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Polaris code</th> 
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact mail </th> 
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> mail </th> 
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> RM </th> 
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> SM </th> 
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"> PH </th> 
                                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                     `;
-                    projects.forEach(project => {
-              
+                    projects.forEach(project => {              
                         html += `
                             <tr class="hover:bg-gray-50 ${project.is_active ==0 ? 'bg-red-100 bg-opacity-50' :'' }"  >
                                 <td class="px-2 py-2 whitespace-nowrap">
@@ -129,7 +140,7 @@
                                     <div class="text-sm text-gray-900">${project.store}</div>
                                 </td>
                                  <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">${project.contact_person}</div>
+                                    <div class="text-sm text-gray-900">${project.oldstore_name}</div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">#${project.polaris_code}</div>
@@ -140,7 +151,15 @@
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">${project.rm_mail}</div>
                                 </td>
-                              
+                                <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${project.rm}</div>
+                                </td>
+                                <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${project.manager}</div>
+                                </td>
+                                <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${project.contact_number}</div>
+                                </td>
                                 <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium">
                                 ${project.is_active ==1 ?  `<a href="<?=base_url('settings/project/edit/');?>${project.encrypted_id}" class="text-blue-600 hover:text-blue-800 mr-3">View</a>` :`<span data-id="${project.encrypted_id}" onclick="unlockCategory(this)" class="text-blue-600 hover:text-blue-800 mr-3 cursor-pointer "><i class="bi bi-lock"></i></span>` }
                                 </td>

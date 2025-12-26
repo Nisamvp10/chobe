@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 Class UserModel extends Model{
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $allowedFields =  ['id','name', 'email','role', 'password', 'role_id','store_id','status','phone','position','hire_date','profileimg','booking_status','created_at'];
+    protected $allowedFields =  ['id','name', 'email','role', 'password', 'role_id','store_id','status','phone','position','position_id','hire_date','profileimg','booking_status','created_at'];
     protected function setPassword($password)
     {
         return password_hash($password,PASSWORD_DEFAULT);
@@ -24,13 +24,14 @@ Class UserModel extends Model{
     //         ->orderBy('u.id', 'DESC');
 
                 $builder = $this->db->table('users as u')
-                ->select('u.id, u.name, u.email, u.phone, u.hire_date, u.profileimg, u.booking_status, u.status, u.position, r.role_name, b.branch_name as branch')
+                ->select('u.id, u.name, u.email, u.phone, u.hire_date, u.profileimg, u.booking_status, u.status, up.name as position, up.name as role_name, b.name as branch')
                 ->select('IFNULL(GROUP_CONCAT(c.category ORDER BY c.category SEPARATOR ", "), "") as specialties')
                 ->join('roles as r', 'r.id = u.role', 'left')
-                ->join('branches as b', 'b.id = u.store_id', 'left')
+                ->join('user_position as up', 'up.id = u.position_id', 'left')
+                ->join('clients as b', 'b.id = u.store_id', 'left')
                 ->join('specialties as sp', 'sp.staff_id = u.id', 'left')
                 ->join('categories as c', 'c.id = sp.speciality', 'left')
-                ->where('u.position !=','Develope6')
+                // ->where('up.position !=','Develope6')
                 ->groupBy('u.id')
                 ->orderBy('u.id', 'DESC');
 
@@ -48,9 +49,9 @@ Class UserModel extends Model{
             if (!empty($search)) {
                 $builder->like('u.name',$search)
                 ->orLike('u.email',$search)
-                ->orLike('b.branch_name',$search)
+                ->orLike('b.name',$search)
                 ->orLike('u.position',$search)
-                ->orLike('phone',$search); 
+                ->orLike('u.phone',$search); 
             }
 
             return $builder->get()->getResultArray();

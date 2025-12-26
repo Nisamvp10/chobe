@@ -1,5 +1,6 @@
 <?php
 namespace App\Controllers;
+use App\Models\UserModel;
 use CodeIgniter\Controller;
 use App\Models\CategoryModel;
 use App\Models\BranchesModel;
@@ -13,12 +14,14 @@ class Clients extends controller {
     protected $branchModel;
     protected $serviceModel;
     protected $clientsModel;
+    protected $userModel;
 
     function __construct() {
         $this->categoryModel = new CategoryModel();
         $this->branchModel = new BranchesModel();
         $this->serviceModel = new ServiceModel();
         $this->clientsModel = new ClientsModel();
+        $this->userModel = new UserModel();
     }
 
     function index() {
@@ -303,5 +306,26 @@ class Clients extends controller {
         }
 
         return $this->response->setJSON(['status' => false, 'msg' => 'Task not found']);
+    }
+
+    public function clientBystaff($id) {
+        if($id) {
+           $rmUsers = $this->userModel
+                ->select('users.id, users.name, up.level')
+                ->join('user_position as up', 'up.id = users.position_id', 'left')
+                ->where('users.store_id', $id)
+                ->orderBy('up.level', 'ASC')
+                ->get()
+                ->getResult();
+
+            return $this->response->setJSON([
+                'status' => true,
+                'rms'    => $rmUsers
+            ]);
+
+        }
+        return $this->response->setJSON(['status' => false,'msg' => 'No Data Found']);
+       
+
     }
 }
