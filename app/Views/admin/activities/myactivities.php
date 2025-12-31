@@ -184,5 +184,7 @@
 
     <script src="<?=base_url('public/assets/js/myactivities.js') ?>" ></script>
     <script src="<?=base_url('public/assets/js/task.js') ;?>" ></script>
+    <script src="<?=base_url('public/assets/js/activitycomments.js') ;?>" ></script>
+
 
 <?= $this->endSection() ;?>

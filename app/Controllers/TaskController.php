@@ -371,6 +371,162 @@ class TaskController extends Controller {
         }
     }
 
+  public function autoAssignTasksWithStaff()
+    {
+        $today = date('Y-m-d');
+
+        if (!haspermission('', 'create_task')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => lang('Custom.accessDenied')
+            ]);
+        }
+
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => lang('Custom.invalidRequest')
+            ]);
+        }
+
+        // 1️⃣ Fetch DAILY task templates
+        $templates = $this->taskModel
+            ->where('recurrence', 'daily')
+            ->where('next_run_date <=', $today)
+            ->findAll();
+
+        if (empty($templates)) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'No templates to process'
+            ]);
+        }
+
+        // 2️⃣ Fetch active project units
+        $projectUnits = $this->projectUnitModel
+            ->where('status', 1)
+            ->findAll();
+
+        $taskCreated = false; // ⭐ TRACK FLAG
+
+        foreach ($templates as $template) {
+
+            foreach ($projectUnits as $unit) {
+
+                // 3️⃣ Check if THIS unit already has task today
+                $exists = $this->taskModel
+                    ->where('created_from_template', $template['id'])
+                    ->where('project_unit', $unit['id'])
+                    ->where('DATE(created_at)', $today)
+                    ->countAllResults();
+
+                if ($exists > 0) {
+                    continue; // Skip only THIS unit
+                }
+
+                // 4️⃣ Create new task
+                $newTaskId = $this->taskModel->insert([
+                    'project_id'            => $template['project_id'],
+                    'project_unit'          => $unit['id'],
+                    'title'                 => $template['title'],
+                    'description'           => $template['description'],
+                    'branch'                => $template['branch'],
+                    'overdue_date'          => $template['overdue_date'],
+                    'priority'              => $template['priority'],
+                    'status'                => 'Pending',
+                    'progress'              => 0,
+                    'recurrence'            => 'daily',
+                    'next_run_date'         => date('Y-m-d', strtotime('+1 day')),
+                    'created_from_template' => $template['id'],
+                    'created_at'            => date('Y-m-d H:i:s'),
+                ]);
+
+                if (!$newTaskId) {
+                    continue;
+                }
+
+                $taskCreated = true; 
+
+                // 5️⃣ Create task activities
+                $masterActivities = $this->activityModel
+                    ->where('status', 'active')
+                    ->where('activity_type', 1)
+                    ->findAll();
+
+                foreach ($masterActivities as $act) {
+                    $this->taskActivityModel->insert([
+                        'task_id'     => $newTaskId,
+                        'activity_id' => $act['id'],
+                        'created_at'  => date('Y-m-d H:i:s'),
+                    ]);
+                }
+
+                // 6️⃣ Collect permanently allocated staff
+                $staffIds = [];
+
+                if (!empty($unit['allocated_to']) && $unit['allocated_type'] === 'permanently') {
+                    $staffIds[] = $unit['allocated_to'];
+                }
+
+                if (!empty($unit['assigned_to']) && $unit['assigned_type'] === 'permanently') {
+                    $staffIds[] = $unit['assigned_to'];
+                }
+
+                $staffIds = array_unique($staffIds);
+
+                if (empty($staffIds)) {
+                    continue;
+                }
+
+                // 7️⃣ Assign staff + activities
+                foreach ($staffIds as $staffId) {
+
+                    $this->taskassignModel->insert([
+                        'task_id'   => $newTaskId,
+                        'staff_id'  => $staffId,
+                        'status'    => 'assigned',
+                        'created_at'=> date('Y-m-d H:i:s')
+                    ]);
+
+                    foreach ($masterActivities as $act) {
+                        $this->taskStaffActivityModel->insert([
+                            'task_id'          => $newTaskId,
+                            'task_activity_id' => $act['id'],
+                            'staff_id'         => $staffId,
+                            'status'           => 'pending',
+                            'progress'         => 'pending',
+                        ]);
+                    }
+
+                    $this->notificationModel->insert([
+                        'user_id'    => $staffId,
+                        'task_id'    => $newTaskId,
+                        'type'       => 'new_task',
+                        'title'      => 'New Task',
+                        'created_by' => session('user_data')['id'],
+                        'message'    => 'A daily task has been assigned to you',
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+            }
+        }
+
+        // ⭐ FINAL MESSAGE CONTROL
+        if (!$taskCreated) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'All tasks are already assigned for today. Please try tomorrow.'
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Daily tasks created successfully'
+        ]);
+    }
+
+ 
+
         function list() {
 
             if (!$this->request->isAJAX()) {
@@ -418,6 +574,7 @@ class TaskController extends Controller {
                         'action'    => 0,//$task['action'],
                         'overdue_date' => $task['overdue_date'] ?? null,
                         'progress'  => $task['progress'],
+                        'created'   => date('d-m-Y',strtotime($task['created_at'])),
                         'allUsers'  => $allusers,
                         'ducument'  => $task['image_url'],
                         'users'     => [],
@@ -501,6 +658,7 @@ class TaskController extends Controller {
                     'progress'  => $task['progress'],
                     'action'    => 0,//$task['action'],
                     'ducument'  => $task['image_url'],
+                    'created'   => date('d-m-Y',strtotime($task['created_at'])),
                     'users'     => [],
                 ];
 
@@ -694,5 +852,44 @@ class TaskController extends Controller {
         ]);
     }
 
+    public function allocatedstaffs($id=false) {
+        if($id) {
+            // $builderClint = $this->projectUnitModel->select('allocated_to,assigned_to,id,client_id')->where('id',$id)->get()->getRow();
+            // $users = $this->staffModal->select('name,id')->where('store_id',$builderClint->client_id)->get()->getResult();
+            $data = $this->projectUnitModel
+                    ->select('
+                        project_unit.store,project_unit.allocated_to,project_unit.assigned_to,project_unit.regional_manager_id,project_unit.manager_id,project_unit.allocated_type,
+                        project_unit.assigned_type,
+                        alloc.name as allocated_name,
+                        assign.name as assigned_name,
+                        u.name,u.id
+                    ')
+                    ->join('users as alloc', 'alloc.id = project_unit.allocated_to', 'left')
+                    ->join('users as assign', 'assign.id = project_unit.assigned_to', 'left')
+                     ->join('users as u', 'u.store_id = project_unit.client_id', 'left')
+                    ->where('project_unit.id', $id)
+                    ->get()
+                    ->getresult();
+                    $users =[] ;
+                    if($data) {
+                        foreach($data as &$row) {
+                            if($row->regional_manager_id != $row->id && $row->manager_id != $row->id) {
+                                $users[] = [
+                                    'isAssigned' => ($row->allocated_to == $row->id && $row->allocated_type == 'permanently' ? true : ''),
+                                    'isTemp'      => ($row->assigned_to == $row->id && $row->assigned_type == 'permanently' ? true : ''),
+                                    'userId'    => $row->id,
+                                    'name'      => $row->name
+                                ];
+                            }
+                        }
+                    }
 
+              
+            return $this->response->setJSON([
+                'success' => true,
+                'result' => $users
+            ]);
+                
+        }
+    }
 }

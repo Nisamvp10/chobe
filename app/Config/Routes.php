@@ -101,6 +101,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('tasks','TaskController::index');
     $routes->get('task/create','TaskController::create');
     $routes->post('task/save','TaskController::save');
+    $routes->post(' task/auto-assign-tasks','TaskController::autoAssignTasksWithStaff');
     $routes->get('task/tasklist','TaskController::list');
     $routes->get('task/view/(:any)','TaskController::view/$1');
     $routes->post('task/update_status','TaskController::update_status');
@@ -116,6 +117,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('task/mytask/activities/(:any)','ActivitiesController::mYactivities/$1');
     $routes->post('task/activity/replay','ReplayController::activityReplaySave');
     $routes->post('activity-task-replays','ReplayController::activityReplayHistory');
+    //activity comments
+    $routes->post('activity/save-comment','ActivitycommentsController::saveCommets');
     //activities
     $routes->get('activities/(:any)','ActivitiesController::activities/$1');
     $routes->post('activities/save','ActivitiesController::save');
@@ -146,6 +149,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
 
 $routes->group('api',['filter' => 'auth'], function ($routes) {
     $routes->get('clients/(:num)/projects', 'Clients::clientBystaff/$1');
+    $routes->get('clients/(:num)/tasks', 'TaskController::allocatedstaffs/$1');
 });
 
 

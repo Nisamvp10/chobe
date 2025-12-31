@@ -23,6 +23,16 @@
                </svg>
             </button>
             <?php } ?>
+             <button onclick="showStep(3)" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100" title="View History">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"     stroke-linecap="round"
+     stroke-linejoin="round"      class="lucide lucide-message-circle">  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21 l1.9-5.7a8.38 8.38 0 0 1-.9-3.8
+           8.5 8.5 0 0 1 4.7-7.6
+           8.38 8.38 0 0 1 3.8-.9h.5
+           a8.48 8.48 0 0 1 8 8v.5z"/>
+</svg>
+
+            </button>
+
             <button onclick="closeTaskModal()" class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100">
                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x ">
                   <path d="M18 6 6 18"></path>
@@ -84,69 +94,9 @@
       <!-- from  -->
       <!-- Task Edit Panel -->
        <div class="step3">
-      <div id="editForm" class="w-full p-6 overflow-y-auto border-l hidden h-full flex flex-col h-screen" >
-         <h2 class="text-xl font-semibold mb-4">Edit Task</h2>
-         <form id="taskEditForm" class="space-y-4">
-           <?= csrf_field() ;?>
-            <input type="hidden" name="taskId" id="activitytaskId" >
-           <div >
-             <label class="block mb-1 font-medium">Title</label>
-             <input type="text" name="title" class="w-full border px-3 py-2 rounded" id="title" />
-              <div class="invalid-feedback" id="title_error"></div>
-           </div>
-         
-           <div>
-             <label class="block mb-1 font-medium">Description</label>
-             <textarea class="w-full border px-3 py-2 rounded" name="description" id="description"></textarea>
-              <div class="invalid-feedback" id="description_error"></div>
-           </div>
-         
-         
-         
-           <div class="d-none">
-               <label class="block text-sm font-medium text-gray-700 mb-1 ">Priority</label>
-               <div class="flex space-x-2" id="priorityButtons">
-                    <input type="hidden" name="priority" id="priorityInput" value="">
-                   <button name="priority"  type="button" class="priority-btn px-4 py-2 rounded-md text-sm bg-gray-100 text-gray-800 border border-gray-300" data-priority="Low">Low</button>
-                   <button name="priority"  type="button" class="priority-btn px-4 py-2 rounded-md text-sm bg-orange-100 text-orange-800 border border-orange-300" data-priority="Medium">Medium</button>
-                   <button name="priority"  type="button" class="priority-btn px-4 py-2 rounded-md text-sm bg-gray-100 text-gray-800 border border-gray-300" data-priority="High">High</button>
-               </div>
-           </div>
-           <div>
-               <label for="progress" class="block text-sm font-medium text-gray-700 mb-1" id="progressLabel">Progress: 60%</label>
-               <input type="range" name="progress" id="progressBar" min="0" max="100" step="5" class="w-full" value="">
-           </div>
-           <div>
-               <div class="grid grid-cols-2 gap-2">
-                   <div class="items-center rounded-md cursor-pointer border-gray-300">
-                       <label class="block font-medium">Due Date</label>
-                       <input type="date" name="duedate" value="" id="duedate" class="w-full border px-3 py-2 rounded" />
-                   </div>
-                   <div class="items-center rounded-md cursor-pointer border-gray-300 ">
-                       <label class="block font-medium">Status</label>
-                       <select id ="activityStatus" name="status" class="w-full border px-3 py-2 rounded" id="taskStatus">
-                           <option value="Pending">Pending</option>
-                           <option value="In_Progress">In Progress</option>
-                           <option value="Completed">Completed</option>
-                           <option value="Overdue">Overdue</option>
-                       </select>
-                    </div>
-               </div>
-               
-           </div>
-           <div>
-             <label class="block mb-2 font-medium">Assign Staff</label>
-             <div class="mt-1 grid grid-cols-2 gap-2 " id="participantsactivities">
-             
-             </div>
-           </div>
-         
-              <div class="mt-8 flex justify-end gap-3">
-                     
-                       <a onclick="toggleEditForm()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</a>
-                       <button id="submitBtn" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md flex items-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save mr-1"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>Save</button>
-               </div>
-         </form>
+      <div  class="w-full p-6 overflow-y-auto border-l  h-full flex flex-col h-screen" >
+         <h2 class="text-xl font-semibold mb-4">Commets</h2>
+         <div id="commentSection" class="w-full"></div>
          </div>
          
         

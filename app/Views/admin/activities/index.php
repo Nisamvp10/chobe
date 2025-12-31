@@ -119,6 +119,8 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <script src="<?=base_url('public/assets/js/activities.js') ;?>" ></script>
 <script src="<?=base_url('public/assets/js/taskactivity.js') ;?>" ></script>
+<script src="<?=base_url('public/assets/js/activitycomments.js') ;?>" ></script>
+
 
 
 

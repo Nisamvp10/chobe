@@ -310,22 +310,41 @@ class Clients extends controller {
 
     public function clientBystaff($id) {
         if($id) {
-           $rmUsers = $this->userModel
+           $users = $this->userModel
                 ->select('users.id, users.name, up.level')
                 ->join('user_position as up', 'up.id = users.position_id', 'left')
                 ->where('users.store_id', $id)
+                ->whereNotIn('up.id', [3, 4])
+                ->orderBy('up.level', 'ASC')
+                ->get()
+                ->getResult();
+
+            $rm = $this->userModel
+                ->select('users.id, users.name, up.level')
+                ->join('user_position as up', 'up.id = users.position_id', 'left')
+                ->where('users.store_id', $id)
+                ->where('up.id', 4)//Regional Manager
+                ->orderBy('up.level', 'ASC')
+                ->get()
+                ->getResult();
+
+            $managers = $this->userModel
+                ->select('users.id, users.name, up.level')
+                ->join('user_position as up', 'up.id = users.position_id', 'left')
+                ->where('users.store_id', $id)
+                ->where('up.id', 3)//Regional Manager
                 ->orderBy('up.level', 'ASC')
                 ->get()
                 ->getResult();
 
             return $this->response->setJSON([
                 'status' => true,
-                'rms'    => $rmUsers
+                'rms'    => $rm,
+                'store_managers'  => $managers,
+                'users' => $users,
             ]);
 
         }
         return $this->response->setJSON(['status' => false,'msg' => 'No Data Found']);
-       
-
     }
 }

@@ -66,110 +66,127 @@
                                 <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
                 // 
             let ectivitUrl = App.getSiteurl()+`activities/${task.id}`;
-             const taskHTML = `<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition 
-border-l-4 ${task.status === 'pending' ? 'border-orange-500' : 'border-green-500'} 
-p-4 draggable-task cursor-pointer"
-draggable="true"
-data-id="${task.id}">
-
-    <!-- TITLE -->
-    <h3 class="text-sm font-semibold text-blue-600 truncate mb-2">
-        ${task.title}
-    </h3>
-
-    <!-- ROW 1 : DESCRIPTION + COMMENT + LOCK -->
-    <div class="flex justify-between items-center gap-4">
-
-        <!-- DESCRIPTION -->
-        <div class="flex-1 text-xs text-gray-600 line-clamp-2">
-            ${task.description}
-        </div>
-        ${task.copen == 1 ? `
-        <!-- COMMENT FORM -->
-        <form class="comment-form flex items-center gap-2 w-72 " data-task-id="${task.id}" data-activity-id="${task.activityId}">
-            <textarea
-                name="comment"
-                rows="1"
-                placeholder="Enter comment..."
-                class="border rounded-md px-3 py-1 text-xs w-full resize-none focus:outline-none focus:ring comment-text">${task.comment ?? ''}</textarea>
-
-            <!-- SAVE ICON -->
-            <button 
-                type="submit"
-                class="p-2 bg-blue-500 text-white rounded-2 hover:bg-blue-600"
-                title="Save Comment"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M5 13l4 4L19 7" />
-                </svg>
-            </button>
-        </form>` : ''}
-
-        <!-- LOCK -->
-        <div 
-            class="p-2 border rounded-md cursor-pointer
-            ${task.status === 'pending' ? 'bg-gray-200 locktotask' : 'bg-green-100'}"
-            data-id="${task.activityId}">
-            ${task.status === 'pending' ? unlock : lock}
-        </div>
-    </div>
-
-    <!-- ROW 2 : BADGES + DATES + VIEW -->
-    <div class="flex flex-wrap items-center gap-2 text-xs text-gray-600 mt-3">
-
-        <span class="px-2 py-1 rounded-full ${priority}">
-            ${task.priority}
-        </span>
-
-        <span class="px-2 py-1 rounded-full capitalize ${status}">
-            ${task.status}
-        </span>
-
-        <span>${createdOnText}</span>
-        <span>${duedateText}</span>
-
-        <!-- VIEW ICON -->
-        <button
-            class="ml-auto p-2 border rounded-2 hover:bg-gray-100"
-            onclick="openTaskModal(this)"
-            data-id="${task.id}"
-            data-activity="${task.activityId}"
-            data-title="${task.title}"
-
-            data-desc="${task.description}"
-            data-status="${task.status}"
-            data-progress="${progress}%"
-            data-comments='${JSON.stringify(task.allCommets)}'
-            data-date="${duedateText}"
-            data-created="${createdOnText}"
-            data-priority="${task.priority}"
-            data-duration="${task.duration}"
-            data-profiles='${JSON.stringify(task.users)}'
-            data-users='${JSON.stringify(task.allUsers)}'
-            data-duedate='${task.overdue_date}'
-            data-store="${task.storeId ?? 'all'}"
-            data-progressbar="${task.progress}"
-            data-project="${task.project}"
-            data-doc="${task.ducument}" >
+             const taskHTML = `
+        <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 ${(task.status == 'pending' ? `border-orange-500` :'border-green-500')} draggable-task" draggable="true"
+             data-id="${task.id}"  >
          
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
-                <circle cx="12" cy="12" r="3" />
-            </svg>
-        </button>
+            <a class=" " >
+            <div class="flex justify-between items-start gap-2 mb-2">
+                <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
+                <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800  flex-shrink-0  ${priority}">${task.priority}</span>
+                <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800  flex-shrink-0 capitalize ${status}">${task.status}</span>
+                <span class="px-2 py-2 rounded-2 text-xs font-medium text-yellow-800  border flex-shrink-0 capitalize" data-id="${task.id}" 
+                        data-status="${task.status}"
+                        onclick="openTaskModal(this)"
+                        data-activity = "${task.activityId}"
+                        data-title="${task.title}"
+                        data-desc="${task.description}"
+                        data-status="${task.status}"
+                        data-progress="${progress}%"
+                        data-date="${duedateText}"
+                        data-created = "${createdOnText}"
+                        data-priority="${task.priority}"
+                        data-duration="${task.duration}"
+                        data-profiles='${JSON.stringify(task.users)}'
+                        data-users='${JSON.stringify(task.allUsers)}'
+                        data-duedate='${task.overdue_date}'
+                        data-store="${(task.storeId ? task.storeId  :'all') }"
+                        data-progressbar="${task.progress}"
+                        data-cls="${priority}"
+                        data-project="${task.project}"
+                        data-doc="${task.ducument}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-4 w-4 ">
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>  <circle cx="12" cy="12" r="3"></circle></svg>
+                </span>
 
-    </div>
+                <div class="items-center justify-center  bg-gray-300 pointer border rounded-2 p-2  ${task.status == 'pending' ? 'locktotask' : ''}" data-id="${task.activityId}" >${task.status == 'pending' ? unlock : lock}</div>
+            </div>
+            <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
+            
+            <div >
+            <div class="d-flex align-items-center mb-2 d-none">
+                <div class="w-full justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
+                    <div class="h-2 rounded-full transition-all duration-500 ${(task.progress  == 'pending' ? 'bg-red-500' : 'bg-green-500')} " style="width: ${progress}%"></div> 
+                </div>
+                <span class="text-xs text-gray-500 text-gray-900">  ${progress}%</span>
+            </div>
 
-</div>`
+            </div>
+            // display none
+            <div class="flex justify-between items-center">
+                <div class="flex -space-x-2 profile-stack d-none">
+                   ${task.allUsers.slice(0, 5).map(user => `
+                        ${user.img 
+                            ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
+                                    <img src="${user.img}" alt="${user.name}" title="${user.name}" class="w-full h-full object-cover">
+                            </div>`
+                            : `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                                    <span class="text-blue-600 font-medium">${user.name.charAt(0)}</span>
+                            </div>`}
+                    `).join('')}
 
+                    ${task.allUsers.length > 5 
+                        ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-gray-200 border-white">
+                                <span class="text-gray-700 font-semibold">+${task.users.length - 5}</span>
+                        </div>` 
+                        : ''}
+
+                </div>
+                
+                <span class="text-xs text-gray-500 ${dueClass}">${createdOnText}</span>
+            </div>
+          </a>
+        </div>`;
         
                 // 
-              
-                                
+                progressBar = `<div class="flex items-center gap-2">
+                            <div
+                                role="progressbar"
+                                aria-valuemin=${0}
+                                aria-valuemax=${100}
+                                aria-valuenow=${progress} 
+                                class="relative w-full overflow-hidden rounded-full bg-secondary h-2">
+                                <div
+                                class="h-full bg-green-500 transition-all"
+                                style=" width: ${progress}% "
+                                ></div>
+                            </div>
+                            <span class="text-xs">${progress}%</span>
+                            </div>
+                            `;
+                                            html += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-2 py-1 whitespace-nowrap">
+                            <div class="flex items-center">
+                              <a class="hover:text-gray-800" href="${App.getSiteurl()+'task/view/'}${task.id}">
+                            ${task.title}
+                            </a>
+                            </div>
+                        </td>
+                        <td class="px-2 py-1 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 hover:text-gray-800">${task.branch_name}</div>
+                        </td>
+                        <td class="px-2 py-1 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                                <span class="px-3 py-1 text-xs rounded-full capitalize ${priority} ">${task.priority}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-1 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">
+                             <span class="px-2 py-1 text-xs rounded-full capitalize ${status} ">${task.status}</span>
+                            </div>
+                        </td>
+                        <td class="px-2 py-1 whitespace-nowrap">
+                            ${progressBar}
+                        </td>
+                        <td class="px-2 py-1 whitespace-nowrap">
+                            <div class="text-sm ${dueClass} ">${duedateText}</div>
+                        </td>  
+                        <td class="px-2 py-1 whitespace-nowrap">
+                            <div class="text-sm ">${task.duration}</div>
+                        </td>                         
+                       
+                    </tr>
+                `;
                 if (task.status === 'pending') {
                     pending += taskHTML;
                 } else if (task.status === 'In_Progress') {
@@ -268,33 +285,31 @@ function openTaskModal(el) {
     //progressEl.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
 
   
-    //document.getElementById('priorityInput').value = priority;
+    document.getElementById('priorityInput').value = priority;
 
     //edit data
-    // const taskEdit = document.getElementById('taskEditForm');
-    // // Populate fields from data attributes
-    // taskEdit.querySelector('#title').value = el.dataset.title || '';
-    // taskEdit.querySelector('#description').value = el.dataset.desc || '';
-    // //taskEdit.querySelector('#project').value = el.dataset.project || '';
-    // // taskEdit.querySelector('#branch').value = el.dataset.store || '';
-    // taskEdit.querySelector('#duedate').value = el.dataset.duedate || 0;
-    // taskEdit.querySelector('#activityStatus').value = el.dataset.status || 0;
+    const taskEdit = document.getElementById('taskEditForm');
+    // Populate fields from data attributes
+    taskEdit.querySelector('#title').value = el.dataset.title || '';
+    taskEdit.querySelector('#description').value = el.dataset.desc || '';
+    //taskEdit.querySelector('#project').value = el.dataset.project || '';
+    // taskEdit.querySelector('#branch').value = el.dataset.store || '';
+    taskEdit.querySelector('#duedate').value = el.dataset.duedate || 0;
+    taskEdit.querySelector('#activityStatus').value = el.dataset.status || 0;
 
-//     const priorityButtons = taskEdit.querySelectorAll('.priority-btn');
-//     priorityButtons.forEach(btn => {
-//     if (btn.dataset.priority === priority) {
-//       btn.classList.add('bg-orange-100', 'text-orange-800', 'border-orange-300');
-//       btn.classList.remove('bg-gray-100', 'text-gray-800', 'border-gray-300');
-//     } else {
-//       btn.classList.add('bg-gray-100', 'text-gray-800', 'border-gray-300');
-//       btn.classList.remove('bg-orange-100', 'text-orange-800', 'border-orange-300');
-//     }
-//   });
+    const priorityButtons = taskEdit.querySelectorAll('.priority-btn');
+    priorityButtons.forEach(btn => {
+    if (btn.dataset.priority === priority) {
+      btn.classList.add('bg-orange-100', 'text-orange-800', 'border-orange-300');
+      btn.classList.remove('bg-gray-100', 'text-gray-800', 'border-gray-300');
+    } else {
+      btn.classList.add('bg-gray-100', 'text-gray-800', 'border-gray-300');
+      btn.classList.remove('bg-orange-100', 'text-orange-800', 'border-orange-300');
+    }
+  });
     const users = JSON.parse(el.dataset.profiles);
     const allstaff = JSON.parse(el.dataset.users);
-    const comments = JSON.parse(el.dataset.comments);
     renderStaffList(allstaff,users);
-    renderCommentList(comments);
     const priorityEl = modal.querySelector('.modal-priority');
 
     if (priorityEl && el.dataset.cls) {
@@ -402,9 +417,9 @@ function toggleReplay() {
   const progressSlider = document.getElementById('progressBar');
   const progressLabel = document.getElementById('progressLabel');
 
-//   progressSlider.addEventListener('input', () => {
-//     progressLabel.textContent = `Progress: ${progressSlider.value}%`;
-//   });
+  progressSlider.addEventListener('input', () => {
+    progressLabel.textContent = `Progress: ${progressSlider.value}%`;
+  });
 // sadssdsdsdsd 123
 function renderStaffList(users = [], existingUser = []) {
     const assignedIds = existingUser.map(u => String(u.userId));
@@ -434,38 +449,6 @@ function renderStaffList(users = [], existingUser = []) {
         </div>`;
     });
     document.getElementById('modal-profiles').innerHTML = staffHTML;
-}
-
-function renderCommentList(comments = []) {
-
-    let commentHtml = `<div class="space-y-4 max-h-64 overflow-y-auto p-2">`;
-
-    if (comments.length === 0) {
-        commentHtml += `
-            <div class="text-center text-gray-500">
-                No comments yet ...
-            </div>
-        `;
-    } else {
-        comments.forEach(cmt => {
-            console.log(cmt);
-            commentHtml += `
-                <div class="border rounded-md p-2">
-                    <div class="font-medium text-sm flex items-cnter gap-2 mb-1">
-                       <div> ${cmt.name ?  cmt.name : 'Unknown'}</div>
-                       <div>  ${cmt.created_at}</div>
-                    </div>
-                    <div class="text-sm text-gray-700">
-                        ${cmt.comment}
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    commentHtml += `</div>`;
-    document.getElementById('commentSection').innerHTML = commentHtml;
-
 }
 
 function showStep(step) {

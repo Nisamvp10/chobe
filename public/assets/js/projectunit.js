@@ -1,35 +1,47 @@
 $('#client').on('change', function () {
 
     let clientId = $(this).val();
-     $('#rm').html('loading...');
+
+    $('#rm').html('<option>Loading...</option>');
+    $('#assigned_to').html('<option>Loading...</option>');
+    $('#allocated_to').html('<option>Loading...</option>');
+    $('#store_manager').html('<option>Loading...</option>');
+
     if (!clientId) return;
 
     fetch(`api/clients/${clientId}/projects`)
         .then(res => res.json())
         .then(data => {
 
-            // Clear dropdowns
+            // Reset dropdowns
             $('#rm').html('<option value="">Select RM</option>');
             $('#store_manager').html('<option value="">Select Store Manager</option>');
+            $('#assigned_to').html('<option value="">Select Assigned User</option>');
+            $('#allocated_to').html('<option value="">Select Allocated User</option>');
 
-            // RMs
-            if (data.rms && data.rms.length > 0) {
+            // 🔹 RMs
+            if (data.rms?.length) {
                 data.rms.forEach(rm => {
                     $('#rm').append(`
-                        <option value="${rm.id}">
-                            ${rm.name}
-                        </option>
+                        <option value="${rm.id}">${rm.name}</option>
+                    `);
+                    
+                });
+            }
+
+            // 🔹 Store Managers
+            if (data.store_managers?.length) {
+                data.store_managers.forEach(manager => {
+                    $('#store_manager').append(`
+                        <option value="${manager.id}">${manager.name}</option>
                     `);
                 });
             }
 
-            // Store Managers
-            if (data.rms && data.rms.length > 0) {
-                data.rms.forEach(manager => {
-                    $('#store_manager').append(`
-                        <option value="${manager.id}">
-                            ${manager.name}
-                        </option>
+            if (data.users?.length) {
+                data.users.forEach(user => {
+                    $('#assigned_to, #allocated_to').append(`
+                        <option value="${user.id}">${user.name}</option>
                     `);
                 });
             }
@@ -39,6 +51,7 @@ $('#client').on('change', function () {
             console.error('Error fetching data:', err);
         });
 });
+
 function openModalbulk($id=false) {
     toggleModal('bulkUnit', true);
     $('#bulkUnit .head').text($id ? 'Edit Bulk Units' : 'Add Bulk Units');

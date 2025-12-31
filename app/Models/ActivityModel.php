@@ -17,6 +17,7 @@ class ActivityModel extends Model
             ->select(' tsa.task_id,
             tsa.id as activityId,
             tsa.started_at,
+            tsa.commet_status,
             tsa.completed_at,
             t.id,
             tsa.task_activity_id,
@@ -68,7 +69,7 @@ class ActivityModel extends Model
             ->select('tsa.task_id,tsa.task_activity_id,tsa.staff_id,a.activity_title,tsa.status,tsa.created_at,tsa.progress,
             t.priority,
             u.profileimg, u.name, u.id as userId,
-            ats.status as staffStatus ')
+            ats.status as staffStatus,tsa.commet_status')
              ->join('activities as a','tsa.task_activity_id =  a.id')
             ->join('tasks as t','a.task_id = t.id','left')
             ->join('activity_staff as ats','a.id =  ats.activity_id')

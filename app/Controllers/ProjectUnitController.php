@@ -46,6 +46,9 @@ class ProjectUnitController extends Controller
             'start_date'   => 'required',
             'rm'   => 'required',
             'store_manager'   => 'required',
+            'allocated_to'     => 'required',
+            'allocated_date'     => 'required',
+            'allocatedType'     => 'required',
             'rm_mail'  => 'required|min_length[2]',
             //'status'  => 'required',
         ];
@@ -71,6 +74,14 @@ class ProjectUnitController extends Controller
 
         $id       = decryptor($this->request->getVar('branchId'));
 
+        $allocated_to   = $this->request->getPost('allocated_to');
+        $allocated_date = $this->request->getPost('allocated_date');
+        $allocated_type = $this->request->getPost('allocatedType');
+        $assigned_to    = $this->request->getPost('assigned_to');
+        $assigned_date  = $this->request->getPost('assigned_date');
+        $assigned_type  = $this->request->getPost('assignedType');
+
+
         $data = [
             'store' => $store,
             'oldstore_name' => $oldstore,
@@ -84,6 +95,12 @@ class ProjectUnitController extends Controller
             'start_date'    => $startDate,
             'status'        => 1,
             'project_unit_type' =>1, 
+            'allocated_to'  =>  $allocated_to,
+            'allocated_date'    =>  $allocated_date,
+            'allocated_type'    =>  $allocated_type,
+            'assigned_to'   =>  $assigned_to,
+            'assigned_date' =>  $assigned_date,
+            'assigned_type',    $assigned_type,
         ];
 
         if($id){
@@ -172,7 +189,7 @@ public function bulkUpload()
     $spreadsheet = IOFactory::load($file->getTempName());
     $sheet       = $spreadsheet->getActiveSheet();
 
-    // ✅ FIX: Use data rows only
+    // FIX: Use data rows only
     $highestRow = $sheet->getHighestDataRow();
     $highestCol = $sheet->getHighestDataColumn();
 

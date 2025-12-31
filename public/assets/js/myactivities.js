@@ -41,23 +41,22 @@
             
            
             tasks.forEach(task => {
-        
-            const dueDate = new Date(task.overdue_date);
+
+              const dueDate = new Date(task.overdue_date);
+            const createdOn = new Date(task.createdAt);
             const today = new Date();
             dueDate.setHours(0, 0, 0, 0);
             today.setHours(0, 0, 0, 0);
 
             let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-           // let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900';
             let dueClass =    task.status === "pending" && dueDate < today         ? "text-red-600"        : "text-gray-900";
-            
+
+            let createdOnText = createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });         
             
                 var priority = (task.priority =='High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
-                var status = (task.status =='pending' ? 'bg-red-400 text-white' : (task.priority == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.status == "completed" ? 'bg-green-500 text-white' : 'bg-green-500 text-green-800' ) ));
-                var statusColor = (task.staffStatus =='Pending' ? 'bg-task-medium text-white' : (task.staffStatus == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.staffStatus == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800' ) ));
-                const progress = task.progress;
+                var status = (task.status =='pending' ? 'bg-red-500 text-white' : (task.status == "In_Progress" ? 'bg-yellow-500 text-yellow-800' : (task.status == "completed" ? 'bg-green-500 text-white' : 'bg-green-500 text-green-800' ) ));
+                const progress = task.progress ?? 0;
 
-                
                 let unlock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-unlock h-4 w-4">
                             <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
                             <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
@@ -65,87 +64,104 @@
                 let lock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock h-4 w-4 ">
                                 <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
                 // 
+            let ectivitUrl = App.getSiteurl()+`activities/${task.id}`;
+             const taskHTML = `<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition 
+border-l-4 ${task.status === 'pending' ? 'border-orange-500' : 'border-green-500'} 
+p-4 draggable-task cursor-pointer"
+draggable="true"
+data-id="${task.id}">
 
-                let ectivitUrl = App.getSiteurl()+`task/mytask/activities/${task.id}`;
-             const taskHTML = `
-        <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 ${(task.status == 'pending' ? 'border-orange-500' :'border-green-500')} draggable-task" 
-            >
-            
-            <div class="flex justify-between items-start mb-2 gap-2">
-                <h3 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.title}</h3>
-               <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800  flex-shrink-0  ${priority}">${task.priority}</span>
-                <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800  flex-shrink-0 capitalize ${status}">${task.status}</span>
-                <span class="px-2 py-2 rounded-2 text-xs font-medium text-yellow-800  border flex-shrink-0 capitalize  " 
-                 data-id="${task.id}" 
-                data-status="${task.status}"
-                onclick="openTaskModal(this)"
-                data-activity="${task.activityId}"
-                data-title="${task.title}"
-                data-desc="${task.description}"
-                data-branch="${(task.branch_name ? task.branch_name  :'all') }"
-                data-status="${task.status}"
-                data-progress="${progress}%"
-                data-date="${duedateText}"
-                data-priority="${task.priority}"
-                data-duration="${task.duration}"
-                data-profiles='${JSON.stringify(task.users)}'
-                data-duedate='${task.overdue_date}'
-                data-store="${(task.storeId ? task.storeId  :'all') }"
-                data-progressbar="${task.progress}"
-                data-cls="${priority}"
-                data-project="${task.project}"
-                data-doc="${task.ducument}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye h-4 w-4 ">
-                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>  <circle cx="12" cy="12" r="3"></circle></svg>
-                </span>
+    <!-- TITLE -->
+    <h3 class="text-sm font-semibold text-blue-600 truncate mb-2">
+        ${task.title}
+    </h3>
 
-                <div class="items-center justify-center  bg-gray-300 pointer border rounded-2 p-2  ${task.status == 'pending' ? 'locktotask' : ''}" data-id="${task.activityId}" >${task.status == 'pending' ? unlock : lock}</div>
-            </div>
-            <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
-            <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium">${task.branch_name}</span></div>
-            <div >
-            
-              ${task.ducument ? `
-            <div class="d-flex align-items-center mb-2">
-                <a href="${task.ducument}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
-                    Doc
-                </a>
-            </div>` : ''}
-            </div>
-            <div class="flex justify-between items-center">
-                <div class="flex -space-x-2 profile-stack gap-3 items-center ">
-                ${task.status === 'completed'
-                    ? task.completedBy.slice(0, 5).map(user => `
-                        ${user.cmImg
-                            ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
-                                    <img src="${user.cmImg}" alt="${user.cmName}" title="${user.cmName}" class="w-full h-full object-cover">
-                            </div>`
-                            : `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
-                                    <span class="text-blue-600 font-medium">${user.cmName.charAt(0)}</span>
-                            </div><span class="text-gray-500">Completed By :</span><span class="text-blue-600 font-medium">${user.cmName}</span>`
-                        }
-                    `).join('')
-                    : task.users.map(user => `
-                        ${user.img
-                            ? `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 border-white">
-                                    <img src="${user.img}" alt="${user.staffName}" class="w-full h-full object-cover">
-                            </div>`
-                            : `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
-                                    <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
-                            </div><span class="text-blue-600 font-medium">${user.staffName}</span>`
-                        }
-                    `).join('')
-                }
+    <!-- ROW 1 : DESCRIPTION + COMMENT + LOCK -->
+    <div class="flex justify-between items-center gap-4">
 
-                </div>
-                <span class="flex text-xs text-gray-500 ${dueClass}"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days h-4 w-4 mr-2">
-                        <rect x="3" y="4" width="18" height="18" rx="2"></rect>  <path d="M8 2v4"></path>  <path d="M16 2v4"></path>  <path d="M3 10h18"></path>  <circle cx="12" cy="16" r="2"></circle></svg>${duedateText}</span>  
-                       ${task.duration != null    ? `<span class="text-xs text-green-600 flex gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock "><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${task.duration}</span>`    : ''}
-
-                </div>
-              </a>        
+        <!-- DESCRIPTION -->
+        <div class="flex-1 text-xs text-gray-600 line-clamp-2">
+            ${task.description}
         </div>
-    `;
-            
+    ${task.copen == 1 ? `
+        <!-- COMMENT FORM -->
+        <form class="comment-form flex items-center gap-2 w-72 " data-task-id="${task.id}" data-activity-id="${task.activityId}">
+            <textarea
+                name="comment"
+                rows="1"
+                placeholder="Enter comment..."
+                class="border rounded-md px-3 py-1 text-xs w-full resize-none focus:outline-none focus:ring comment-text">${task.comment ?? ''}</textarea>
+
+            <!-- SAVE ICON -->
+            <button 
+                type="submit"
+                class="p-2 bg-blue-500 text-white rounded-2 hover:bg-blue-600"
+                title="Save Comment"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M5 13l4 4L19 7" />
+                </svg>
+            </button>
+        </form>`: ''}
+
+        <!-- LOCK -->
+        <div 
+            class="p-2 border rounded-md cursor-pointer
+            ${task.status === 'pending' ? 'bg-gray-200 locktotask' : 'bg-green-100'}"
+            data-id="${task.activityId}">
+            ${task.status === 'pending' ? unlock : lock}
+        </div>
+    </div>
+
+    <!-- ROW 2 : BADGES + DATES + VIEW -->
+    <div class="flex flex-wrap items-center gap-2 text-xs text-gray-600 mt-3">
+
+        <span class="px-2 py-1 rounded-full ${priority}">
+            ${task.priority}
+        </span>
+
+        <span class="px-2 py-1 rounded-full capitalize ${status}">
+            ${task.status}
+        </span>
+
+        <span>${createdOnText}</span>
+        <span>${duedateText}</span>
+
+        <!-- VIEW ICON -->
+        <button
+            class="ml-auto p-2 border rounded-2 hover:bg-gray-100"
+            onclick="openTaskModal(this)"
+            data-id="${task.id}"
+            data-activity="${task.activityId}"
+            data-title="${task.title}"
+            data-desc="${task.description}"
+            data-status="${task.status}"
+            data-progress="${progress}%"
+            data-date="${duedateText}"
+            data-created="${createdOnText}"
+            data-priority="${task.priority}"
+            data-duration="${task.duration}"
+            data-profiles='${JSON.stringify(task.users)}'
+            data-users='${JSON.stringify(task.allUsers)}'
+            data-duedate='${task.overdue_date}'
+            data-store="${task.storeId ?? 'all'}"
+            data-progressbar="${task.progress}"
+            data-project="${task.project}"
+            data-doc="${task.ducument}"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                <circle cx="12" cy="12" r="3" />
+            </svg>
+        </button>
+
+    </div>
+
+</div>`
     
                 // 
                 progressBar = `<div class="flex items-center gap-2">
@@ -543,6 +559,8 @@ function renderHistory(taskId) {
         success: function (response) {
             if (response.success) {
                 renderReplayUi(response.replay);
+            }else{
+                toastr.error(response.message)
             }
         }
     });
@@ -675,6 +693,8 @@ $(document).on('submit', '#replyTaskForm', function (e) {
             if (res.success) {
                 $('#replyTaskForm')[0].reset();
                 renderHistory(taskId); // 🔄 refresh immediately
+            }else{
+                 toastr.error(res.message);
             }
         },
         complete: function () {

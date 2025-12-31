@@ -16,6 +16,15 @@
                     </a>
                 </div>
                 <?php } ?>
+                 <?php
+                if(haspermission('','daily_assign')) { ?>
+                <div>
+                    <a  class="btn !bg-green-500 text-white autoAssign">
+                        <i class="bi bi-plus-circle me-1"></i>Daily Assign
+                    </a>
+                </div>
+                <?php } ?>
+
             </div>
         </div>
     </div><!-- closee titilebar -->
@@ -364,5 +373,7 @@
 
     <script src="<?=base_url('public/assets/js/tasklist.js') ?>" ></script>
     <script src="<?=base_url('public/assets/js/task.js') ;?>" ></script>
+    <script src="<?=base_url('public/assets/js/autoassign.js') ;?>" ></script>
+
 
 <?= $this->endSection() ;?>

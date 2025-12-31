@@ -119,8 +119,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Allocated To</label>
                          <div class="responseive">
                                 <select id="allocated_to" name="allocated_to" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                  <option value="">Anmesh</option>
-                                  <option value="">Sandeep</option>
+                                
                                 </select>
                                 <div class="invalid-feedback" id="allocated_to_error"></div>
                             </div>
@@ -149,8 +148,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
                          <div class="responseive">
                                 <select id="assigned_to" name="assigned_to" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                  <option value="">Anmesh</option>
-                                  <option value="">Sandeep</option>
+                               
                                 </select>
                                 <div class="invalid-feedback" id="assigned_to_error"></div>
                             </div>

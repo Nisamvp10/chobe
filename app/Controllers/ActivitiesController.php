@@ -10,6 +10,7 @@ use App\Models\ActivityStaffModel;
 use App\Models\AssigntaskModel;
 use App\Models\TaskactivityModel;
 use App\Models\TaskStaffActivityModel;
+use App\Models\ActivitycommentsModel;
 use DateTime;
 
 class ActivitiesController extends Controller {
@@ -20,6 +21,7 @@ protected $activityModel;
 protected $userModel;
 protected $taskStaffActivityModel;
 protected $taskassignModel;
+protected $commentModel;
 
     function __construct(){
         $this->taskModel = new TaskModel();
@@ -29,6 +31,7 @@ protected $taskassignModel;
         $this->taskassignModel = new AssigntaskModel();
         $this->activityTaskModel = new TaskactivityModel();
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
+        $this->commentModel = new ActivitycommentsModel();
     }
 
     function activities($id=false) {
@@ -37,7 +40,7 @@ protected $taskassignModel;
         if(!empty($task)) {
             $staff =  $this->taskassignModel->getMasterTaskStaff($id);
             //echo $this->taskassignModel->getLastQuery();
-            $page = "Task : " .$task['title'];
+            $page = "Task : " .$task['title'].' - '.date('d-m-Y',strtotime($task['created_at']));;
         }else{
             $page = '';
             $staff = '';
@@ -54,7 +57,7 @@ protected $taskassignModel;
         $task = $this->taskModel->where('id',$id)->first();
         if(!empty($task)) {
             $staff =  $this->staffModal->where('role !=',1)->findAll();
-            $page = "Task : " .$task['title'];
+            $page = "Task : " .$task['title'].' - '.date('d-m-Y',strtotime($task['created_at']));
         }else{
             $page = '';
             $staff = '';
@@ -289,11 +292,11 @@ protected $taskassignModel;
         //echo $this->activityModel->getLastQuery(); exit();
         $groupData = [];
         //$allusers = $this->userModel->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1])->findAll(); 
-           $allusers =   $staff =  $this->taskassignModel->getMasterTaskStaff($taskId);
+        $allusers =   $staff =  $this->taskassignModel->getMasterTaskStaff($taskId);
+       
 
         foreach($activityTasks as &$task) {
             $taskId = $task['activityId'];
-            
              $duration = null;
 
             if (
@@ -317,6 +320,17 @@ protected $taskassignModel;
             
                 
             if(!isset($groupData[$taskId])) {
+                 //if($staffId) {
+                    $lastComment = $this->commentModel->select('comment')->where(['task_id' => $task['id'],'activity_id' => $task['task_activity_id'],'user_id'=> session('user_data')['id']])->orderBy('id DESC')->get()->getRow();
+                // }else{
+                //     $lastComment = [];
+                // }
+                if(session('user_data')['role'] == 1  || session('user_data')['role'] == 2 ) {
+                     $allomments = $this->commentModel->allComments($task['id'], $task['task_activity_id']);
+                }else{
+                    $allomments = [];
+                }
+                
                 $groupData[$taskId] = [
                     'id'            => encryptor($task['id']),
                     'activityId'    => encryptor($taskId),
@@ -329,6 +343,9 @@ protected $taskassignModel;
                     'overdue_date' => date('Y-m-d', strtotime($task['created_at'] . ' +1 day')),
                     'createdAt'     => $task['created_at'],
                     'staffStatus' => 'pending',//$task['staffStatus'],
+                    'copen'         =>  $task['commet_status'],
+                    'comment'        => $lastComment->comment ?? '',
+                    'allCommets'    => $allomments,
                     'allUsers'      => $allusers,
                     'duration'      => $duration,
                     'users'         => [],
@@ -391,7 +408,7 @@ protected $taskassignModel;
             ]);
         }
 
-        $activityId   = decryptor($this->request->getPost('id'));
+        $activityId = decryptor($this->request->getPost('id'));
         $loggedIn = session('user_data')['id'];
         $role     = session('user_data')['role'];
 
@@ -437,12 +454,13 @@ protected $taskassignModel;
 
         // Record only once
         $this->taskStaffActivityModel
-            ->where('task_activity_id', $taskActivityId)
+            ->where(['task_activity_id'=> $taskActivityId,'task_id' => $taskId])
             ->set([
                 'completed_at' => date('Y-m-d H:i:s'),
                 'complated_by' => $loggedIn,
                 'status'    => 'completed',
                 'progress'  => 'completed',
+                'commet_status' => 2
             ])->update();
 
             $total_activities = $this->taskStaffActivityModel->where('task_id',$taskId)->groupBy('task_activity_id')->countAllResults();
