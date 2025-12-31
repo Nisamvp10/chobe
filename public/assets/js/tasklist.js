@@ -8,9 +8,7 @@
         let value = $(this).val();
         loadTask(value);
     })
-    function loadTask(search = '',startDate ='', endDate='') {
-        alert('hi')
-       
+    function loadTask(search = '',startDate ='', endDate='') {       
         let  filter = $('#taskFilterStatus').val();
         let taskProject = $('#taskProject').val();
         $.ajax({
