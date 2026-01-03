@@ -12,8 +12,9 @@
         $erole = $data['role'];
         $ebranch = $data['store_id'];
         $profile = $data['profileimg'];
+        $positionId = $data['position_id'];
     }else {
-        $id=$name=$email=$phone=$position=$hire_date=$booking_status=$erole=$ebranch=$profile ='';
+        $id=$name=$email=$phone=$position=$hire_date=$booking_status=$erole=$ebranch=$profile =$positionId='';
     }?>
  <!-- titilebar -->
  <div class="flex items-center justify-between">
@@ -76,7 +77,7 @@
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-diagram-3 text-xl text-gray-400"></i></div>
                         <select name="branch" id="branch" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
-                            <option  desabled>Select Branch</option>
+                            <option  desabled>Select Client</option>
                             <?php
                                 if(!empty($branches)){
                                     foreach($branches as $branch){
@@ -179,12 +180,12 @@
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-diagram-3 text-xl text-gray-400"></i></div>
                         <select name="position" id="position" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
-                            <option  desabled>Select Branch</option>
+                            <option  desabled>Select Position</option>
                             <?php
                                 if(!empty($positiondata)){
                                     foreach($positiondata as $pos){
                                     ?>
-                                        <option  value="<?=$pos['id'];?>"><?=$pos['name'];?></option>
+                                        <option <?= ($positionId == $pos['id'] ? 'selected' :'') ?>  value="<?=$pos['id'];?>"><?=$pos['name'];?></option>
                                     <?php 
                                     } 
                                 } ?>

@@ -150,6 +150,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
 $routes->group('api',['filter' => 'auth'], function ($routes) {
     $routes->get('clients/(:num)/projects', 'Clients::clientBystaff/$1');
     $routes->get('clients/(:num)/tasks', 'TaskController::allocatedstaffs/$1');
+    $routes->get('project-units/(:any)','ProjectUnitController::getdataFromId/$1');
+    $routes->get('get-activity/(:any)','ActivitiesController::getActivity/$1');
 });
 
 

@@ -26,6 +26,19 @@ class ProjectUnitController extends Controller
         return view('admin/project_unit/index',compact('page','stores'));
     }
 
+    function getdataFromId($id=false) {
+        if(!haspermission(session('user_data')['role'],'create_project_unit')) {
+             return $this->response->setJSON(['success' => false, 'message' => 'Permission Denied']);
+        }
+        $id = decryptor($id);
+        if($id) {
+            $projectUnit = $this->projectUnitModel->where('id',$id)->get()->getRow();
+            return $this->response->setJSON(['success' => true, 'result' => $projectUnit]);
+
+        }
+        return $this->response->setJSON(['success' => false, 'message' => 'Projectunit Not Found']);
+
+    }
     function save() {
         $validStatus = false;
         $validStatus = '';
@@ -39,8 +52,8 @@ class ProjectUnitController extends Controller
         $rules = [
             'store'    => 'required|min_length[3]|max_length[100]',
             'old_name'  => 'required|min_length[2]',
-            'oracle_code'   => 'required',
-            'polaris_code'   => 'required',
+            //'oracle_code'   => 'required',
+            //'polaris_code'   => 'required',
             'contact_number'   => 'required',
             'client'   => 'required',
             'start_date'   => 'required',
@@ -72,7 +85,7 @@ class ProjectUnitController extends Controller
         $polaris_code = $this->request->getVar('polaris_code');
         $oracle_code = $this->request->getVar('oracle_code');
 
-        $id       = decryptor($this->request->getVar('branchId'));
+        $id       = $this->request->getVar('projectId');
 
         $allocated_to   = $this->request->getPost('allocated_to');
         $allocated_date = $this->request->getPost('allocated_date');
@@ -140,14 +153,14 @@ class ProjectUnitController extends Controller
         $search = $this->request->getVar('search');
         $filter = $this->request->getVar('filter');
 
-        $builder = $this->projectUnitModel->select('project_unit.id,project_unit.store,project_unit.oldstore_name,project_unit.oracle_code,c.name as clientName,
+        $builder = $this->projectUnitModel->select('project_unit.id,project_unit.store,project_unit.oldstore_name,project_unit.oracle_code,c.name as clientName,project_unit.status as is_active,
         project_unit.polaris_code,project_unit.rm_mail,project_unit.contact_number,project_unit.start_date,project_unit.contact_number,
         m.name as manager,rm.name as rm,')
         ->join('clients as c', 'c.id = project_unit.client_id', 'left')
         ->join('users as m', 'm.id = project_unit.manager_id', 'left')
         ->join('users as rm', 'rm.id = project_unit.regional_manager_id', 'left');
         if($filter !=='all'){
-          //  $builder->where('project_unit.is_active',$filter);
+           $builder->where('c.id',$filter);
         }
 
         if(!empty($search))

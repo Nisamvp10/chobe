@@ -73,9 +73,9 @@ draggable="true"
 data-id="${task.id}">
 
     <!-- TITLE -->
-    <h3 class="text-sm font-semibold text-blue-600 truncate mb-2">
+    <h6 class="text-sm font-semibold text-blue-600 truncate mb-2">
         ${task.title}
-    </h3>
+    </h6>
 
     <!-- ROW 1 : DESCRIPTION + COMMENT + LOCK -->
     <div class="flex justify-between items-center gap-4">

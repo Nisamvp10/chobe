@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 
 class TaskModel extends Model {
     protected $table = 'tasks';
-    protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','status','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
+    protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','status','taskmode','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
     protected $primaryKey ='id';
  
     function getTasks($limit=false,$orderBy=false,$filter = false,$searchInput=false,$startDate=false,$endDate=false,$taskProject=false) {
@@ -13,7 +13,8 @@ class TaskModel extends Model {
 
         $builder = $this->db->table('tasks as t')
             ->select('
-                t.id, t.title, t.description, t.status, t.completed_at, t.project_id,t.project_unit,
+                t.id, t.title, t.description, t.status, t.completed_at, t.project_id,t.project_unit,t.next_run_date,
+                b.polaris_code,
                 t.priority, t.overdue_date, b.store as branch_name, b.id as store, 
                 t.created_at, u.profileimg, u.name, u.id as userId, 
                 t.progress, a.role, a.priority as userPriority,ti.image_url')
@@ -71,7 +72,8 @@ class TaskModel extends Model {
 
          $builder = $this->db->table('tasks as t')
             ->select('
-                t.id, t.title, t.description, t.status, t.completed_at, t.project_id,
+                t.id, t.title, t.description, t.status, t.completed_at, t.project_id,t.next_run_date,
+                b.polaris_code,
                 t.priority, t.overdue_date, b.store as branch_name, b.id as store, 
                 t.created_at, u.profileimg, u.name, u.id as userId, 
                 t.progress, a.role, a.priority as userPriority,ti.image_url')
@@ -80,6 +82,7 @@ class TaskModel extends Model {
             ->join('users as u', 'u.id = a.staff_id')
             ->join('task_images as ti',  'ti.task_id = t.id', 'left')
             //->whereIn('t.id', $myTaskIds)
+            ->where('a.staff_id',session('user_data')['id'])
             ->orderBy('t.id', 'DESC');
 
                     if ($orderBy) {

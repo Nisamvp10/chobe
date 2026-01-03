@@ -11,7 +11,7 @@
                 <?php
                 if(haspermission(session('user_data')['role'],'create_task')) { ?>
                 <div>
-                    <a  class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#activities">
+                    <a  class="btn btn-primary" onclick="openModal()">
                         <i class="bi bi-plus-circle me-1"></i> Add New Activity
                     </a>
                 </div>
@@ -43,7 +43,7 @@
                 
 
             <!-- Column 2: Status Dropdown -->
-            <div class="w-full md:w-48">
+            <div class="w-full md:w-48 hidden">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter text-gray-400">
@@ -139,7 +139,9 @@ let allData = [];
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S/O </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity Task</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -151,7 +153,9 @@ let allData = [];
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">${start + indx+1}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${task.activity_title}</td>
+                    <td class="px-6 py-4 ">${task.activity_description}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${task.created_at}</td>
+                     <td class="px-6 py-4 whitespace-nowrap"><a onclick="openModal(${task.id})"  class="text-blue-600 hover:text-blue-800 mr-3">Edit</a></td>
                 </tr>
             `;
         });

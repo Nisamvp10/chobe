@@ -97,10 +97,10 @@ class RolemasterController extends Controller {
             $search = $this->request->getVar('search');
             $filter = $this->request->getVar('filter');
 
-            $builder = $this->masterRoleModel->select('id,name,parent_id,level')->orderBy('id DESC');
+            $builder = $this->masterRoleModel->select('id,name,type,parent_id,level')->orderBy('id DESC');
 
             if($filter !=='all'){
-                $builder->where('is_active',$filter);
+                //$builder->where('is_active',$filter);
             }
 
             if(!empty($search))

@@ -89,6 +89,7 @@ class TaskController extends Controller {
             'title'       => 'required',
             'description' => 'required|min_length[3]',
             'priority'    => 'required',
+            'taskmode'    => 'required',
         ];
 
         if (empty($taskId)) {
@@ -113,6 +114,7 @@ class TaskController extends Controller {
             'project_id'    => $this->request->getPost('project') ?: null,
             'status'        => $this->request->getPost('status') ?? 'Pending',
             'recurrence'    => 'daily',
+            'taskmode'      => $this->request->getPost('taskmode'),
             'next_run_date' => date('Y-m-d', strtotime('+1 day')),
         ];
 
@@ -280,94 +282,119 @@ class TaskController extends Controller {
             ]);
 
         } else {
-            // ---------------- CREATE TASK ----------------
-            if (empty($staffs)) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Please select at least one participant for the task'
-                ]);
-            }
-
-            if (empty($masterActivities)) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'No active activities found'
-                ]);
-            }
-
-            $newTaskId = $this->taskModel->insert($data);
-            
-
-            if (!$newTaskId) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Failed to create task'
-                ]);
-            }
-
-            if ($taskFiles) {
-                $taskFiles['task_id'] = $newTaskId;
-                $this->taskImgModel->insert($taskFiles);
-            }
-
-            // $newTaskActivityIds = [];
-            // foreach ($masterActivities as $act) {
-            //     $taskActivityId = $this->taskActivityModel->insert([
-            //         'task_id'     => $newTaskId,
-            //         'activity_id' => $act['id'],
-            //         'status'      => 'pending',
-            //         'progress'    => 'pending',
-            //         'created_at'  => date('Y-m-d H:i:s'),
-            //     ], true);
-
-            //     if ($taskActivityId) {
-            //         $newTaskActivityIds[] = $taskActivityId;
-            //     }
-            // }
-
-            foreach ($staffs as $index => $staffId) {
-                $roleId = $roles[$index] ?? null;
-                $this->taskassignModel->insert([
-                    'task_id'  => $newTaskId,
-                    'staff_id' => $staffId,
-                    'role'     => $roleId,
-                    'status'   => 'assigned'
-                ]);
-
-                foreach ($masterActivities as $act) {
-                    $activityStaffAssign = [
-                          'task_id'          => $newTaskId,
-                        'task_activity_id' =>  $act['id'],
-                        'staff_id'         => $staffId,
-                        'status'           => 'pending'
-                    ];
-                    $this->taskStaffActivityModel->insert($activityStaffAssign);
-                    //echo $this->taskStaffActivityModel->getLastQuery();
+            // 1️⃣ Get all active project units
+                $projectUnits = $this->projectUnitModel->where('status', 1)->findAll();
+                if (empty($projectUnits)) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'No active project units found'
+                    ]);
                 }
 
-                $this->notificationModel->insert([
-                    'user_id'    => $staffId,
-                    'task_id'    => $newTaskId,
-                    'type'       => 'new_task',
-                    'title'      => 'New Task',
-                    'created_by' => session('user_data')['id'] ?? null,
-                    'message'    => 'A new Task has been created by ' . (session('user_data')['username'] ?? 'system')
-                ]);
-            }
+                // 2️⃣ Get master activities
+                //$masterActivities = $this->taskActivityModel->where('status', 1)->findAll();
+                 $masterActivities = $this->activityModel
+                    ->where('status', 'active')
+                    ->where('activity_type', 1)
+                    ->findAll();
 
-            $db->transComplete();
 
-            if ($db->transStatus() === false) {
+                if (empty($masterActivities)) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'No master activities found'
+                    ]);
+                }
+
+                foreach ($projectUnits as $unit) {
+
+                    /* ===============================
+                    🔹 COLLECT PERMANENT STAFF
+                    ================================ */
+                    $staffs = [];
+
+                    if (!empty($unit['allocated_to']) && $unit['allocated_type'] === 'permanently') {
+                        $staffs[] = $unit['allocated_to'];
+                    }
+
+                    if (!empty($unit['assigned_to']) && $unit['assigned_type'] === 'permanently') {
+                        $staffs[] = $unit['assigned_to'];
+                    }
+
+                    $staffs = array_unique($staffs);
+
+                    if (empty($staffs)) {
+                        continue; // skip project unit
+                    }
+
+                    /* ===============================
+                    🔹 CREATE TASK (PER PROJECT UNIT)
+                    ================================ */
+                    $taskData = [
+                        'title'           => 'Daily Verification Task',
+                        'description'     => 'Auto generated daily verification task',
+                        'project_unit_id' => $unit['id'],
+                        'status'          => 'pending',
+                        'created_by'      => session('user_data')['id'] ?? null,
+                        'created_at'      => date('Y-m-d H:i:s')
+                    ];
+                    $data['project_unit'] = $unit['id'];
+
+                    $newTaskId = $this->taskModel->insert($data, true);
+
+                    if (!$newTaskId) {
+                        continue;
+                    }
+                     $this->taskModel->update($newTaskId, ['created_from_template' => $newTaskId]);
+
+                    /* ===============================
+                    🔹 ASSIGN STAFF + ACTIVITIES
+                    ================================ */
+                    foreach ($staffs as $staffId) {
+
+                        // Task assignment
+                        $this->taskassignModel->insert([
+                            'task_id'  => $newTaskId,
+                            'staff_id' => $staffId,
+                            'status'   => 'assigned'
+                        ]);
+
+                        // Task activities
+                        foreach ($masterActivities as $act) {
+                            $this->taskStaffActivityModel->insert([
+                                'task_id'          => $newTaskId,
+                                'task_activity_id' => $act['id'],
+                                'staff_id'         => $staffId,
+                                'status'           => 'pending',
+                                'created_at'       => date('Y-m-d H:i:s')
+                            ]);
+                        }
+
+                        // Notification
+                        $this->notificationModel->insert([
+                            'user_id'    => $staffId,
+                            'task_id'    => $newTaskId,
+                            'type'       => 'new_task',
+                            'title'      => 'New Task Assigned',
+                            'created_by' => session('user_data')['id'] ?? null,
+                            'message'    => 'A daily verification task has been auto assigned'
+                        ]);
+                    }
+                }
+
+                $db->transComplete();
+
+                if ($db->transStatus() === false) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Transaction failed while creating tasks'
+                    ]);
+                }
+
                 return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Failed to create task (transaction failed)'
+                    'success' => true,
+                    'message' => 'Daily tasks auto-created successfully for all project units'
                 ]);
-            }
-
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'New Task Added Successfully'
-            ]);
         }
     }
 
@@ -407,7 +434,7 @@ class TaskController extends Controller {
             ->where('status', 1)
             ->findAll();
 
-        $taskCreated = false; // ⭐ TRACK FLAG
+        $taskCreated = false; 
 
         foreach ($templates as $template) {
 
@@ -572,10 +599,11 @@ class TaskController extends Controller {
                         'priority'  => $task['priority'],
                         'status'    => $task['status'],
                         'action'    => 0,//$task['action'],
-                        'overdue_date' => $task['overdue_date'] ?? null,
                         'progress'  => $task['progress'],
                         'created'   => date('d-m-Y',strtotime($task['created_at'])),
                         'allUsers'  => $allusers,
+                        'overdue_date' => $task['next_run_date'],
+                        'polarisCode'   => $task['polaris_code'],
                         'ducument'  => $task['image_url'],
                         'users'     => [],
                     ];
@@ -631,7 +659,7 @@ class TaskController extends Controller {
         $activityTasksAssignModel = new ActivityStaffModel();
         $filter = $this->request->getGet('filter');
         $notifiytask = $this->request->getGet('notifiytask');
-        $alltasks = $this->taskModel->getMytask('','',$notifiytask,$filter); // or ->findAll()
+        $alltasks = $this->taskModel->getMytask('','',$notifiytask,$filter); 
        
         
         $groupData = [];
@@ -657,6 +685,8 @@ class TaskController extends Controller {
                     'overdue_date' => $task['overdue_date'],
                     'progress'  => $task['progress'],
                     'action'    => 0,//$task['action'],
+                    'duedate'   => $task['next_run_date'],
+                    'polarisCode'   => $task['polaris_code'],
                     'ducument'  => $task['image_url'],
                     'created'   => date('d-m-Y',strtotime($task['created_at'])),
                     'users'     => [],

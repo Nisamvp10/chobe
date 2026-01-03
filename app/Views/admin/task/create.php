@@ -58,18 +58,12 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Project Unit</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-diagram-3 text-xl text-gray-400"></i></div>
-                        <select name="projectUnit" id="projectUnit" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" >
-                            <option value="">Project Unit</option>
-                            <?php
-                                if(!empty($projectUnits)){
-                                    foreach($projectUnits as $unit){
-                                    ?>
-                                        <option  value="<?=$unit['id'];?>"><?=$unit['store'];?></option>
-                                    <?php 
-                                    } 
-                                } ?>
-                        </select>                       
-                        <div class="invalid-feedback" id="projectUnit_error"></div>
+                         <select name="taskmode" id="taskmode" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
+                            <option value="">Select Task Mode</option>
+                            <option value="1">Permanent</option>
+                            <option value="2">Temporary</option>
+                        </select>                    
+                        <div class="invalid-feedback" id="taskmode_error"></div>
                     </div>
                 </div>
                  <div>
@@ -119,7 +113,7 @@
                 </div>
              </div>
              </div>
-              <div class="grid grid-cols-1 gap-4 pb-4 mt-4">
+              <!-- <div class="grid grid-cols-1 gap-4 pb-4 mt-4">
                 <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 capitalize">Assign Staff & Roles</label>
@@ -146,7 +140,7 @@
                     </div>
                 </div>
               </div>
-            </div>
+            </div> -->
         
        
         <div class="mt-8 flex justify-end gap-3">

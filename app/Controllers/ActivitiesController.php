@@ -79,6 +79,7 @@ protected $commentModel;
             return $this->response->setJSON(['success' => false, 'message' => lang('Custom.invalidRequest')]);
         }
         $taskId = decryptor($this->request->getPost('taskId'));
+        $activityId = $this->request->getPost('id');
 
         $rules = [
             'title' => 'required',
@@ -96,36 +97,42 @@ protected $commentModel;
         $data = [
             'activity_title'        => $this->request->getPost('title'),
             'activity_description'  => $this->request->getPost('description'),
-            'status'                => 'Pending',//$this->request->getPost('status'),
-            'activity_type'         => 2,
-            'task_id'               => $taskId,
+            'activity_type'         =>  $this->request->getPost('type') ?? 2,
+            'status'                =>  $this->request->getPost('status') ?? null,
+            'task_id'               => $taskId ?? null,
         ];
        
             $activityModel = new ActivityModel();
             $activitiesStaff = new ActivityStaffModel();
                
-                $staffs = $this->taskStaffActivityModel->where('task_id',$taskId)->groupBy('staff_id')->get()->getResult(); //$this->request->getPost('staff');
-                if(!empty($staffs)) {
-                        if ($activitytaskId = $activityModel->insert($data)) {
+                // $staffs = $this->taskStaffActivityModel->where('task_id',$taskId)->groupBy('staff_id')->get()->getResult(); //$this->request->getPost('staff');
+                // if(!empty($staffs)) {
+
+                if($activityId) {
+                     $this->activityModel->update($activityId,$data);
+                    $validStatus = true;
+                     $validMsg = 'Successfully Updated';
+                }else{
+                    if ($activitytaskId = $activityModel->insert($data)) {
                             $getlastTask =   $this->activityModel->find($activitytaskId);
                             $this->taskModel->update($getlastTask['task_id'],['status' => 'In_Progress']);
                 
-                            foreach ($staffs as $index => $staff) {
-                                $assign = [
-                                    'task_id'       => $taskId,
-                                    'task_activity_id'  => $activitytaskId,
-                                    'staff_id' => $staff->staff_id,
-                                    'status'    => 'pending',
-                                    'started_at'   => date('Y-m-d H:i:s'),
-                                    'progress'  => 'pending',
-                                    'created_at' => date('Y-m-d H:i:s'),
-                                    'is_open'   => $staff->is_open,
-                                    'started_by'  => $staff->progress
+                            // foreach ($staffs as $index => $staff) {
+                            //     $assign = [
+                            //         'task_id'       => $taskId,
+                            //         'task_activity_id'  => $activitytaskId,
+                            //         'staff_id' => $staff->staff_id,
+                            //         'status'    => 'pending',
+                            //         'started_at'   => date('Y-m-d H:i:s'),
+                            //         'progress'  => 'pending',
+                            //         'created_at' => date('Y-m-d H:i:s'),
+                            //         'is_open'   => $staff->is_open,
+                            //         'started_by'  => $staff->progress
                                     
-                                ];
-                               $this->taskStaffActivityModel->insert($assign);
-                               // $this->notificationModel->insert($notify);
-                            }
+                            //     ];
+                            //    $this->taskStaffActivityModel->insert($assign);
+                            //     $this->notificationModel->insert($notify);
+                            // }
                             $validStatus = true;
                             $validMsg = 'New Task Added Successfully';
                     
@@ -133,14 +140,29 @@ protected $commentModel;
                 }else {
                     $validMsg = lang('Custom.formError');
                 }
-            } else{
-                $validMsg = 'Please select at least one participant for the task ';
-            }
+                }
+                        
+            // } else{
+            //     $validMsg = 'Please select at least one participant for the task ';
+            // }
         
         return $this->response->setJSON(['success' => $validStatus,'message' => $validMsg]);
     }
+    public function getActivity($id=false) {
+         if(!haspermission('','create_task')) {
+            return $this->response->setJSON(['success' => false, 'message' => lang('Custom.accessDenied')]);
+        }
+
+        $activity = $this->activityModel->select('id,activity_title,activity_description')->where('id',$id)->get()->getRow();
+        if($activity) {
+            return $this->response->setJSON(['success' => true, 'result' => $activity]);
+        }
+        return $this->response->setJSON(['success' => false, 'message' => 'Item not Found']);
+
+    }
 
     function update() {
+        
         
         if(!haspermission('','create_task')) {
             return $this->response->setJSON(['success' => false, 'message' => lang('Custom.accessDenied')]);
@@ -266,7 +288,7 @@ protected $commentModel;
         $endDate   = $this->request->getPost('endDate');
 
         $getAlltaskwithActivity = $this->activityModel->getActivity($filter,$taskId,$search,$startDate,$endDate);
-
+      
         return $this->response->setJSON(['success' => true, 'task' => $getAlltaskwithActivity]);
     }
 

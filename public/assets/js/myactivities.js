@@ -65,16 +65,12 @@
                                 <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
                 // 
             let ectivitUrl = App.getSiteurl()+`activities/${task.id}`;
-             const taskHTML = `<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition 
-border-l-4 ${task.status === 'pending' ? 'border-orange-500' : 'border-green-500'} 
-p-4 draggable-task cursor-pointer"
-draggable="true"
-data-id="${task.id}">
+             const taskHTML = `<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition border-l-4 ${task.status === 'pending' ? 'border-orange-500' : 'border-green-500'} p-4 draggable-task cursor-pointer" draggable="true" data-id="${task.id}">
 
     <!-- TITLE -->
-    <h3 class="text-sm font-semibold text-blue-600 truncate mb-2">
+    <h6 class="text-sm font-semibold text-blue-600 truncate mb-2">
         ${task.title}
-    </h3>
+    </h6>
 
     <!-- ROW 1 : DESCRIPTION + COMMENT + LOCK -->
     <div class="flex justify-between items-center gap-4">

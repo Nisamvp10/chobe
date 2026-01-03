@@ -5,6 +5,6 @@ use CodeIgniter\Model;
 
 class MasterroleModel extends Model {
     protected $table ="user_position";
-    protected $allowedFields = ['id','name','parent_id','level','created_at','status'];
+    protected $allowedFields = ['id','name','parent_id','level','type','created_at','status'];
     protected $primaryKey = 'id';
 }

@@ -8,11 +8,11 @@
             <div class="col-lg-12">
                 <div class="d-flex justify-content-between align-items-center mb-0">
                     <h1 class="h3 mb-0">Settings</h1>
-                    <div>
+                    <!-- <div>
                         <a href="<?= base_url('dashboard/tasks/create') ?>" class="btn btn-primary">
                             <i class="bi bi-plus-circle me-1"></i> New Task
                         </a>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div><!-- closee titilebar -->

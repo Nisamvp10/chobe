@@ -1,3 +1,25 @@
+function openModal(id=false) {
+    toggleModal('activities',true);
+    let mdal = $('#activities');
+    mdal.find('.headd').text(id ? 'Edit Activity Task' : 'Add Activity Task');
+    let webForm = document.getElementById('taskCreate');
+    webForm.querySelector('#activityId').value = '';
+    webForm.querySelector('#title').value ='';
+    webForm.querySelector('#description').value ='';
+    if(id) {
+         fetch(App.getSiteurl()+`api/get-activity/${id}`)
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+            if(data.success) { 
+                webForm.querySelector('#activityId').value = data.result.id;
+                webForm.querySelector('#title').value = data.result.activity_title;
+                webForm.querySelector('#description').value = data.result.activity_description;
+            }
+        })
+    }
+}
+
 
 $('#taskCreate').on('submit', function(e) {
 
@@ -20,6 +42,7 @@ $('#taskCreate').on('submit', function(e) {
             if(response.success){
                 toastr.success(response.message);
                 webForm[0].reset();
+                allactivities();
             }else{
                 if(response.errors){
                     $.each(response.errors,function(field,message)
