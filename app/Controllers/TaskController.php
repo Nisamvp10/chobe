@@ -15,6 +15,7 @@ use App\Models\UserModel;
 use App\Models\ProjectunitModel;
 use App\Models\TaskactivityModel;
 use App\Models\TaskStaffActivityModel;
+use App\Models\MastertaskModel;
 class TaskController extends Controller {
 
     protected $branchModel;
@@ -29,6 +30,7 @@ class TaskController extends Controller {
     protected $staffModal;
     protected $projectUnitModel;
     protected $taskStaffActivityModel;
+    protected $mastertaskModel;
     function __construct() {
         $this->branchModel = new BranchesModel();
         $this->taskModel = new TaskModel();
@@ -42,6 +44,7 @@ class TaskController extends Controller {
         $this->projectUnitModel = new ProjectunitModel();
         $this->taskActivityModel = new TaskactivityModel();
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
+        $this->mastertaskModel = new MastertaskModel();
         
     }
 
@@ -104,6 +107,12 @@ class TaskController extends Controller {
         }
 
         // Prepare task data
+        $masterTaskData = [
+            'title'         => $this->request->getPost('title'),
+            'description'   => $this->request->getPost('description'),
+            'status'        => 'active',
+            'tasktype'      => $this->request->getPost('taskmode'),
+        ];
         $data = [
             'title'         => $this->request->getPost('title'),
             'description'   => $this->request->getPost('description'),
@@ -149,6 +158,7 @@ class TaskController extends Controller {
 
         if (!empty($taskId)) {
             // ---------------- UPDATE TASK ----------------
+            //$this->mastertaskModel->update($taskId, $data);
             $this->taskModel->update($taskId, $data);
 
             if ($taskFiles) {
@@ -305,7 +315,7 @@ class TaskController extends Controller {
                         'message' => 'No master activities found'
                     ]);
                 }
-
+                 $masterTskId = $this->mastertaskModel->insert( $masterTaskData,true);
                 foreach ($projectUnits as $unit) {
 
                     /* ===============================
@@ -341,11 +351,13 @@ class TaskController extends Controller {
                     $data['project_unit'] = $unit['id'];
 
                     $newTaskId = $this->taskModel->insert($data, true);
+                    $masterTaskData['created_by'] = session('user_data')['id'];
+                  
 
                     if (!$newTaskId) {
                         continue;
                     }
-                     $this->taskModel->update($newTaskId, ['created_from_template' => $newTaskId]);
+                     $this->taskModel->update($newTaskId, ['created_from_template' => $masterTskId]);
 
                     /* ===============================
                     🔹 ASSIGN STAFF + ACTIVITIES
@@ -417,11 +429,10 @@ class TaskController extends Controller {
         }
 
         // 1️⃣ Fetch DAILY task templates
-        $templates = $this->taskModel
-            ->where('recurrence', 'daily')
-            ->where('next_run_date <=', $today)
-            ->findAll();
-
+        $mode = $this->request->getPost('assignmentMode'); 
+        $taskType = ($mode === 'permanent') ? 1 : 2;
+        $templates = $this->taskModel->where(['recurrence' => 'daily','taskmode'   => $taskType])->where('next_run_date <=', $today)->groupBy('created_from_template')->findAll();
+//echo $this->taskModel->getlastQuery();exit();
         if (empty($templates)) {
             return $this->response->setJSON([
                 'success' => true,
@@ -430,10 +441,7 @@ class TaskController extends Controller {
         }
 
         // 2️⃣ Fetch active project units
-        $projectUnits = $this->projectUnitModel
-            ->where('status', 1)
-            ->findAll();
-
+        $projectUnits = $this->projectUnitModel->where('status', 1)->findAll();
         $taskCreated = false; 
 
         foreach ($templates as $template) {
@@ -445,7 +453,9 @@ class TaskController extends Controller {
                     ->where('created_from_template', $template['id'])
                     ->where('project_unit', $unit['id'])
                     ->where('DATE(created_at)', $today)
+                    ->where('taskmode', $taskType)
                     ->countAllResults();
+                    //echo $this->taskModel->getlastQuery();
 
                 if ($exists > 0) {
                     continue; // Skip only THIS unit
@@ -462,9 +472,10 @@ class TaskController extends Controller {
                     'priority'              => $template['priority'],
                     'status'                => 'Pending',
                     'progress'              => 0,
+                    'taskmode'              => $taskType,
                     'recurrence'            => 'daily',
                     'next_run_date'         => date('Y-m-d', strtotime('+1 day')),
-                    'created_from_template' => $template['id'],
+                    'created_from_template' => $template['created_from_template'],
                     'created_at'            => date('Y-m-d H:i:s'),
                 ]);
 

@@ -19,7 +19,7 @@
                  <?php
                 if(haspermission('','daily_assign')) { ?>
                 <div>
-                    <a  class="btn !bg-green-500 text-white autoAssign">
+                    <a  class="btn !bg-green-500 text-white " onclick="openAssignModal()">
                         <i class="bi bi-plus-circle me-1"></i>Daily Assign
                     </a>
                 </div>
@@ -357,6 +357,7 @@
 <!-- open -->
  <!-- close screen -->
 <!-- close Modal -->
+ <?= view('modal/autoAssignModal') ?>
 <?= $this->endSection(); ?>
 <?= $this->section('scripts') ?>
 
