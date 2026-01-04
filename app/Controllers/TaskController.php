@@ -170,7 +170,7 @@ class TaskController extends Controller {
             $data['taskmode'] = $getTask->taskmode;
             $data = array_filter($data, fn($v) => $v !== null && $v !== '');
 
-            if (!$this->taskModel->update($taskId, $data)) {
+            if (!$this->taskModel->set($data)->where('id', $taskId)->update()) {
                     return $this->response->setJSON([
                         'success' => false,
                         'message' => 'Task update failed',
