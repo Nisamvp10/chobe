@@ -603,7 +603,7 @@ class TaskController extends Controller {
                         ->select('users.id, users.name, users.profileimg')
                         ->join('user_position u', 'users.position_id = u.id', 'left')
                         ->where('users.status', 'approved')
-                        ->where('users.store_id', $task['project_unit'])
+                        ->where('users.store_id', $task['clientId'])
                         ->where('users.booking_status', 1)
                         ->where('users.role !=', 1)
                         ->where('u.type !=', 1)

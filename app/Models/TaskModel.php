@@ -17,8 +17,10 @@ class TaskModel extends Model {
                 b.polaris_code,
                 t.priority, t.overdue_date, b.store as branch_name, b.id as store, 
                 t.created_at, u.profileimg, u.name, u.id as userId, 
-                t.progress, a.role, a.priority as userPriority,ti.image_url')
+                t.progress, a.role, a.priority as userPriority,ti.image_url
+                c.id as clientId')
             ->join('project_unit as b', 'b.id = t.project_unit', 'left')
+            ->join('clients as c', 'b.client_id = c.id', 'left')
             ->join('task_assignees as a', 'a.task_id = t.id')
             ->join('users as u', 'u.id = a.staff_id')
             ->join('user_position as up', 'u.position_id = up.id', 'left')
