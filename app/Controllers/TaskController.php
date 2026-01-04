@@ -286,6 +286,7 @@ class TaskController extends Controller {
             $db->transComplete();
 
             if ($db->transStatus() === false) {
+                print_r($db->getLastQuery());
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Failed to update task (transaction failed)'
