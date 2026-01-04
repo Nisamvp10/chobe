@@ -151,9 +151,9 @@
                         </div>
 
                         <div class="flex justify-end gap-2 mt-2">
-                            <button type="button" class="px-3 py-1 border rounded-md" onclick="closeTaskModal()()">Cancel</button>
+                            <button type="button" class="px-3 py-1 border rounded-2" onclick="closeTaskModal()()">Cancel</button>
                             <button type="submit" id="submitBtn"
-                                class="flex items-center gap-1 px-3 py-1 bg-primary text-white rounded-md">
+                                class="flex items-center gap-1 px-3 py-1 bg-primary text-white rounded-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

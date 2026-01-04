@@ -17,7 +17,7 @@ class ActivityReplayModel extends Model{
         return $query;
     }
 
-    public function getReplay($taskId,$activityId) {
+    public function getReplay($taskId,$activityId,$lastReplyId=false) {
         $builder = $this->db->table('task_staff_activities as tsa')
                   ->select([
                         'u.name',
@@ -31,6 +31,7 @@ class ActivityReplayModel extends Model{
                   ->join('activity_task_replies as atr','tsa.id = atr.task_id')
                   ->join('users u','atr.user_id = u.id')
                   ->where('atr.master_task_id',$taskId)
+                  ->where('tsa.id >', $lastReplyId)
                   ->where('atr.master_activity_id',$activityId);
         return $builder->get()->getResultArray();
     }

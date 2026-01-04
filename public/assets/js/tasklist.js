@@ -320,10 +320,11 @@ function openTaskModal(el) {
     taskEdit.querySelector('#title').value = el.dataset.title || '';
     taskEdit.querySelector('#description').value = el.dataset.desc || '';
     taskEdit.querySelector('#project').value = el.dataset.project || '';
-    taskEdit.querySelector('#branch').value = el.dataset.store || '';
+    //taskEdit.querySelector('#branch').value = el.dataset.store || '';
     taskEdit.querySelector('#duedate').value = el.dataset.duedate || 0;
     taskEdit.querySelector('#taskStatus').value = status || 0;
     taskEdit.querySelector('#projectUnit').value = el.dataset.projectunit || '';
+    console.log(el.dataset.projectunit);
     taskReplays();
 
     const priorityButtons = taskEdit.querySelectorAll('.priority-btn');
@@ -604,7 +605,7 @@ $('#taskEditForm').on('submit', function(e) {
         },
         complete: function() {
             // Re-enable submit button
-            $('#submitBtn').prop('disabled', false).text('Save Branch');
+            $('#submitBtn').prop('disabled', false).text('Save Chanages');
         }
     })
 })

@@ -127,7 +127,7 @@
      <div class="p-4 border-b flex justify-between items-center">
         <h2 class="text-xl font-semibold text-gray-800 modal-title"></h2>
         <div class="flex space-x-2">
-            <button onclick="showStep(1)" class="modal-action-btn p-1.5 rounded-md text-gray-500 hover:bg-gray-100" title="View History">
+            <button  class="modal-action-btn p-1.5 rounded-md text-gray-500 hover:bg-gray-100" title="View History">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock "><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
             </button>
             <?php if(hasPermission('','task_edit')) {?>
@@ -168,30 +168,15 @@
     
     <div class="step2">
     <!-- history -->
-     <div class="w-full p-6 overflow-y-auto border-l  h-full flex flex-col" id="taskHistory">
+     <div class="w-full p-6 overflow-y-auto border-l  h-full flex flex-col" >
         <div class="space-y-4">
             <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">Task History</h3>
-            <div class="flex space-x-2">
-                <button  onclick="showStep(3)" class="modal-action-btn flex items-center space-x-1 px-3 py-1 bg-green-50 text-green-600 rounded-md hover:bg-green-100">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                </svg>
-                <span>Add Comment</span>
-                </button>
+            <h3 class="text-lg font-medium text-gray-900">Messages</h3>
+        
             </div>
-            </div>
-            <div id="taskReplys">
-            
-            </div>
-        </div>
-    </div>
-</div>
-
-     <!-- history -->
-      <!-- Reply Form -->
-       <div class="step3">
-        <div  class="w-full p-6 overflow-y-auto border-l flex flex-col">
+            <div class="">
+            <div id="taskReplys"></div>
+                 <div  class="w-full p-6 overflow-y-auto border-l flex flex-col">
             <form class="mb-4" id="replyForm">
                 <div class="flex space-x-2">
                     <textarea placeholder="Enter your reply..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
@@ -207,7 +192,14 @@
                 </div>
             </form>
         </div>  <!-- close  replay form -->
+            </div>
+        </div>
     </div>
+</div>
+
+     <!-- history -->
+      <!-- Reply Form -->
+      
     <div class="step4">
     <!-- from  -->
      <!-- Task Edit Panel -->
@@ -245,39 +237,8 @@
            <div class="invalid-feedback" id="project_error"></div>
         </div>
 
-        <div class="d-none" >
-          <label class="block mb-1 font-medium">Branch</label>
-          <select id="branch" name="branch" class="w-full border px-3 py-2 rounded">
-            <option value="">Select Branch</option>
-            <option value="all"  >All</option>
-            <?php
-                if(!empty($branches)){
-                    foreach($branches as $branch){
-                    ?>
-                        <option  value="<?=$branch['id'];?>"><?=$branch['branch_name'];?></option>
-                    <?php 
-                    } 
-                } ?>
-          </select>
-           <div class="invalid-feedback" id="branch_error"></div>
-        </div>
-
-        
         <div  >
-          <label class="block mb-1 font-medium">Project Unit</label>
-          <select id="projectUnit" name="projectUnit" class="w-full border px-3 py-2 rounded">
-            <option value="">Choose Project Unit</option>
-            <option value="all"  >All</option>
-            <?php
-                if(!empty($projectUnits)){
-                    foreach($projectUnits as $projectUnit){
-                    ?>
-                        <option  value="<?=$projectUnit['id'];?>"><?=$projectUnit['store'];?></option>
-                    <?php 
-                    } 
-                } ?>
-          </select>
-           <div class="invalid-feedback" id="branch_error"></div>
+          <input type="hidden" id="projectUnit" name="projectUnit" class="w-full border px-3 py-2 rounded">
         </div>
 
         <div>
@@ -293,7 +254,7 @@
             <label for="progress" class="block text-sm font-medium text-gray-700 mb-1" id="progressLabel">Progress: 60%</label>
             <input type="range" name="progress" id="progressBar" min="0" max="100" step="5" class="w-full" value="">
         </div>
-        <div>
+        <div class="hidden">
             <div class="grid grid-cols-2 gap-2">
                 <div class="items-center rounded-md cursor-pointer border-gray-300">
                     <label class="block font-medium">Due Date</label>
@@ -301,13 +262,7 @@
                 </div>
        
                 <div class="items-center rounded-md cursor-pointer border-gray-300 hidden">
-                    <label class="block font-medium">Status</label>
-                    <select name="status" class="w-full border px-3 py-2 rounded" id="taskStatus">
-                        <option value="Pending">Pending</option>
-                        <option value="In_Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Overdue">Overdue</option>
-                    </select>
+                      <input type="hidden" id="taskStatus" name="status" class="w-full border px-3 py-2 rounded">
                  </div>
             </div>
             
@@ -321,7 +276,7 @@
 
            <div class="mt-8 flex justify-end gap-3">
                   
-                    <a onclick="toggleEditForm()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</a>
+                    <a onclick="showStep(1)" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</a>
                     <button id="submitBtn" class="bg-blue-600 hover:bg-primary-700 text-white rounded-2 px-4 py-2 rounded-md flex items-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save mr-1"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>Save</button>
             </div>
       </form>

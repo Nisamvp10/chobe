@@ -76,7 +76,7 @@
                <textarea placeholder="Enter your reply..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
             </div>
             <div class="flex justify-end space-x-2 mt-2">
-               <button id="replaysubmitBtn" type="submit" class="flex items-center space-x-1 px-3 py-1 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+               <button id="replaysubmitBtn" type="submit" class="flex items-center space-x-1 px-3 py-1 bg-indigo-600 text-white rounded-2 hover:bg-indigo-700">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send">
                      <path d="M22 2 11 13"></path>
                      <path d="M22 2 15 22 11 13 2 9 22 2z"></path>
@@ -93,8 +93,8 @@
       <!-- close  replay form -->
       <!-- from  -->
       <!-- Task Edit Panel -->
-       <div class="step3">
-      <div  class="w-full p-6 overflow-y-auto border-l  h-full flex flex-col h-screen" >
+       <div class="step3" >
+      <div  class="w-full p-6 overflow-y-auto border-l   h-full flex flex-col h-screen" >
          <h2 class="text-xl font-semibold mb-4">Commets</h2>
          <div id="commentSection" class="w-full"></div>
          </div>

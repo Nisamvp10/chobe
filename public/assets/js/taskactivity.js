@@ -470,7 +470,7 @@ function renderCommentList(comments = []) {
 
 function showStep(step) {
     // Hide all steps
-    $('.step1, .step2').hide();
+    $('.step1, .step2,.step3').hide();
 
     // Remove active button style
     $('.modal-action-btn').removeClass('bg-gray-200 text-gray-800');
@@ -699,6 +699,7 @@ function renderReplayUi(replay) {
     else {
         let lastDate = '';
         html += `<ul class="space-y-4">`;
+       
 
         replay.forEach(rply => {
 
@@ -775,6 +776,20 @@ function renderReplayUi(replay) {
     $('#taskreplaysec').html(html);
     //$('#taskreplayForm').html(form);
 }
+
+function showNewMessageToast() {
+    const toast = document.createElement('div');
+    toast.className = `
+        fixed bottom-6 right-6 bg-green-600 text-white
+        px-4 py-2 rounded-lg shadow-lg text-sm z-50
+    `;
+    toast.innerText = 'New message received';
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3000);
+}
+
 
 /*******************************
  * SUBMIT REPLY FORM

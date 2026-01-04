@@ -92,10 +92,13 @@ class TaskController extends Controller {
             'title'       => 'required',
             'description' => 'required|min_length[3]',
             'priority'    => 'required',
-            'taskmode'    => 'required',
+            //'taskmode'    => 'required',
         ];
 
+        
+
         if (empty($taskId)) {
+            $rules['taskmode'] = 'required';
             $rules['project'] = 'required';
         }
 
@@ -174,21 +177,21 @@ class TaskController extends Controller {
             $existingActivityIds = array_column($existingTaskActivities, 'activity_id');
 
             $newTaskActivityIds = [];
-            foreach ($masterActivities as $act) {
-                if (!in_array($act['id'], $existingActivityIds)) {
-                    $taskActivityId = $this->taskActivityModel->insert([
-                        'task_id'     => $taskId,
-                        'activity_id' => $act['id'],
-                        'status'      => 'pending',
-                        'progress'    => 'pending',
-                        'created_at'  => date('Y-m-d H:i:s'),
-                    ], true);
+            // foreach ($masterActivities as $act) {
+            //     if (!in_array($act['id'], $existingActivityIds)) {
+            //         $taskActivityId = $this->taskActivityModel->insert([
+            //             'task_id'     => $taskId,
+            //             'activity_id' => $act['id'],
+            //             'status'      => 'pending',
+            //             'progress'    => 'pending',
+            //             'created_at'  => date('Y-m-d H:i:s'),
+            //         ], true);
 
-                    if ($taskActivityId) {
-                        $newTaskActivityIds[] = $taskActivityId;
-                    }
-                }
-            }
+            //         if ($taskActivityId) {
+            //             $newTaskActivityIds[] = $taskActivityId;
+            //         }
+            //     }
+            // }
 
             $allTaskActivities = $this->taskActivityModel
                                     ->where('task_id', $taskId)
@@ -211,32 +214,35 @@ class TaskController extends Controller {
                         ->set(['role' => $roleId])
                         ->update();
 
+
+
                     // Assign new activities only
-                    foreach ($newTaskActivityIds as $taskActivityId) {
-                        $this->taskStaffActivityModel->insert([
-                            'task_activity_id' => $taskActivityId,
-                            'staff_id'         => $staffId,
-                            'status'           => 'pending'
-                        ]);
-                    }
+                    // foreach ($newTaskActivityIds as $taskActivityId) {
+                    //     $this->taskStaffActivityModel->insert([
+                    //         'task_activity_id' => $taskActivityId,
+                    //         'staff_id'         => $staffId,
+                    //         'status'           => 'pending'
+                    //     ]);
+                    // }
 
                 } else {
                     // New staff assignment
                     $this->taskassignModel->insert([
                         'task_id'  => $taskId,
                         'staff_id' => $staffId,
-                        'role'     => $roleId,
+                        //'role'     => $roleId,
                         'status'   => 'assigned'
                     ]);
+                    
 
                     // Assign all activities
-                    foreach ($allTaskActivityIds as $taskActivityId) {
-                        $this->taskStaffActivityModel->insert([
-                            'task_activity_id' => $taskActivityId,
-                            'staff_id'         => $staffId,
-                            'status'           => 'pending'
-                        ]);
-                    }
+                    // foreach ($allTaskActivityIds as $taskActivityId) {
+                    //     $this->taskStaffActivityModel->insert([
+                    //         'task_activity_id' => $taskActivityId,
+                    //         'staff_id'         => $staffId,
+                    //         'status'           => 'pending'
+                    //     ]);
+                    // }
 
                     // Notify staff
                     $this->notificationModel->insert([
@@ -274,7 +280,7 @@ class TaskController extends Controller {
             }
 
             if ($allDone) {
-                $this->taskModel->update($taskId, ['status' => 'completed']);
+               // $this->taskModel->update($taskId, ['status' => 'completed']);
             }
 
             $db->transComplete();
@@ -587,7 +593,7 @@ class TaskController extends Controller {
             $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate,$taskProject); // or ->findAll()
         // echo  $this->taskModel->getLastQuery();exit();
 
-            $allusers = $this->staffModal->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1 ,'role !=' =>1])->findAll();
+            
             $groupData = [];
 
             foreach ($alltask as &$task) {
@@ -595,7 +601,14 @@ class TaskController extends Controller {
                 $taskId = $task['id'];
 
                 if (!isset($groupData[$taskId])) {
-                    
+                    $allusers = $this->staffModal
+                        ->select('id, name, profileimg')
+                        ->where('status', 'approved')
+                        ->where('store_id', $task['project_unit'])
+                        ->where('booking_status', 1)
+                        ->where('role !=', 1)
+                        ->whereNotIn('position_id', [2, 3, 4])
+                        ->findAll();
                     $groupData[$taskId] = [
 
                         'id'        => encryptor($task['id']),
