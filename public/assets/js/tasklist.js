@@ -494,36 +494,36 @@ $('#replyForm').on('submit', function (e) {
     progressLabel.textContent = `Progress: ${progressSlider.value}%`;
   });
 
-//   function renderStaffList(users = []) {
-//     const staffListContainer = document.getElementById('participants');
-//     staffListContainer.innerHTML = '';
+  function renderStaffList(users = []) {
+    const staffListContainer = document.getElementById('participants');
+    staffListContainer.innerHTML = '';
 
-//     users.forEach(staff => {
+    users.forEach(staff => {
       
-//         const staffHTML = `
-//         <div class="flex align-items-center p-2 border rounded-md cursor-pointer border-gray-300">
+        const staffHTML = `
+        <div class="flex align-items-center p-2 border rounded-md cursor-pointer border-gray-300">
           
-//             <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" name="staff[]" value="${staff.userId}" checked>
-//             ${dpGen(staff)}
-//             <span class="ml-2 text-sm mx-4">${staff.staffName}</span>
+            <input type="checkbox" class="h-4 w-4 text-indigo-600 rounded" name="staff[]" value="${staff.userId}" checked>
+            ${dpGen(staff)}
+            <span class="ml-2 text-sm mx-4">${staff.staffName}</span>
             
-//             <select name="role[]"  class="role-select mx-4 mt-2 md:mt-0 border rounded px-2 py-1 text-sm" >
-//                 <option  ${staff.role == "participant" ? "selected" : ""} value="participant" selected>Participant</option>
-//                 <option ${staff.role == "team_leader" ? 'selected':''} value="team_leader">Team Leader</option>
-//                 <option ${staff.role == "team_coordinator" ? 'selected':''} value="team_coordinator">Team Coordinator</option>
-//             </select>
-//             <select name="personpriority[]" class="role-select mx-2 mt-2 md:mt-0 border rounded px-2 py-1 text-sm hidden" >
-//                 <option desabled value="">Select a Priority</option>
-//                 <option  ${staff.userPriority == 1 ? "selected" : ""} value="1">High</option>
-//                 <option  ${staff.userPriority == 2 ? "selected" : ""}  value="2">Medium</option>
-//                 <option  ${staff.userPriority == 3 ? "selected" : ""} value="3">Low</option>
-//             </select>
+            <select name="role[]"  class="role-select mx-4 mt-2 md:mt-0 border rounded px-2 py-1 text-sm" >
+                <option  ${staff.role == "participant" ? "selected" : ""} value="participant" selected>Participant</option>
+                <option ${staff.role == "team_leader" ? 'selected':''} value="team_leader">Team Leader</option>
+                <option ${staff.role == "team_coordinator" ? 'selected':''} value="team_coordinator">Team Coordinator</option>
+            </select>
+            <select name="personpriority[]" class="role-select mx-2 mt-2 md:mt-0 border rounded px-2 py-1 text-sm hidden" >
+                <option desabled value="">Select a Priority</option>
+                <option  ${staff.userPriority == 1 ? "selected" : ""} value="1">High</option>
+                <option  ${staff.userPriority == 2 ? "selected" : ""}  value="2">Medium</option>
+                <option  ${staff.userPriority == 3 ? "selected" : ""} value="3">Low</option>
+            </select>
 
-//         </div>
-//         `;
-//         staffListContainer.insertAdjacentHTML('beforeend', staffHTML);
-//     });
-// }
+        </div>
+        `;
+        staffListContainer.insertAdjacentHTML('beforeend', staffHTML);
+    });
+}
 
 function renderStaffList(users = [], existingUser = []) {
     const staffListContainer = document.getElementById('participants');
