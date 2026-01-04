@@ -4,31 +4,12 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 class TaskModel extends Model {
-   protected $table      = 'tasks';
-    protected $primaryKey = 'id';
+    protected $table = 'tasks';
+    protected $primaryKey ='id';
+    protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','status','taskmode','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
 
-    protected $useAutoIncrement = true;
+    protected $useSoftDeletes = false; // IMPORTANT
 
-    protected $allowedFields = [
-        'title',
-        'description',
-        'project_id',
-        'project_unit',
-        'branch',
-        'overdue_date',
-        'priority',
-        'status',
-        'recurrence',
-        'taskmode',
-        'tasktype',
-        'next_run_date',
-        'progress',
-        'completed_at',
-        'created_from_template'
-    ];
-
-    protected $useTimestamps = false;
- 
     function getTasks($limit=false,$orderBy=false,$filter = false,$searchInput=false,$startDate=false,$endDate=false,$taskProject=false) {
 
 

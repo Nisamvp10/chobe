@@ -117,22 +117,18 @@ class TaskController extends Controller {
             'tasktype'      => $this->request->getPost('taskmode'),
         ];
         $data = [
-                'title'        => $this->request->getPost('title'),
-                'description'  => $this->request->getPost('description'),
-                'overdue_date' => $this->request->getPost('duedate') ?: null,
-                'branch'       => 'all',
-                'project_unit' => $this->request->getPost('projectUnit') ?: null,
-                'project_id'   => $this->request->getPost('project') ?: null,
-                'recurrence'   => 'daily',
-            ];
-
-            // ENUM SAFE HANDLING
-            $status   = $this->request->getPost('status');
-            $priority = $this->request->getPost('priority');
-
-            $data['status']   = in_array($status, ['Pending','In Progress','Completed','Overdue']) ? $status : 'Pending';
-            $data['priority'] = in_array($priority, ['Low','Medium','High']) ? $priority : 'Medium';
-
+            'title'         => $this->request->getPost('title'),
+            'description'   => $this->request->getPost('description'),
+            'overdue_date'  => $this->request->getPost('duedate') ?: null,
+            'priority'      => $this->request->getPost('priority'),
+            'branch'        => 'all',
+            'project_unit'  => $this->request->getPost('projectUnit') ?: null,
+            'project_id'    => $this->request->getPost('project') ?: null,
+            'status'        => $this->request->getPost('status') ?? 'Pending',
+            'recurrence'    => 'daily',
+            'taskmode'      => $this->request->getPost('taskmode'),
+            'next_run_date' => date('Y-m-d', strtotime('+1 day')),
+        ];
 
         if (!empty($taskId)) {
             $progress = $this->request->getPost('progress');
@@ -161,23 +157,19 @@ class TaskController extends Controller {
         $staffs = $this->request->getPost('staff') ?? [];
         $roles  = $this->request->getPost('role') ?? [];
 
-        $db->transStart();
 
         if (!empty($taskId)) {
             // ---------------- UPDATE TASK ----------------
             //$this->mastertaskModel->update($taskId, $data);
             $getTask = $this->taskModel->where('id',$taskId)->get()->getRow();
             $data['taskmode'] = $getTask->taskmode;
-            $data = array_filter($data, fn($v) => $v !== null && $v !== '');
-
-            if (!$this->taskModel->set($data)->where('id', $taskId)->update()) {
+            if (!$this->taskModel->update($taskId, $data)) {
                     return $this->response->setJSON([
                         'success' => false,
                         'message' => 'Task update failed',
                         'errors'  => $this->taskModel->errors()
                     ]);
                 }
-                 //echo $this->taskModel->getLastQuery();exit();
 
                 // 2️⃣ Task files
                 if (!empty($taskFiles)) {
@@ -233,13 +225,13 @@ class TaskController extends Controller {
                         }
 
                         // assign activities
-                        foreach ($allTaskActivityIds as $taskActivityId) {
-                            $this->taskStaffActivityModel->insert([
-                                'task_activity_id' => $taskActivityId,
-                                'staff_id'         => $staffId,
-                                'status'           => 'pending'
-                            ]);
-                        }
+                        // foreach ($allTaskActivityIds as $taskActivityId) {
+                        //     $this->taskStaffActivityModel->insert([
+                        //         'task_activity_id' => $taskActivityId,
+                        //         'staff_id'         => $staffId,
+                        //         'status'           => 'pending'
+                        //     ]);
+                        // }
 
                         // notify
                         $this->notificationModel->insert([
@@ -261,24 +253,24 @@ class TaskController extends Controller {
 
                 $allDone = true;
 
-                foreach ($assignedStaffs as $staff) {
+                // foreach ($assignedStaffs as $staff) {
 
-                    $total = $this->taskStaffActivityModel
-                        ->where('staff_id', $staff['staff_id'])
-                        ->whereIn('task_activity_id', $allTaskActivityIds)
-                        ->countAllResults();
+                //     $total = $this->taskStaffActivityModel
+                //         ->where('staff_id', $staff['staff_id'])
+                //         ->whereIn('task_activity_id', $allTaskActivityIds)
+                //         ->countAllResults();
 
-                    $completed = $this->taskStaffActivityModel
-                        ->where('staff_id', $staff['staff_id'])
-                        ->whereIn('task_activity_id', $allTaskActivityIds)
-                        ->where('status', 'completed')
-                        ->countAllResults();
+                //     $completed = $this->taskStaffActivityModel
+                //         ->where('staff_id', $staff['staff_id'])
+                //         ->whereIn('task_activity_id', $allTaskActivityIds)
+                //         ->where('status', 'completed')
+                //         ->countAllResults();
 
-                    if ($total == 0 || $completed != $total) {
-                        $allDone = false;
-                        break;
-                    }
-                }
+                //     if ($total == 0 || $completed != $total) {
+                //         $allDone = false;
+                //         break;
+                //     }
+                // }
 
                 // OPTIONAL
                 // if ($allDone) {
@@ -291,6 +283,7 @@ class TaskController extends Controller {
                 ]);
 
         } else {
+                $db->transStart();
             // 1️⃣ Get all active project units
                 $projectUnits = $this->projectUnitModel->where('status', 1)->findAll();
                 if (empty($projectUnits)) {
@@ -347,8 +340,6 @@ class TaskController extends Controller {
                         'created_by'      => session('user_data')['id'] ?? null,
                         'created_at'      => date('Y-m-d H:i:s')
                     ];
-                    $data['taskmode']     = $this->request->getPost('taskmode');
-                    $data['next_run_date'] = date('Y-m-d', strtotime('+1 day'));
                     $data['project_unit'] = $unit['id'];
 
                     $newTaskId = $this->taskModel->insert($data, true);

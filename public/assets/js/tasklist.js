@@ -336,10 +336,8 @@ function openTaskModal(el) {
       btn.classList.remove('bg-orange-100', 'text-orange-800', 'border-orange-300');
     }
   });
-console.log(el)
     const users = JSON.parse(el.dataset.profiles);
     const allstaff = JSON.parse(el.dataset.users);
-    console.log(allstaff)
     renderStaffList(allstaff,users);
     //renderStaffList(users);
     const priorityEl = modal.querySelector('.modal-priority');
@@ -526,7 +524,6 @@ $('#replyForm').on('submit', function (e) {
 // }
 
 function renderStaffList(users = [], existingUser = []) {
-    console.log(users);
     const staffListContainer = document.getElementById('participants');
     staffListContainer.innerHTML = '';
 
