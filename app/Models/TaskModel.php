@@ -6,6 +6,7 @@ use CodeIgniter\Model;
 class TaskModel extends Model {
     protected $table = 'tasks';
     protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','status','taskmode','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
+    
     protected $primaryKey ='id';
  
     function getTasks($limit=false,$orderBy=false,$filter = false,$searchInput=false,$startDate=false,$endDate=false,$taskProject=false) {

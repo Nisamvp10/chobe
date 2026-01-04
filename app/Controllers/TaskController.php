@@ -126,8 +126,7 @@ class TaskController extends Controller {
             'project_id'    => $this->request->getPost('project') ?: null,
             'status'        => $this->request->getPost('status') ?? 'Pending',
             'recurrence'    => 'daily',
-            'taskmode'      => $this->request->getPost('taskmode'),
-            'next_run_date' => date('Y-m-d', strtotime('+1 day')),
+            
         ];
 
         if (!empty($taskId)) {
@@ -348,6 +347,8 @@ class TaskController extends Controller {
                         'created_by'      => session('user_data')['id'] ?? null,
                         'created_at'      => date('Y-m-d H:i:s')
                     ];
+                    $data['taskmode']     = $this->request->getPost('taskmode');
+                    $data['next_run_date'] = date('Y-m-d', strtotime('+1 day'));
                     $data['project_unit'] = $unit['id'];
 
                     $newTaskId = $this->taskModel->insert($data, true);
