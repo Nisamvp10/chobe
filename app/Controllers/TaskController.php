@@ -611,6 +611,7 @@ class TaskController extends Controller {
 
                 if (!isset($groupData[$taskId])) {
                        
+
                     $groupData[$taskId] = [
 
                         'id'        => encryptor($task['id']),
