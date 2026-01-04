@@ -19,7 +19,9 @@
             dataType: "json",
             success: function(response) {
                 if (response.success === true) {
+                    console.log(response.task);
                     renderTable(response.task);
+
                 }
             }
         });
