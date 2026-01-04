@@ -162,141 +162,129 @@ class TaskController extends Controller {
         if (!empty($taskId)) {
             // ---------------- UPDATE TASK ----------------
             //$this->mastertaskModel->update($taskId, $data);
-            $this->taskModel->update($taskId, $data);
-
-            if ($taskFiles) {
-                $taskFiles['task_id'] = $taskId;
-                $this->taskImgModel->insert($taskFiles);
-            }
-
-            // --- Task Activities ---
-            $existingTaskActivities = $this->taskActivityModel
-                                        ->select('activity_id')
-                                        ->where('task_id', $taskId)
-                                        ->findAll();
-            $existingActivityIds = array_column($existingTaskActivities, 'activity_id');
-
-            $newTaskActivityIds = [];
-            // foreach ($masterActivities as $act) {
-            //     if (!in_array($act['id'], $existingActivityIds)) {
-            //         $taskActivityId = $this->taskActivityModel->insert([
-            //             'task_id'     => $taskId,
-            //             'activity_id' => $act['id'],
-            //             'status'      => 'pending',
-            //             'progress'    => 'pending',
-            //             'created_at'  => date('Y-m-d H:i:s'),
-            //         ], true);
-
-            //         if ($taskActivityId) {
-            //             $newTaskActivityIds[] = $taskActivityId;
-            //         }
-            //     }
-            // }
-
-            $allTaskActivities = $this->taskActivityModel
-                                    ->where('task_id', $taskId)
-                                    ->findAll();
-            $allTaskActivityIds = array_column($allTaskActivities, 'id');
-
-            // --- Staff Assignment ---
-            $existingAssignments = $this->taskassignModel
-                                    ->where('task_id', $taskId)
-                                    ->findAll();
-            $existingStaffIds = array_column($existingAssignments, 'staff_id');
-
-            foreach ($staffs as $index => $staffId) {
-                $roleId = $roles[$index] ?? null;
-
-                if (in_array($staffId, $existingStaffIds)) {
-                    // Update role
-                    $this->taskassignModel
-                        ->where(['task_id' => $taskId, 'staff_id' => $staffId])
-                        ->set(['role' => $roleId])
-                        ->update();
-
-
-
-                    // Assign new activities only
-                    // foreach ($newTaskActivityIds as $taskActivityId) {
-                    //     $this->taskStaffActivityModel->insert([
-                    //         'task_activity_id' => $taskActivityId,
-                    //         'staff_id'         => $staffId,
-                    //         'status'           => 'pending'
-                    //     ]);
-                    // }
-
-                } else {
-                    // New staff assignment
-                    $this->taskassignModel->insert([
-                        'task_id'  => $taskId,
-                        'staff_id' => $staffId,
-                        //'role'     => $roleId,
-                        'status'   => 'assigned'
+            if (!$this->taskModel->update($taskId, $data)) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Task update failed',
+                        'errors'  => $this->taskModel->errors()
                     ]);
-                    
+                }
 
-                    // Assign all activities
-                    foreach ($allTaskActivityIds as $taskActivityId) {
-                        $this->taskStaffActivityModel->insert([
-                            'task_activity_id' => $taskActivityId,
-                            'staff_id'         => $staffId,
-                            'status'           => 'pending'
+                // 2️⃣ Task files
+                if (!empty($taskFiles)) {
+                    $taskFiles['task_id'] = $taskId;
+
+                    if (!$this->taskImgModel->insert($taskFiles)) {
+                        return $this->response->setJSON([
+                            'success' => false,
+                            'message' => 'Task file upload failed',
+                            'errors'  => $this->taskImgModel->errors()
                         ]);
                     }
-
-                    // Notify staff
-                    $this->notificationModel->insert([
-                        'user_id'    => $staffId,
-                        'task_id'    => $taskId,
-                        'type'       => 'task_reassign',
-                        'title'      => 'Task Assigned/Updated',
-                        'created_by' => session('user_data')['id'] ?? null,
-                        'message'    => 'Task updated and assigned to you by ' . (session('user_data')['username'] ?? 'system')
-                    ]);
                 }
-            }
 
-            // --- Check staff completion ---
-            $assignedStaffs = $this->taskassignModel
-                                ->where('task_id', $taskId)
-                                ->findAll();
+                // 3️⃣ Get task activities
+                $allTaskActivities = $this->taskActivityModel
+                    ->where('task_id', $taskId)
+                    ->findAll();
 
-            $allDone = true;
-            foreach ($assignedStaffs as $staff) {
-                $totalActivities = $this->taskStaffActivityModel
-                                        ->where('staff_id', $staff['staff_id'])
-                                        ->whereIn('task_activity_id', $allTaskActivityIds)
-                                        ->countAllResults();
+                $allTaskActivityIds = array_column($allTaskActivities, 'id');
 
-                $completedActivities = $this->taskStaffActivityModel
-                                            ->where('staff_id', $staff['staff_id'])
-                                            ->whereIn('task_activity_id', $allTaskActivityIds)
-                                            ->where('status', 'completed')
-                                            ->countAllResults();
+                // 4️⃣ Existing staff
+                $existingAssignments = $this->taskassignModel
+                    ->where('task_id', $taskId)
+                    ->findAll();
 
-                if ($completedActivities != $totalActivities) {
-                    $allDone = false;
+                $existingStaffIds = array_column($existingAssignments, 'staff_id');
+
+                // 5️⃣ Assign staff
+                foreach ($staffs as $index => $staffId) {
+
+                    $roleId = $roles[$index] ?? null;
+
+                    if (in_array($staffId, $existingStaffIds)) {
+
+                        // update role
+                        $this->taskassignModel
+                            ->where([
+                                'task_id'  => $taskId,
+                                'staff_id' => $staffId
+                            ])
+                            ->update(null, ['role' => $roleId]);
+
+                    } else {
+
+                        // new staff
+                        if (!$this->taskassignModel->insert([
+                            'task_id'  => $taskId,
+                            'staff_id' => $staffId,
+                            'role'     => $roleId,
+                            'status'   => 'assigned'
+                        ])) {
+                            return $this->response->setJSON([
+                                'success' => false,
+                                'message' => 'Staff assignment failed',
+                                'errors'  => $this->taskassignModel->errors()
+                            ]);
+                        }
+
+                        // assign activities
+                        foreach ($allTaskActivityIds as $taskActivityId) {
+                            $this->taskStaffActivityModel->insert([
+                                'task_activity_id' => $taskActivityId,
+                                'staff_id'         => $staffId,
+                                'status'           => 'pending'
+                            ]);
+                        }
+
+                        // notify
+                        $this->notificationModel->insert([
+                            'user_id'    => $staffId,
+                            'task_id'    => $taskId,
+                            'type'       => 'task_reassign',
+                            'title'      => 'Task Assigned/Updated',
+                            'created_by' => session('user_data')['id'] ?? null,
+                            'message'    => 'Task updated and assigned to you by ' .
+                                            (session('user_data')['username'] ?? 'system')
+                        ]);
+                    }
                 }
-            }
 
-            if ($allDone) {
-               // $this->taskModel->update($taskId, ['status' => 'completed']);
-            }
+                // 6️⃣ Completion check
+                $assignedStaffs = $this->taskassignModel
+                    ->where('task_id', $taskId)
+                    ->findAll();
 
-            $db->transComplete();
+                $allDone = true;
 
-            if ($db->transStatus() === false) {
-                print_r($db->getLastQuery());
+                foreach ($assignedStaffs as $staff) {
+
+                    $total = $this->taskStaffActivityModel
+                        ->where('staff_id', $staff['staff_id'])
+                        ->whereIn('task_activity_id', $allTaskActivityIds)
+                        ->countAllResults();
+
+                    $completed = $this->taskStaffActivityModel
+                        ->where('staff_id', $staff['staff_id'])
+                        ->whereIn('task_activity_id', $allTaskActivityIds)
+                        ->where('status', 'completed')
+                        ->countAllResults();
+
+                    if ($total == 0 || $completed != $total) {
+                        $allDone = false;
+                        break;
+                    }
+                }
+
+                // OPTIONAL
+                // if ($allDone) {
+                //     $this->taskModel->update($taskId, ['status' => 'completed']);
+                // }
+
                 return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Failed to update task (transaction failed)'
+                    'success' => true,
+                    'message' => 'Task updated successfully'
                 ]);
-            }
-
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Task updated successfully'
-            ]);
 
         } else {
             // 1️⃣ Get all active project units
