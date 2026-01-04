@@ -601,14 +601,16 @@ class TaskController extends Controller {
                 $taskId = $task['id'];
 
                 if (!isset($groupData[$taskId])) {
-                    $allusers = $this->staffModal
-                        ->select('id, name, profileimg')
-                        ->where('status', 'approved')
-                        ->where('store_id', $task['project_unit'])
-                        ->where('booking_status', 1)
-                        ->where('role !=', 1)
-                        ->whereNotIn('position_id', [2, 3, 4])
+                        $allusers = $this->staffModal
+                        ->select('users.id, users.name, users.profileimg')
+                        ->join('user_position u', 'users.position_id = u.id', 'left')
+                        ->where('users.status', 'approved')
+                        ->where('users.store_id', $task['project_unit'])
+                        ->where('users.booking_status', 1)
+                        ->where('users.role !=', 1)
+                        ->where('u.type !=', 1)
                         ->findAll();
+
                     $groupData[$taskId] = [
 
                         'id'        => encryptor($task['id']),
