@@ -117,17 +117,22 @@ class TaskController extends Controller {
             'tasktype'      => $this->request->getPost('taskmode'),
         ];
         $data = [
-            'title'         => $this->request->getPost('title'),
-            'description'   => $this->request->getPost('description'),
-            'overdue_date'  => $this->request->getPost('duedate') ?: null,
-            'priority'      => $this->request->getPost('priority'),
-            'branch'        => 'all',
-            'project_unit'  => $this->request->getPost('projectUnit') ?: null,
-            'project_id'    => $this->request->getPost('project') ?: null,
-            'status'        => $this->request->getPost('status') ?? 'Pending',
-            'recurrence'    => 'daily',
-            
-        ];
+                'title'        => $this->request->getPost('title'),
+                'description'  => $this->request->getPost('description'),
+                'overdue_date' => $this->request->getPost('duedate') ?: null,
+                'branch'       => 'all',
+                'project_unit' => $this->request->getPost('projectUnit') ?: null,
+                'project_id'   => $this->request->getPost('project') ?: null,
+                'recurrence'   => 'daily',
+            ];
+
+            // ENUM SAFE HANDLING
+            $status   = $this->request->getPost('status');
+            $priority = $this->request->getPost('priority');
+
+            $data['status']   = in_array($status, ['Pending','In Progress','Completed','Overdue']) ? $status : 'Pending';
+            $data['priority'] = in_array($priority, ['Low','Medium','High']) ? $priority : 'Medium';
+
 
         if (!empty($taskId)) {
             $progress = $this->request->getPost('progress');
@@ -163,7 +168,7 @@ class TaskController extends Controller {
             //$this->mastertaskModel->update($taskId, $data);
             $getTask = $this->taskModel->where('id',$taskId)->get()->getRow();
             $data['taskmode'] = $getTask->taskmode;
-           
+            $data = array_filter($data, fn($v) => $v !== null && $v !== '');
 
             if (!$this->taskModel->update($taskId, $data)) {
                     return $this->response->setJSON([
