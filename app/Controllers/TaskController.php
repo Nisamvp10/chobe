@@ -169,6 +169,7 @@ class TaskController extends Controller {
                         'errors'  => $this->taskModel->errors()
                     ]);
                 }
+                echo $this->taskModel->getLastQuery();exit();
 
                 // 2️⃣ Task files
                 if (!empty($taskFiles)) {
@@ -205,12 +206,7 @@ class TaskController extends Controller {
                     if (in_array($staffId, $existingStaffIds)) {
 
                         // update role
-                        $this->taskassignModel
-                            ->where([
-                                'task_id'  => $taskId,
-                                'staff_id' => $staffId
-                            ])
-                            ->update(null, ['role' => $roleId]);
+                        $this->taskassignModel->where(['task_id'  => $taskId,'staff_id' => $staffId])->update(null, ['role' => $roleId]);
 
                     } else {
 
