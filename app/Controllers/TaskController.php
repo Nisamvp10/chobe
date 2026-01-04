@@ -163,12 +163,7 @@ class TaskController extends Controller {
             //$this->mastertaskModel->update($taskId, $data);
             $getTask = $this->taskModel->where('id',$taskId)->get()->getRow();
             $data['taskmode'] = $getTask->taskmode;
-            $this->taskModel->update($taskId, $data);
-            if ($this->taskModel->errors()) {
-                    dd($this->taskModel->errors());
-                }
-
-                echo $this->taskModel->db->getLastQuery(); exit();
+           
 
             if (!$this->taskModel->update($taskId, $data)) {
                     return $this->response->setJSON([
