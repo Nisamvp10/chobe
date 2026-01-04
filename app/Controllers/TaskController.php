@@ -170,14 +170,14 @@ class TaskController extends Controller {
             $data['taskmode'] = $getTask->taskmode;
             $data = array_filter($data, fn($v) => $v !== null && $v !== '');
 
-            if (!$this->taskModel->update($taskId, ['title' => $this->request->getPost('title')])) {
+            if (!$this->taskModel->update($taskId, $data)) {
                     return $this->response->setJSON([
                         'success' => false,
                         'message' => 'Task update failed',
                         'errors'  => $this->taskModel->errors()
                     ]);
                 }
-                 echo $this->taskModel->getLastQuery();exit();
+                 //echo $this->taskModel->getLastQuery();exit();
 
                 // 2️⃣ Task files
                 if (!empty($taskFiles)) {
