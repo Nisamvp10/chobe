@@ -162,6 +162,8 @@ class TaskController extends Controller {
         if (!empty($taskId)) {
             // ---------------- UPDATE TASK ----------------
             //$this->mastertaskModel->update($taskId, $data);
+            $getTask = $this->taskModel->where('id',$taskId)->get()->getRow();
+            $data['taskmode'] = $getTask->taskmode;
             if (!$this->taskModel->update($taskId, $data)) {
                     return $this->response->setJSON([
                         'success' => false,
