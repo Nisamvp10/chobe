@@ -171,7 +171,7 @@ class TaskController extends Controller {
                         'errors'  => $this->taskModel->errors()
                     ]);
                 }
-                echo $this->taskModel->getLastQuery();exit();
+               // echo $this->taskModel->getLastQuery();exit();
 
                 // 2️⃣ Task files
                 if (!empty($taskFiles)) {
