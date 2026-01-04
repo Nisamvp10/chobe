@@ -599,9 +599,7 @@ class TaskController extends Controller {
             foreach ($alltask as &$task) {
 
                 $taskId = $task['id'];
-
-                if (!isset($groupData[$taskId])) {
-                        $allusers = $this->staffModal
+                 $allusers = $this->staffModal
                         ->select('users.id, users.name, users.profileimg')
                         ->join('user_position u', 'users.position_id = u.id', 'left')
                         ->where('users.status', 'approved')
@@ -611,6 +609,8 @@ class TaskController extends Controller {
                         ->where('u.type !=', 1)
                         ->findAll();
 
+                if (!isset($groupData[$taskId])) {
+                       
                     $groupData[$taskId] = [
 
                         'id'        => encryptor($task['id']),

@@ -21,7 +21,9 @@ class TaskModel extends Model {
             ->join('project_unit as b', 'b.id = t.project_unit', 'left')
             ->join('task_assignees as a', 'a.task_id = t.id')
             ->join('users as u', 'u.id = a.staff_id')
+            ->join('user_position as up', 'u.position_id = up.id', 'left')
             ->join('task_images as ti', 'ti.task_id = t.id', 'left')
+            ->where('up.type !=',1)
             ->orderBy('t.id', 'DESC');
             if($filter && $filter != 'all')  {
                // $filter = ($filter == 'pending' ? 'Pending' : ($filter == "progress" ? 'In_Progres' :'Completed'));
