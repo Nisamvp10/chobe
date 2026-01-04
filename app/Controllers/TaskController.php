@@ -236,13 +236,13 @@ class TaskController extends Controller {
                     
 
                     // Assign all activities
-                    // foreach ($allTaskActivityIds as $taskActivityId) {
-                    //     $this->taskStaffActivityModel->insert([
-                    //         'task_activity_id' => $taskActivityId,
-                    //         'staff_id'         => $staffId,
-                    //         'status'           => 'pending'
-                    //     ]);
-                    // }
+                    foreach ($allTaskActivityIds as $taskActivityId) {
+                        $this->taskStaffActivityModel->insert([
+                            'task_activity_id' => $taskActivityId,
+                            'staff_id'         => $staffId,
+                            'status'           => 'pending'
+                        ]);
+                    }
 
                     // Notify staff
                     $this->notificationModel->insert([
