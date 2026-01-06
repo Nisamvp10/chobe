@@ -161,7 +161,6 @@
         let html = `<div class="org-level flex justify-center gap-10 mt-10 relative      ${map[parentId].length === 1 ? 'single' : ''}">`;
 
         map[parentId].forEach(emp => {
-            console.log(emp)
             html += `
                 <div class="flex flex-col items-center relative">
 
@@ -180,7 +179,9 @@
                         ${emp.type == 2 ? `
                         <div class="absolute right-2 top-2 flex gap-2">
                             <span class="cursor-pointer" onclick="openModal('${emp.encrypted_id}')"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen "><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg></span>
-                           
+                            <span class="cursor-pointer" onclick="deleteRole(this)" data-id="${emp.encrypted_id}" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash "><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+                            </span>
                         </div>` :'' }
                     </div>
 
@@ -198,7 +199,6 @@
 
     $('#orgChart').html(buildLevel());
 }
- // <span class="cursor-pointer" onclick="deleteRole(this)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash "><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg></span>
 
 
             //loadClients();
@@ -256,15 +256,15 @@
             })
     
 //})
-function unlockCategory(e){
+function deleteRole(e){
         if(confirm('are you sure ! You want to Unlock Category'))
         {
-            $(e).prop('disabled', true).html(
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Unlocking...'
-            );
+            // $(e).prop('disabled', true).html(
+            //     '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...'
+            // );
             let id = $(e).data('id');
             $.ajax({
-                url : '<?=base_url('project/unlock');?>',
+                url : '<?=base_url('rolemaster/delete');?>',
                 method:'POST',
                 data: {id:id},
                 dataType : 'json',

@@ -78,7 +78,7 @@
             // progressBar.textContent = percent + "%";
                 
              const taskHTML = `
-        <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" draggable="true"
+        <div class="bg-white draggable-task rounded-lg mb-3 shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" draggable="true"
              data-id="${task.id}" 
            
             >

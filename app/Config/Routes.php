@@ -143,6 +143,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('rolemaster/save','RolemasterController::save');
     $routes->get('rolemaster/list','RolemasterController::masterList');
     $routes->get('edit-rolemaster/(:any)','RolemasterController::getRoleinfo/$1');
+    $routes->post('rolemaster/delete','RolemasterController::delete');
 
 
 });

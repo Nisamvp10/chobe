@@ -4,13 +4,16 @@ namespace App\Controllers;
 
 use CodeIgniter\Controller;
 use App\Models\MasterroleModel;
+use App\Models\UserModel;
 class RolemasterController extends Controller {
 
     protected $masterRoleModel;
+    protected $userModel;
 
     function __construct() 
     {
         $this->masterRoleModel = new MasterroleModel();
+        $this->userModel = new UserModel();
     }
 
     public function index() {
@@ -133,6 +136,22 @@ class RolemasterController extends Controller {
             $result = null;
         }
         return $this->response->setJSON($result);
+    }
+    public function delete() {
+        if(!$this->request->isAJAX()){
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid Request']);
+        }
+        if(!haspermission('','role_master')) {
+            return $this->response->setJSON(['success' => false,'message' => ' Permission Denied']);
+        }
+        $id  = decryptor($this->request->getPost('id'));
+        $roleMoster = $this->userModel->where('position_id',$id)->countAllResults();
+        if($roleMoster > 0) {
+            return $this->response->setJSON(['success' => false,'message' => "This role can't be deleted because it is currently used by {$roleMoster} staff(s)."]);
+        }else{
+            if($this->masterRoleModel->delete($id))
+            return $this->response->setJSON(['success' => true,'message' => 'Role Deleted Successfully']);
+        }
     }
     
 }
