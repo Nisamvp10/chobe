@@ -10,7 +10,6 @@
     --color-red-50: oklch(97.1% 0.013 17.38);
     --color-red-100: oklch(93.6% 0.032 17.717);
     --color-red-300: oklch(80.8% 0.114 19.571);
-    --color-red-400: oklch(70.4% 0.191 22.216);
     --color-red-500: oklch(63.7% 0.237 25.331);
     --color-red-600: oklch(57.7% 0.245 27.325);
     --color-red-800: oklch(44.4% 0.177 26.899);
@@ -561,26 +560,14 @@
   .min-h-\[80vh\] {
     min-height: 80vh;
   }
-  .min-h-\[90vh\] {
-    min-height: 90vh;
-  }
   .min-h-\[100px\] {
     min-height: 100px;
   }
   .\!w-\[20px\] {
     width: 20px !important;
   }
-  .\!w-full {
-    width: 100% !important;
-  }
-  .w-0 {
-    width: calc(var(--spacing) * 0);
-  }
   .w-0\.5 {
     width: calc(var(--spacing) * 0.5);
-  }
-  .w-1 {
-    width: calc(var(--spacing) * 1);
   }
   .w-1\/2 {
     width: calc(1/2 * 100%);
@@ -624,9 +611,6 @@
   .w-full {
     width: 100%;
   }
-  .\!max-w-4xl {
-    max-width: var(--container-4xl) !important;
-  }
   .max-w-2xl {
     max-width: var(--container-2xl);
   }
@@ -657,17 +641,11 @@
   .flex-1 {
     flex: 1;
   }
-  .flex-shrink {
-    flex-shrink: 1;
-  }
   .flex-shrink-0 {
     flex-shrink: 0;
   }
   .shrink {
     flex-shrink: 1;
-  }
-  .flex-grow {
-    flex-grow: 1;
   }
   .flex-grow-1 {
     flex-grow: 1;
@@ -684,8 +662,8 @@
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
-  .animate-pulse {
-    animation: var(--animate-pulse);
+  .cursor-copy {
+    cursor: copy;
   }
   .cursor-pointer {
     cursor: pointer;
@@ -1029,9 +1007,6 @@
   .bg-orange-100 {
     background-color: var(--color-orange-100);
   }
-  .bg-purple-600 {
-    background-color: var(--color-purple-600);
-  }
   .bg-red-100 {
     background-color: var(--color-red-100);
   }
@@ -1101,9 +1076,6 @@
   .px-6 {
     padding-inline: calc(var(--spacing) * 6);
   }
-  .py-0 {
-    padding-block: calc(var(--spacing) * 0);
-  }
   .py-0\.5 {
     padding-block: calc(var(--spacing) * 0.5);
   }
@@ -1124,9 +1096,6 @@
   }
   .py-8 {
     padding-block: calc(var(--spacing) * 8);
-  }
-  .pt-1 {
-    padding-top: calc(var(--spacing) * 1);
   }
   .pt-1\.5 {
     padding-top: calc(var(--spacing) * 1.5);
@@ -1472,13 +1441,6 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-indigo-700);
-      }
-    }
-  }
-  .hover\:bg-purple-700 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-purple-700);
       }
     }
   }

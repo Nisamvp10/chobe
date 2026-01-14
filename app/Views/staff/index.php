@@ -56,12 +56,12 @@
                     </svg>
                     </div>
                     <select id="filerBanch" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                    <option value="all" selected>All Branch</option>
+                    <option value="all" selected>All Clients</option>
                     <?php 
-                    if (!empty($branches)) {
-                        foreach ($branches as $branch) {
+                    if (!empty($clients)) {
+                        foreach ($clients as $client) {
                         ?>
-                            <option value="<?= $branch['id'] ?>"><?= $branch['branch_name']?></option>
+                            <option value="<?= $client['id'] ?>"><?= $client['name']?></option>
                         <?php
                         } 
                     } ?>
@@ -120,13 +120,11 @@
                         html += `
                             <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
                                 <div class="px-3 py-3 whitespace-nowrap_">
-                                    <div class="flex items-start">
+                                    <div class="flex items-start cursor-copy" onclick="copyText(${user.id})">
                                         ${user.profileimg ? 
-                                           
                                             `<img src="${user.profileimg}?auto=compress&amp;cs=tinysrgb&amp;w=800" alt="Deep Tissue Massage" class="h-12 w-12 rounded-full mr-4">`
                                             :  `<div class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3" >
-                                            <span class="text-blue-600 text-medium"> ${user.name.charAt(0)}</span></div>
-                                            ` 
+                                            <span class="text-blue-600 text-medium" > ${user.id}</span></div>` 
                                         }
                                             <div class="flex-1">
                                                 <div class="flex items-center justify-between">

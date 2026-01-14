@@ -95,6 +95,7 @@ class Clients extends controller {
 
                 $contactsGroupped[$client['id']] = [
                     'encrypted_id' => encryptor($client['id']),
+                    'clitId'       => $client['id'],
                     'name' => $client['name'],
                     'address' => $client['note'] ?? '',
                     'clientsInfo' => [],

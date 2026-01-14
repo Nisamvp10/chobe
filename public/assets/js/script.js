@@ -63,3 +63,9 @@ $(document).on('change','#projectUnit',function(){
         });
   }
 })
+
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        toastr.success('client ID copied to clipboard');
+    });
+}

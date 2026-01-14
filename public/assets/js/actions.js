@@ -47,11 +47,11 @@ loadClients();
                             <tr class="hover:bg-gray-50">
                                 <td class="px-2 py-2 whitespace-nowrap">
                                 
-                                    <div class="flex items-center">
+                                    <div class="flex items-center cursor-copy" onclick="copyText('${client.clitId}')">
                                         ${client.profile ? 
                                            `<img class="h-9 w-9 rounded-full mr-3" src="${client.profile}" alt="${client.profile}">` 
                                           :    `<div class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                                <span class="text-blue-600 font-medium">${client.name.charAt(0)}</span>
+                                                <span class="text-blue-600 font-medium" >${client.clitId}</span> <!-- charAt(0) -->
                                             </div>`
                                         }
                                         <div class="text-sm font-medium text-gray-900">${client.name}</div>

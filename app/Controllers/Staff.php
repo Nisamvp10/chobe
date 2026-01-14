@@ -37,10 +37,11 @@ class Staff extends BaseController{
         $page = (!haspermission(session('user_data')['role'],'view_staff') ?  lang('Custom.accessDenied') : "Staff Management" );
         $active = 'TEST';
         $branches = $this->branchModel->where('status',1)->findAll();
+        $clients = $this->clientsModel->where('status',1)->findAll();
         if (!haspermission(session('user_data')['role'],'view_staff')) {
              $branches = [];
         }
-        return view('staff/index',compact('page','active','branches'));
+        return view('staff/index',compact('page','active','branches','clients'));
     }
 
     function bulkindex(){

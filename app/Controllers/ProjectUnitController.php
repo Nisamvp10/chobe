@@ -228,7 +228,7 @@ public function bulkUpload()
         }
 
         // Required fields
-        if (empty($rowData[1]) || empty($rowData[3]) || empty($rowData[4])) {
+        if (empty($rowData[1]) || empty($rowData[3]) || empty($rowData[4]) || empty($rowData[7]) || empty($rowData[9]) || empty($rowData[10])) {
             $failedRows[] = $row;
             continue;
         }
@@ -238,37 +238,43 @@ public function bulkUpload()
             'oldstore_name'       => $rowData[2] ?? null,
             'oracle_code'         => $rowData[3],
             'polaris_code'        => $rowData[4],
-            'email'               => $rowData[5] ?? null,
+            'rm_mail'             => $rowData[5] ?? null,
             'contact_number'      => $rowData[6] ?? null,
-            'rm_name'             => $rowData[7] ?? null,
+            'client_id'           => $rowData[7] ?? null,
             'start_date'          => !empty($rowData[8]) ? date('Y-m-d', strtotime($rowData[8])) : null,
-            'store_manager_name'  => $rowData[9] ?? null,
-            'allocated_to'        => $rowData[10] ?? null,
-            'allocated_date'      => !empty($rowData[11]) ? date('Y-m-d', strtotime($rowData[11])) : null,
-            'assigned_to'         => $rowData[12] ?? null,
-            'assigned_date'       => !empty($rowData[13]) ? date('Y-m-d', strtotime($rowData[13])) : null,
+            'regional_manager_id' => $rowData[9] ?? null,
+            'manager_id'          => $rowData[10] ?? null,
+            'allocated_to'        => $rowData[11] ?? null,
+            'allocated_date'      => !empty($rowData[12]) ? date('Y-m-d', strtotime($rowData[12])) : null,
+            'allocated_type'      => $rowData[13] ?? 1,
+            'assigned_to'         => $rowData[14] ?? null,
+            'assigned_date'       => !empty($rowData[15]) ? date('Y-m-d', strtotime($rowData[15])) : null,
+            'assigned_type'       => $rowData[16] ?? 1,
             'status'              => 1,
+            'project_unit_type'   => 1, 
         ];
     }
-
     if (!empty($insertData)) {
-       return $this->response->setJSON([
-        'success'     => true,
-        'message'     => 'Bulk upload completed',
-        'total_rows'  => $highestRow,
-        'inserted'    => count($insertData),
-        'failed_rows' => $failedRows
-    ]);
-        // $this->projectUnitModel->insertBatch($insertData);
+       
+        if($this->projectUnitModel->insertBatch($insertData)) {
+                return $this->response->setJSON([
+                'success'     => true,
+                'message'     => 'Bulk upload completed',
+                'total_rows'  => $highestRow,
+                'inserted'    => count($insertData),
+                'failed_rows' => $failedRows
+            ]);
+        }
+        
     }
 
-    return $this->response->setJSON([
-        'success'     => false,
-        'message'     => 'Bulk upload completed',
-        'total_rows'  => $highestRow,
-        'inserted'    => count($insertData),
-        'failed_rows' => $failedRows
-    ]);
+    // return $this->response->setJSON([
+    //     'success'     => false,
+    //     'message'     => 'Bulk upload completed',
+    //     'total_rows'  => $highestRow,
+    //     'inserted'    => count($insertData),
+    //     'failed_rows' => $failedRows
+    // ]);
 }
 
 }
