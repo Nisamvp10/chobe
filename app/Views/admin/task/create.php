@@ -55,18 +55,18 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Project Unit</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Task Mode</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-diagram-3 text-xl text-gray-400"></i></div>
                          <select name="taskmode" id="taskmode" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
                             <option value="">Select Task Mode</option>
-                            <option value="1">Permanent</option>
-                            <option value="2">Temporary</option>
+                            <option value="1">Daily occurring</option>
+                            <option value="2">Activates on Manual Trigger</option>
                         </select>                    
                         <div class="invalid-feedback" id="taskmode_error"></div>
                     </div>
                 </div>
-                 <div>
+                 <div class="hidden">
                     <label class="block text-sm font-medium text-gray-700 mb-1">File - Attachment</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-paperclip text-xl text-gray-400"></i></div>
@@ -79,12 +79,12 @@
 
             <!-- 2 -->
              <div class="space-y-4">
-                <div>
+                <div class="hidden">
                     <label class="block text-sm font-medium text-gray-700 mb-1 capitalize">Priority</label>
                     <div class="responseive">
                         <select id="priority" name="priority" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">">
                             <option value="">Select a Priority</option>
-                            <option value="1">High</option>
+                            <option selected="selected" value="1">High</option>
                             <option value="2">Medium</option>
                             <option value="3">Low</option>
                         </select>
