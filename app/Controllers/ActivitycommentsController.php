@@ -47,12 +47,21 @@ class ActivitycommentsController extends Controller {
         if($taskId) {
             $activity = $this->taskStaffActivityModel->find($activityId); //task_activity_id
             $activitytaskId = $activity['task_activity_id'];
+             $this->taskStaffActivityModel
+            ->where(['task_activity_id'=> $activitytaskId,'task_id' => $taskId])
+            ->set([
+                'completed_at' => date('Y-m-d H:i:s'),
+                'complated_by' => session('user_data')['id'],
+                'status'    => 'completed',
+                'progress'  => 'completed',
+            ])->update();
+
         }
         //edit 
         $commentId  =  $this->request->getPost('commentId');
         $dataInc = [
             'task_id'	    => $taskId,
-            'activity_id'   =>  $activitytaskId = $activity['task_activity_id'],
+            'activity_id'   =>  $activitytaskId,
             'user_id'	    => session('user_data')['id'],
             'comment'       => $comment,
             'status'	    => 1,

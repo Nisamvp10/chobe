@@ -29,6 +29,7 @@
         let pending = '';
         let inProgress ='';
         let completed = ''
+        let ui ='';
         taskHTML = '';
 
         if (tasks.length === 0) {
@@ -80,31 +81,44 @@
             ${task.description}
         </div>
     ${task.copen == 1 ? `
-        <!-- COMMENT FORM -->
-        <form class="comment-form flex items-center gap-2 w-72 " data-task-id="${task.id}" data-activity-id="${task.activityId}">
-            <textarea
-                name="comment"
-                rows="1"
-                placeholder="Enter comment..."
-                class="border rounded-md px-3 py-1 text-xs w-full resize-none focus:outline-none focus:ring comment-text">${task.comment ?? ''}</textarea>
+            <form class="comment-form flex items-center gap-2 w-72
+                        ${task.comment ? 'is-locked' : ''}"
+                data-task-id="${task.id}"
+                data-activity-id="${task.activityId}">
 
-            <!-- SAVE ICON -->
-            <button 
-                type="submit"
-                class="p-2 bg-blue-500 text-white rounded-2 hover:bg-blue-600"
-                title="Save Comment"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                <textarea
+                    name="comment"
+                    rows="1"
+                    placeholder="Enter comment..."
+                    class="comment-text border rounded-md px-3 py-1 text-xs w-full resize-none
+                        focus:outline-none focus:ring
+                        ${task.comment ? 'bg-gray-200 cursor-not-allowed' : ''}"
+                    ${task.comment ? 'disabled' : ''}>${task.comment ?? ''}</textarea>
+
+                <!-- ✏️ EDIT BUTTON -->
+                ${task.comment ? `
+                <button type="button"
+                        class="edit-comment p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        title="Edit Comment">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen "><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg>
+                </button>` : ''}
+
+                <!-- ✔ SAVE BUTTON -->
+                <button type="submit"
+                        class="save-comment p-2 bg-green-500 text-white rounded hover:bg-green-600
+                            ${task.comment ? 'hidden' : ''}"
+                        title="Save Comment">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M5 13l4 4L19 7" />
                 </svg>
-            </button>
-        </form>`: ''}
+                </button>
+            </form>` : ''}
 
         <!-- LOCK -->
         <div 
-            class="p-2 border rounded-md cursor-pointer
+            class="p-2 border rounded-md cursor-pointer hidden
             ${task.status === 'pending' ? 'bg-gray-200 locktotask' : 'bg-green-100'}"
             data-id="${task.activityId}">
             ${task.status === 'pending' ? unlock : lock}
@@ -209,10 +223,11 @@
                        
                     </tr>
                 `;
-
-
+                 console.log(taskHTML)
+                    ui += taskHTML;
                 if (task.status === 'pending') {
                     pending += taskHTML;
+                  
                 } else if (task.status === 'in_Progress') {
                     inProgress += taskHTML;
                 } else {
@@ -222,10 +237,12 @@
                 });
                    
                 }
-                //$('#taskTable').html(html);
-                $('#taskPending').html(pending);
-                $('#inProgress').html(inProgress);
-                $('#completed').html(completed);
+               
+                // $('#taskPending').html(pending);
+                // $('#inProgress').html(inProgress);
+                // $('#completed').html(completed);
+               
+                $('#taskTableUI').html(ui);
                 
             }
         loadTask();
@@ -776,3 +793,23 @@ function showStep(step) {
     // Show selected step
     $('.step' + step).show();
 }
+
+// edit comment
+document.addEventListener('click', function (e) {
+
+    const editBtn = e.target.closest('.edit-comment');
+    if (!editBtn) return;
+
+    const form = editBtn.closest('.comment-form');
+    const textarea = form.querySelector('.comment-text');
+    const saveBtn = form.querySelector('.save-comment');
+
+    // Enable textarea
+    textarea.disabled = false;
+    textarea.classList.remove('bg-gray-200', 'cursor-not-allowed');
+    textarea.focus();
+
+    // Toggle buttons
+    editBtn.classList.add('hidden');
+    saveBtn.classList.remove('hidden');
+});

@@ -115,7 +115,7 @@ protected $commentModel;
                 }else{
                     if ($activitytaskId = $activityModel->insert($data)) {
                             $getlastTask =   $this->activityModel->find($activitytaskId);
-                            $this->taskModel->update($getlastTask['task_id'],['status' => 'In_Progress']);
+                            $this->taskModel->update($getlastTask['task_id'],['status' => 'Pending']);//In_Progress
                 
                             // foreach ($staffs as $index => $staff) {
                             //     $assign = [
@@ -232,7 +232,7 @@ protected $commentModel;
                 $completedActivity = $taskStatus['completed_activities'] ?? 0 ;
                 $percentage = $totalActivity > 0 ? round(($completedActivity / $totalActivity) * 100) :0;
 
-                $status = $percentage >= 100 ? 'Completed' : 'In_Progress';
+                $status = $percentage >= 100 ? 'Completed' : 'Pending';//In_Progress
                 $taskUpdate = [
                     'status' => $status,
                     'progress' => $percentage
@@ -492,7 +492,7 @@ protected $commentModel;
             if($totalProgress >1 &&  $totalProgress <= 99 ) {
                 $taskUpdate = [
                     'progress' => $totalProgress,
-                    'status' => 'In_Progress'
+                    'status' => 'Pending'//In_Progress
                 ];
                  
             }else{
