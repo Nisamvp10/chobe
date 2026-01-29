@@ -11,6 +11,8 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use App\Models\TaskStaffActivityModel;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+
 
 class ReportController extends controller
 {
@@ -219,132 +221,134 @@ class ReportController extends controller
         ]);
     }
 
-     public function generateReport()
-    {
-       $reportModel = new ReportModel();
-       $taskStaffActivityModel = new TaskStaffActivityModel();
 
-        $search = $this->request->getGet('search');
-        $filter = $this->request->getGet('filter');
+
+    public function generateReport()
+    {
+        // IMPORTANT: clear output buffer
+        if (ob_get_length()) ob_end_clean();
+
+        $reportModel = new ReportModel();
+        $taskStaffActivityModel = new TaskStaffActivityModel();
+
+        $search    = $this->request->getGet('search');
+        $filter    = $this->request->getGet('filter');
         $startDate = $this->request->getGet('startDate');
-        $endDate = $this->request->getGet('endDate');
-        $prounit = $this->request->getGet('prounit');
+        $endDate   = $this->request->getGet('endDate');
+        $prounit   = $this->request->getGet('prounit');
 
         $reportResult = $reportModel->getReports($search, $filter, $startDate, $endDate, $prounit);
 
         $resultData = [];
         $activityHeaders = [];
 
-        // STEP 1: Group by task
+        // GROUP DATA
         foreach ($reportResult as $repo) {
             $taskId = $repo['taskId'];
 
             if (!isset($resultData[$taskId])) {
                 $resultData[$taskId] = [
-                    'taskId' => $taskId,
-                    'tasktitle' => $repo['task_title'],
-                    'storeName' => $repo['store_name'],
+                    'taskId'       => $taskId,
+                    'storeName'    => $repo['store_name'],
                     'oldStoreName' => $repo['oldstore_name'],
-                    'oracleCode' => $repo['oracle_code'],
-                    'activities' => []
+                    'oracleCode'   => $repo['oracle_code'],
+                    'activities'   => []
                 ];
             }
 
-            $activityIndex = count($resultData[$taskId]['activities']);
-            if (!isset($activityHeaders[$activityIndex])) {
-                $activityHeaders[$activityIndex] = $repo['activity_title'] . ' (ID: ' . $repo['activity_id'] . ')';
+            $idx = count($resultData[$taskId]['activities']);
+
+            if (!isset($activityHeaders[$idx])) {
+                $activityHeaders[$idx] = $repo['activity_title'];
             }
 
             $resultData[$taskId]['activities'][] = [
-                'activity_id' => $repo['activity_id'],
-                'activity_title' => $repo['activity_title'],
-                'status' => $repo['activity_status'],
-                'comment' => !empty($repo['last_comment']) ? $repo['last_comment'] : 'Not commented',
-                'comment_time' => $repo['comment_time'],
-                'taskStatus' => $repo['taskStatus'],
+                'activity_id'    => $repo['activity_id'],
+                'comment'        => $repo['last_comment'] ?: 'Not commented',
+                'taskStatus'     => $repo['taskStatus'],
                 'activityStatus' => $repo['activityStatus']
             ];
         }
 
-        // STEP 2: Max activities
+        // MAX ACTIVITY COUNT
         $maxActivities = 0;
-        foreach ($resultData as $task) {
-            $maxActivities = max($maxActivities, count($task['activities']));
+        foreach ($resultData as $t) {
+            $maxActivities = max($maxActivities, count($t['activities']));
         }
 
-        // STEP 3: Create Spreadsheet
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Header row
+        // HEADER
         $header = ['SL NO', 'CODE', 'STORE NAME', 'OLD NAME'];
         for ($i = 0; $i < $maxActivities; $i++) {
-            $header[] = $activityHeaders[$i] ?? 'Activity ' . ($i + 1);
+            $header[] = $activityHeaders[$i] ?? 'Activity '.($i+1);
         }
+
         $sheet->fromArray($header, null, 'A1');
 
-        // Style headers: bold + padding + center alignment
+        // STYLE HEADER
         $highestColumn = $sheet->getHighestColumn();
         $sheet->getStyle("A1:{$highestColumn}1")->getFont()->setBold(true);
-        $sheet->getStyle("A1:{$highestColumn}1")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle("A1:{$highestColumn}1")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        $sheet->getStyle("A1:{$highestColumn}1")->getAlignment()
+            ->setHorizontal(Alignment::HORIZONTAL_CENTER)
+            ->setVertical(Alignment::VERTICAL_CENTER);
 
-        // Add padding inside cells (PhpSpreadsheet doesn’t support padding directly, but use indent)
-        $sheet->getStyle("A1:{$highestColumn}1")->getAlignment()->setIndent(1);
-
-        // Data rows
-        $rowNumber = 2;
+        // DATA
+        $rowNo = 2;
         $sl = 1;
+
         foreach ($resultData as $task) {
-          
+
             $row = [
                 $sl++,
                 $task['oracleCode'],
                 $task['storeName'],
-                $task['oldStoreName'],
+                $task['oldStoreName']
             ];
 
-            foreach ($task['activities'] as $i => $activity) {
-                
-            if($activity['taskStatus'] == 'Completed' && $activity['activityStatus'] == 'completed') {
-                  $taskStaffActivityModel
-                    ->where(['task_activity_id'=> $activity['activity_id'],'task_id' => $task['taskId']])
-                    ->set([
-                        'commet_status' => 2
-                    ])->update();
-                   
-            }
-                $row[] = $activity['comment'];
+            foreach ($task['activities'] as $act) {
+
+                if ($act['taskStatus'] == 'Completed' && $act['activityStatus'] == 'completed') {
+                    $taskStaffActivityModel
+                        ->where([
+                            'task_activity_id' => $act['activity_id'],
+                            'task_id'          => $task['taskId']
+                        ])
+                        ->set(['commet_status' => 2])
+                        ->update();
+                }
+
+                $row[] = $act['comment'];
             }
 
-            // fill empty columns
-            for ($i = count($task['activities']); $i < $maxActivities; $i++) {
+            while (count($row) < count($header)) {
                 $row[] = '';
             }
 
-            $sheet->fromArray($row, null, 'A' . $rowNumber++);
-        }
-        // Auto-fit all columns
-        // Set widths: Auto-size for SL/Code, Fixed 45 (approx 300px) for others
-        $sheet->getColumnDimension('A')->setAutoSize(true);
-        $sheet->getColumnDimension('B')->setAutoSize(true);
-
-        $currentCol = 'C';
-        // Use string increment for columns to handle AA, AB etc correctly
-        while (strlen($currentCol) < strlen($highestColumn) || (strlen($currentCol) === strlen($highestColumn) && $currentCol <= $highestColumn)) {
-            $sheet->getColumnDimension($currentCol)->setWidth(45);
-            $sheet->getStyle($currentCol)->getAlignment()->setWrapText(true);
-            $currentCol++;
+            $sheet->fromArray($row, null, 'A'.$rowNo++);
         }
 
-        // STEP 4: Output Excel using IOFactory
-        $filename = 'task_report_' . date('Y-m-d_H-i-s') . '.xlsx';
+        // AUTO SIZE BASED ON CONTENT (SAFE)
+        $highestColumnIndex = Coordinate::columnIndexFromString($sheet->getHighestColumn());
+
+        for ($col = 1; $col <= $highestColumnIndex; $col++) {
+            $columnLetter = Coordinate::stringFromColumnIndex($col);
+            $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
+            $sheet->getStyle($columnLetter)->getAlignment()->setWrapText(true);
+        }
+
+        // OUTPUT
+        $filename = 'task_report_'.date('Y-m-d_H-i-s').'.xlsx';
+
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
         header('Cache-Control: max-age=0');
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save('php://output');
+        exit;
     }
+
 
 }

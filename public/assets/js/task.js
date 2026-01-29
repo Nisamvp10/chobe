@@ -15,7 +15,7 @@ $('#branch').on('change', function () {
                             <input type="checkbox" name="staff[]" class="staff-checkbox" data-id="${client.id}" value="${client.id}" id="staff-${client.id}">
                             <label for="staff-${client.id}">${client.name} (${client.role})</label>
                         </div>
-                        <select name="role[]" class="role-select hidden mt-2 md:mt-0 border rounded px-2 py-1 text-sm hidden" data-id="${client.id}">
+                        <select name="role[]" class="role-select hidden mt-2 md:mt-0 border rounded px-2 py-1 text-sm " data-id="${client.id}">
                             <option value="participant" selected>Participant</option>
                             <option value="team_leader">Team Leader</option>
                             <option value="team_coordinator">Team Coordinator</option>
