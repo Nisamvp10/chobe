@@ -71,7 +71,6 @@
                     <select id="filerStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
                         <option value="all">All</option>
                         <option value="Pending">Pending</option>
-                        <option value="In_Progress">In Progress</option>
                         <option value="Completed">Completed</option>
                     </select>
                 </div>
@@ -102,17 +101,18 @@
         $(document).ready(function() {
 
               window.loadReports = function (search = '', startDate = '', endDate = '') {
+                
                 let filer = $('#filerStatus').val();
                 let projectUnitFilter = $('#projectUnitFilter').val();
 
                 $.ajax({
                     url: "<?= site_url('reports/list') ?>",
                     type: "GET",
-                    data: { search: search,filer:filer ,startDate:startDate,endDate:endDate,prounit:projectUnitFilter},
+                    data: { search: search,filter:filer ,startDate:startDate,endDate:endDate,prounit:projectUnitFilter},
                     dataType: "json",
                     success: function(response) {
                         if (response.success) {
-                            renderTable(response.result);
+                            renderTable(response);
                         }
                     }
                 });
@@ -121,7 +121,7 @@
             function renderTable(result){
                 let html = '';
 
-                if (result.length === 0) {
+                if (result.result.length === 0) {
                     html += `
                         <div class="text-center py-8">
                             <h3 class="text-lg font-medium text-gray-700">No Clients found</h3>
@@ -132,63 +132,31 @@
                     html += `
                         <table class="min-w-full divide-y divide-gray-200 border border-collapse">
                             <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project Unit</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participates</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity Tasks</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Completion</th>
-                                </tr>
+                                <tr>`;
+                                if(result.headers.length > 0) {
+                                    result.headers.forEach(header => {
+                                        html += `<th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`;
+                                    })
+                                }
+                                    
+                                  html += `</tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                     `;
-                    result.forEach(report => {
+                 if (result.result && result.result.length > 0) {
+                            result.result.forEach(row => {
+                                html += `<tr class="hover:bg-gray-50">`;
 
-                        const totalTasks = report.total_activities ? report.total_activities :0;
-                        const completedTasks = report.completed_activities ? report.completed_activities : 0;
-                        const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100): 0;
-              
-               // let joinedDate = new Date(client.join_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                                row.forEach(col => {
+                                    html += `
+                                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                                            ${col ?? ''}
+                                        </td>`;
+                                });
 
-                        html += `
-                            <tr class="hover:bg-gray-50">
-                             <td class="px-2 py-2 whitespace-nowrap">
-                                
-                                    <div class="flex items-center">
-                                        
-                                        <div class="text-sm font-medium text-gray-900">${report.store ?? '-'}</div>
-                                    </div>
-                                </td>
-                                <td class="px-2 py-2 whitespace-nowrap">
-                                
-                                    <div class="flex items-center">
-                                        
-                                        <div class="text-sm font-medium text-gray-900">${report.title}</div>
-                                    </div>
-                                </td>
-                                <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">Master Task Participates ${report.total_task_staff}</div>
-                                    <div class="text-sm text-gray-900">Activity Task Participates ${report.total_activity_staff ?? 0}</div>
-                                </td>
-                                <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">${report.total_activities ?? 0}</div>
-                                </td>
-                                <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">${report.master_task_status}</div>
-                                </td>
-                                <td class="px-2 py-2 whitespace-nowrap">
-                                     <div class="d-flex align-items-center mb-2">
-                                        <div class="w-full justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
-                                            <div class="h-2 rounded-full transition-all duration-500 ${(percent < 50 ? 'bg-red-500' : (percent > 80 ? 'bg-green-500' :'bg-yellow-500'))} " style="width: ${percent}%"></div> 
-                                        </div>
-                                        <span class="text-xs text-gray-500 text-gray-900">  ${report.completed_activities ?? 0} / ${report.total_activities ?? 0} ${percent}%</span>
-                                    </div>
-                                </td>
-
-                            </tr>
-                        `;
-                    });
+                                html += `</tr>`;
+                            });
+                        }
                     
 
                     html += `</tbody></table>`;

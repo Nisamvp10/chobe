@@ -7,7 +7,111 @@ class ReportModel extends Model
 {
     protected $table = 'tasks';   // <-- important
     protected $primaryKey = 'id';
-  public function getReports($search = '', $filter = '',$startDate ='' , $endDate = '', $prounit ='')
+
+     public function getReports($search = '', $filter = '', $startDate = '', $endDate = '', $prounit = '')
+    {
+       $builder = $this->db->table('tasks t');
+
+        $builder = $this->db->table('tasks t');
+
+            $builder->select([
+                't.id as taskId',
+                'mt.title as task_title',
+                'pu.store as store_name',
+                'pu.oldstore_name',
+                'pu.oracle_code',
+                't.created_at',
+                't.status as taskStatus',
+                'tsa.status as activityStatus',
+                'a.id as activity_id',
+                'a.activity_title',
+
+                // ✅ Activity status (group-based)
+                "CASE 
+                    WHEN SUM(tsa.status = 'completed') > 0 
+                    THEN 'completed' 
+                    ELSE 'pending' 
+                END as activity_status",
+
+                // ✅ Last comment per TASK + ACTIVITY
+                'COALESCE(ac.comment, "Nill") as last_comment',
+                'ac.created_at as comment_time'
+            ]);
+
+            /* =================== JOINS =================== */
+
+            $builder->join('mastertasks mt', 'mt.id = t.created_from_template', 'left');
+            $builder->join('project_unit pu', 'pu.id = t.project_unit', 'left');
+            $builder->join('task_staff_activities tsa', 'tsa.task_id = t.id', 'left');
+            $builder->join('activities a', 'a.id = tsa.task_activity_id', 'left');
+
+            /* ✅ JOIN LAST COMMENT PER TASK + ACTIVITY */
+            $builder->join(
+                '(SELECT ac1.*
+                FROM activities_comments ac1
+                INNER JOIN (
+                    SELECT task_id, activity_id, MAX(id) AS last_id
+                    FROM activities_comments
+                    GROUP BY task_id, activity_id
+                ) ac2
+                ON ac1.id = ac2.last_id
+                ) ac',
+                'ac.task_id = t.id AND ac.activity_id = a.id',
+                'left'
+            );
+
+            /* =================== GROUP =================== */
+
+            $builder->groupBy([
+                't.id',
+                'a.id'
+            ]);
+        //$builder->where('t.id', 284);
+
+        /* GROUP BY TASK + ACTIVITY */
+        $builder->groupBy([
+            't.id',
+            'a.id'
+        ]);
+
+
+
+        // $query = $builder->get();
+        // $result = $query->getResultArray();
+
+
+        /*
+        |------------------------------------------------------
+        | OPTIONAL: Order
+        |------------------------------------------------------
+        */
+        // $builder->orderBy('t.id', 'ASC');
+        // $builder->orderBy('a.id', 'ASC');
+        //$builder->join('activities_comments ac', 'ac.task_id = t.id', 'left');
+    
+        if (!empty($search) && $search != 'all') {
+            $builder->like('t.title', $search);
+        }
+
+        if (!empty($prounit) && $prounit != 'all') {
+            $builder->where('t.project_unit', $prounit);
+        }
+
+        if (!empty($filter) && $filter != 'all') {
+            $builder->where('t.status', $filter);
+        }
+
+        if (!empty($startDate) && !empty($endDate)) {
+            $builder->where('DATE(t.created_at) >=', $startDate);
+            $builder->where('DATE(t.created_at) <=', $endDate);
+        }
+
+        return $builder->get()->getResultArray();
+
+        
+    }
+
+  public function _____getReportsOLd($search = '', $filter = '',$startDate ='' , $endDate = '', $prounit ='')
     {
         $subQueryActivities = "
             SELECT 

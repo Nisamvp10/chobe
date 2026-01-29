@@ -5,15 +5,18 @@ namespace App\Controllers;
 use CodeIgniter\Controller;
 use App\Models\ActivitycommentsModel;
 use App\Models\TaskStaffActivityModel;
+use App\Models\TaskModel;
 
 class ActivitycommentsController extends Controller {
     protected $commentModel;
     protected $taskStaffActivityModel;
+    protected $taskModel;
 
     function __construct()
     {
         $this->commentModel = new ActivitycommentsModel();
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
+        $this->taskModel = new TaskModel();
     }
     public function activityCommentsList() {
         //for admin list all comments
@@ -47,8 +50,7 @@ class ActivitycommentsController extends Controller {
         if($taskId) {
             $activity = $this->taskStaffActivityModel->find($activityId); //task_activity_id
             $activitytaskId = $activity['task_activity_id'];
-             $this->taskStaffActivityModel
-            ->where(['task_activity_id'=> $activitytaskId,'task_id' => $taskId])
+             $this->taskStaffActivityModel->where(['task_activity_id'=> $activitytaskId,'task_id' => $taskId])
             ->set([
                 'completed_at' => date('Y-m-d H:i:s'),
                 'complated_by' => session('user_data')['id'],
@@ -67,6 +69,32 @@ class ActivitycommentsController extends Controller {
             'status'	    => 1,
             'created_by'	=> session('user_data')['id'],
         ];
+
+           /* 🔹 UPDATE TASK PROGRESS */
+        $totalActivities = $this->taskStaffActivityModel
+            ->where('task_id', $taskId)
+            ->groupBy('task_activity_id')
+            ->countAllResults();
+
+        $completedActivities = $this->taskStaffActivityModel
+            ->where([
+                'task_id' => $taskId,
+                'status'  => 'completed'
+            ])
+            ->groupBy('task_activity_id')
+            ->countAllResults();
+
+        $progress = ($totalActivities > 0)
+            ? round(($completedActivities / $totalActivities) * 100, 2)
+            : 0;
+
+        $taskUpdate = [
+            'progress' => $progress,
+            'status'   => ($progress >= 100) ? 'Completed' : 'Pending'
+        ];
+
+        $this->taskModel->update($taskId, $taskUpdate);
+
         if($this->commentModel->insert($dataInc)) {
              return $this->response->setJSON([
                 'success' => true,

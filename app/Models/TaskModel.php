@@ -63,7 +63,6 @@ class TaskModel extends Model {
     }
 
      function getMytask($limit=false,$orderBy=false,$notificationTask=false,$filter=false) {
-
         $userId = session('user_data')['id'];
 
         $taskIds = $this->db->table('task_assignees')
@@ -77,8 +76,7 @@ class TaskModel extends Model {
 
 
          $builder = $this->db->table('tasks as t')
-            ->select('
-                t.id, t.title, t.description, t.status, t.completed_at, t.project_id,t.next_run_date,
+            ->select('t.id, t.title, t.description, t.status, t.completed_at, t.project_id,t.next_run_date,
                 b.polaris_code,
                 t.priority, t.overdue_date, b.store as branch_name, b.id as store, 
                 t.created_at, u.profileimg, u.name, u.id as userId, 
@@ -90,6 +88,10 @@ class TaskModel extends Model {
             //->whereIn('t.id', $myTaskIds)
             ->where('a.staff_id',session('user_data')['id'])
             ->orderBy('t.id', 'DESC');
+            $builder->groupStart()
+            ->where('t.status !=', 'Completed')
+            ->orWhere('t.created_at >=', 'DATE_SUB(NOW(), INTERVAL 1 DAY)', false)
+            ->groupEnd();
 
                     if ($orderBy) {
                         $builder->orderBy($orderBy);

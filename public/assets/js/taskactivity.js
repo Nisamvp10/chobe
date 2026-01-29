@@ -100,7 +100,7 @@ data-id="${task.id}">
                         ${task.comment ? 'bg-gray-200 cursor-not-allowed' : ''}"
                     ${task.comment ? 'disabled' : ''}>${task.comment ?? ''}</textarea>
 
-                <!-- ✏️ EDIT BUTTON -->
+                <!-- EDIT BUTTON -->
                 ${task.comment ? `
                 <button type="button"
                         class="edit-comment p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -120,7 +120,6 @@ data-id="${task.id}">
                 </svg>
                 </button>
             </form>` : ''}
-
         <!-- LOCK -->
         <div 
             class="p-2 border rounded-md cursor-pointer hidden

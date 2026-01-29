@@ -15,7 +15,7 @@ $('#branch').on('change', function () {
                             <input type="checkbox" name="staff[]" class="staff-checkbox" data-id="${client.id}" value="${client.id}" id="staff-${client.id}">
                             <label for="staff-${client.id}">${client.name} (${client.role})</label>
                         </div>
-                        <select name="role[]" class="role-select hidden mt-2 md:mt-0 border rounded px-2 py-1 text-sm" data-id="${client.id}">
+                        <select name="role[]" class="role-select hidden mt-2 md:mt-0 border rounded px-2 py-1 text-sm hidden" data-id="${client.id}">
                             <option value="participant" selected>Participant</option>
                             <option value="team_leader">Team Leader</option>
                             <option value="team_coordinator">Team Coordinator</option>
@@ -51,7 +51,7 @@ $(document).on('change', '.staff-checkbox', function () {
 });
 
 
-$('#taskCreate').on('submit', function(e) {
+$('#taskCreate').on('submit', function (e) {
 
     let webForm = $('#taskCreate');
     e.preventDefault();
@@ -62,31 +62,29 @@ $('#taskCreate').on('submit', function(e) {
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
     );
     $.ajax({
-        url : App.getSiteurl()+'task/save',
-        method:'POST',
+        url: App.getSiteurl() + 'task/save',
+        method: 'POST',
         data: formData,
         contentType: false,
         processData: false,
-        success:function(response)
-        { 
-            if(response.success){
+        success: function (response) {
+            if (response.success) {
                 toastr.success(response.message);
                 webForm[0].reset();
-            }else{
-                if(response.errors){
-                    $.each(response.errors,function(field,message)
-                    {
-                        $('#'+ field).addClass('is-invalid');
+            } else {
+                if (response.errors) {
+                    $.each(response.errors, function (field, message) {
+                        $('#' + field).addClass('is-invalid');
                         $('#' + field + '_error').text(message);
                     })
-                }else{
+                } else {
                     toastr.error(response.message);
                 }
             }
-        },error: function() {
+        }, error: function () {
             toastr.error('An error occurred while saving Service');
         },
-        complete: function() {
+        complete: function () {
             // Re-enable submit button
             $('#submitBtn').prop('disabled', false).text('Save Branch');
         }
