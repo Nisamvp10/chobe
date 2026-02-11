@@ -135,6 +135,7 @@ function renderTable(tasks) {
                         data-status="${task.status}"
                         onclick="openTaskModal(this)"
                         data-title="${task.title}"
+                        data-templateid="${task.template_id}"
                         data-desc="${task.description}"
                         data-branch="${(task.branch_name ? task.branch_name : 'all')}"
                         data-projectUnit="${(task.projectUnit ? task.projectUnit : '')}"
@@ -317,7 +318,7 @@ function openTaskModal(el) {
     //edit data
     const taskEdit = document.getElementById('taskEditForm');
     // Populate fields from data attributes
-    taskEdit.querySelector('#title').value = el.dataset.title || '';
+    $('#masetrTask').val(el.dataset.templateid).trigger('change');
     taskEdit.querySelector('#description').value = el.dataset.desc || '';
     taskEdit.querySelector('#project').value = el.dataset.project || '';
     //taskEdit.querySelector('#branch').value = el.dataset.store || '';

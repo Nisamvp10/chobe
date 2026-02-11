@@ -6,15 +6,17 @@ function openModal(id = false) {
     webForm.querySelector('#activityId').value = '';
     webForm.querySelector('#title').value = '';
     webForm.querySelector('#description').value = '';
+    $('#taskId').val();
     if (id) {
         fetch(App.getSiteurl() + `api/get-activity/${id}`)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
+                console.log(data.result.task_id);
                 if (data.success) {
                     webForm.querySelector('#activityId').value = data.result.id;
                     webForm.querySelector('#title').value = data.result.activity_title;
                     webForm.querySelector('#description').value = data.result.activity_description;
+                    $('#taskId').val(data.result.task_id ?? '').trigger('change');
                 }
             })
     }

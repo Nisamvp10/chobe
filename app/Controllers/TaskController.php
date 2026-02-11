@@ -55,17 +55,20 @@ class TaskController extends Controller {
         $projects = $this->projects->where('is_active',1)->findAll();
         $projectUnits = $this->projectUnitModel->where('status',1)->findAll();
         $taskStatus = $taskStatus;
-        return view('admin/task/index',compact('page','branches','taskStatus','projects','projectUnits'));
+        $masterTasks = $this->mastertaskModel->where('status','active')->findAll();
+        return view('admin/task/index',compact('page','branches','taskStatus','projects','projectUnits','masterTasks'));
     }
 
     function create() {
 
-        $page = "Create New Task";
+        $page = "Activate Task";
         $branches = $this->branchModel->where('status','active')->findAll();
         $projects = $this->projects->where('is_active',1)->findAll();
         $staffs =  $this->staffModal->where('role !=',1)->findAll();
         $projectUnits = $this->projectUnitModel->where('status',1)->findAll();
-        return view('admin/task/create',compact('page','branches','projects','staffs','projectUnits'));
+        //return view('admin/task/create',compact('page','branches','projects','staffs','projectUnits'));
+        $masterTasks = $this->mastertaskModel->where('status','active')->findAll();
+        return view('admin/task/assign',compact('page','branches','projects','staffs','projectUnits','masterTasks'));
     }
     // task save
     public function save()
@@ -89,18 +92,20 @@ class TaskController extends Controller {
 
         // Validation rules
         $rules = [
-            'title'       => 'required',
-            'description' => 'required|min_length[3]',
-            'priority'    => 'required',
+            // 'title'       => 'required',
+            // 'description' => 'required|min_length[3]',
+            // 'priority'    => 'required',
             //'taskmode'    => 'required',
+            'masetrTask'    => 'required',
         ];
 
-        
+        //taskCreate
 
-        if (empty($taskId)) {
-            $rules['taskmode'] = 'required';
-            $rules['project'] = 'required';
-        }
+       
+        // if (empty($taskId)) {
+        //     $rules['taskmode'] = 'required';
+        //     $rules['project'] = 'required';
+        // }
 
         if (!$this->validate($rules)) {
             return $this->response->setJSON([
@@ -108,27 +113,48 @@ class TaskController extends Controller {
                 'errors'  => $this->validator->getErrors()
             ]);
         }
-
+        $mastertaskId = $this->request->getPost('masetrTask');
+        $masterTask = $this->mastertaskModel->where('id',$mastertaskId)->get()->getRow();
         // Prepare task data
-        $masterTaskData = [
-            'title'         => $this->request->getPost('title'),
-            'description'   => $this->request->getPost('description'),
-            'status'        => 'active',
-            'tasktype'      => $this->request->getPost('taskmode'),
-        ];
-        $data = [
-            'title'         => $this->request->getPost('title'),
-            'description'   => $this->request->getPost('description'),
-            'overdue_date'  => $this->request->getPost('duedate') ?: null,
-            'priority'      => $this->request->getPost('priority'),
-            'branch'        => 'all',
-            'project_unit'  => $this->request->getPost('projectUnit') ?: null,
-            'project_id'    => $this->request->getPost('project') ?: null,
-            'status'        => $this->request->getPost('status') ?? 'Pending',
-            'recurrence'    => 'daily',
-            'taskmode'      => $this->request->getPost('taskmode'),
-            'next_run_date' => date('Y-m-d', strtotime('+1 day')),
-        ];
+        // $masterTaskData = [
+        //     'title'         => $this->request->getPost('title'),
+        //     'description'   => $this->request->getPost('description'),
+        //     'status'        => 'active',
+        //     'tasktype'      => $this->request->getPost('taskmode'),
+        // ];
+        
+        if (!empty($masterTask)) {
+                $masterTaskId = $masterTask->id;
+                $data = [
+                'title'         => $masterTask->title,
+                'description'   => $masterTask->description,
+                'overdue_date'  => $this->request->getPost('duedate') ?: null,
+                'priority'      => 1,//high
+                'branch'        => 'all',
+                'project_unit'  => $this->request->getPost('projectUnit') ?: null,
+                'project_id'    => $masterTask->project_unit_id ?: null,
+                'status'        => $this->request->getPost('status') ?? 'Pending',
+                'recurrence'    => 'daily',
+                'taskmode'      => $masterTask->tasktype,
+                'next_run_date' => date('Y-m-d', strtotime('+1 day')),
+            ];
+             
+            
+      
+       
+        // $data = [
+        //     'title'         => $this->request->getPost('title'),
+        //     'description'   => $this->request->getPost('description'),
+        //     'overdue_date'  => $this->request->getPost('duedate') ?: null,
+        //     'priority'      => $this->request->getPost('priority'),
+        //     'branch'        => 'all',
+        //     'project_unit'  => $this->request->getPost('projectUnit') ?: null,
+        //     'project_id'    => $this->request->getPost('project') ?: null,
+        //     'status'        => $this->request->getPost('status') ?? 'Pending',
+        //     'recurrence'    => 'daily',
+        //     'taskmode'      => $this->request->getPost('taskmode'),
+        //     'next_run_date' => date('Y-m-d', strtotime('+1 day')),
+        // ];
 
         if (!empty($taskId)) {
             $progress = $this->request->getPost('progress');
@@ -152,13 +178,20 @@ class TaskController extends Controller {
         }
 
         // Fetch active master activities
-        $masterActivities = $this->activityModel->where(['status'=> 'active','activity_type' => 1])->findAll();
+        $masterActivities = $this->activityModel->where(['status'=> 'active','task_id'=>$masterTaskId,'activity_type' => 1])->findAll();
 
         $staffs = $this->request->getPost('staff') ?? [];
         $roles  = $this->request->getPost('role') ?? [];
 
 
         if (!empty($taskId)) {
+
+            $data = [
+                'description'   => $this->request->getPost('description'),
+                'priority'      => $this->request->getPost('priority'),
+                //'status'        => $this->request->getPost('status') ?? 'Pending',
+            ];
+
             // ---------------- UPDATE TASK ----------------
             //$this->mastertaskModel->update($taskId, $data);
             $getTask = $this->taskModel->where('id',$taskId)->get()->getRow();
@@ -188,6 +221,7 @@ class TaskController extends Controller {
                 $allTaskActivities = $this->taskActivityModel
                     ->where('task_id', $taskId)
                     ->findAll();
+
 
                 $allTaskActivityIds = array_column($allTaskActivities, 'id');
 
@@ -298,6 +332,7 @@ class TaskController extends Controller {
                  $masterActivities = $this->activityModel
                     ->where('status', 'active')
                     ->where('activity_type', 1)
+                    ->where('task_id',$masterTaskId)
                     ->findAll();
 
 
@@ -307,7 +342,7 @@ class TaskController extends Controller {
                         'message' => 'No master activities found'
                     ]);
                 }
-                 $masterTskId = $this->mastertaskModel->insert( $masterTaskData,true);
+                 $masterTskId = $masterTaskId;//$this->mastertaskModel->insert( $masterTaskData,true);
                 foreach ($projectUnits as $unit) {
 
                     /* ===============================
@@ -399,6 +434,12 @@ class TaskController extends Controller {
                     'success' => true,
                     'message' => 'Daily tasks auto-created successfully for all project units'
                 ]);
+        }
+        }else{
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No Master Task found'
+            ]);
         }
     }
 
@@ -577,8 +618,6 @@ class TaskController extends Controller {
             $endDate = $this->request->getGet('endDate');
             $taskProject = $this->request->getGet('taskProject');
             $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate,$taskProject); // or ->findAll()
-        // echo  $this->taskModel->getLastQuery();exit();
-
             
             $groupData = [];
 
@@ -602,6 +641,7 @@ class TaskController extends Controller {
 
                         'id'        => encryptor($task['id']),
                         'title'     => $task['title'],
+                        'template_id'   => $task['created_from_template'],
                         'storeId'   => $task['store'],
                         'description' => $task['description'],
                         'branch_name' => $task['branch_name'],
@@ -935,4 +975,14 @@ class TaskController extends Controller {
                 
         }
     }
+
+function getActivities() {
+    $id = $this->request->getPost('id');
+   // $activities = $this->activityModel->where('task_id', $id)->findAll();
+   $activities = $this->activityModel->getactivityBymastarTask($id);
+    return $this->response->setJSON([
+        'success' => true,
+        'activities' => $activities
+    ]);
+}
 }

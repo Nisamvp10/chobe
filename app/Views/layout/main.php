@@ -738,6 +738,12 @@ a{
                 if(haspermission('','task_view')) { 
                         if( $userRole == 1) {
                  ?>
+                  <li class="nav-item">
+                    <a class="nav-link <?= strpos(uri_string(), 'master-task') === 0 && strpos(uri_string(), 'master-task') === false ? 'active' : '' ?>" href="<?= base_url('master-task') ?>">
+                        <i class="bi bi-list-check"></i>
+                        <span>Master Task </span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'tasks') === 0 && strpos(uri_string(), 'tasks') === false ? 'active' : '' ?>" href="<?= base_url('tasks') ?>">
                         <i class="bi bi-list-check"></i>

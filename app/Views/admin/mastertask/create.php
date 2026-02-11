@@ -4,10 +4,12 @@
     if(!empty($data))
     {
         $id = encryptor($data['id']);
-        $branch = $data['branch_name'];
-        $location = $data['location'];
+        $title = $data['title'];
+        $description = $data['description'];
+        $projectUnit = $data['project_unit_id'];
+        $taskmode = $data['tasktype'];
     }else{
-        $id=$branch=$location = '';
+        $id=$title=$description = $projectUnit = $taskmode = '';
     }
 ?>
  <!-- titilebar -->
@@ -36,7 +38,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
                     <i class="bi bi-list-check text-xl text-gray-400"></i>
                 </div>
-                <input type="text"  name="title" id="title" value="" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter task Title">
+                <input type="text" name="title" id="title" value="<?= $title ?>" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter task Title">
                 <div class="invalid-feedback" id="title_error"></div>
                 </div>
             </div>
@@ -47,7 +49,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
                     <i class="bi bi-pencil text-xl text-gray-400"></i>
                 </div>
-                <textarea name="description" id="description" class="pl-10 mt-2 flex min-h-[80px] w-full rounded-md border border-input bg-background  py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"></textarea>
+                <textarea name="description" id="description" class="pl-10 mt-2 flex min-h-[80px] w-full rounded-md border border-input bg-background  py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"><?= $description ?></textarea>
                 <div class="invalid-feedback" id="description_error"></div>
                 </div>
             </div>
@@ -60,8 +62,8 @@
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-diagram-3 text-xl text-gray-400"></i></div>
                          <select name="taskmode" id="taskmode" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
                             <option value="">Select Task Mode</option>
-                            <option value="1">Daily occurring</option>
-                            <option value="2">Activates on Manual Trigger</option>
+                            <option <?= $taskmode == 1 ? 'selected' : '' ?> value="1">Daily occurring</option>
+                            <option <?= $taskmode == 2 ? 'selected' : '' ?> value="2">Activates on Manual Trigger</option>
                         </select>                    
                         <div class="invalid-feedback" id="taskmode_error"></div>
                     </div>
@@ -103,7 +105,7 @@
                                 if(!empty($projects)){
                                     foreach($projects as $project){
                                     ?>
-                                        <option  value="<?=$project['id'];?>"><?=$project['project'];?></option>
+                                        <option <?= $projectUnit == $project['id'] ? 'selected' : '' ?> value="<?=$project['id'];?>"><?=$project['project'];?></option>
                                     <?php 
                                     } 
                                 } ?>
@@ -144,13 +146,12 @@
         
        
         <div class="mt-8 flex justify-end gap-3">
-                    <?= ($id ? '<button type="button" onClick="deleteBranch(this)" data-id="'.$id.'" class="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2 inline-block mr-1"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>Delete</button>' :'')?>
-                    <a href="<?=base_url('branches');?>" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</a>
+                    <a href="<?=base_url('master-task');?>" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</a>
                     <button id="submitBtn" class="bg-primary-600 hover:bg-primary-700 rounded-2 bg-blue-500 text-white px-4 py-2 rounded-md flex items-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save mr-1"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>Save</button>
             </div>
     </form>
 </div><!-- close body -->
 <?= $this->endSection();?>
 <?= $this->section('scripts') ?>
-<script src="<?=base_url('public/assets/js/task.js') ;?>" ></script>
+<script src="<?= base_url('public/assets/js/mastertasklist.js') ?>"></script>
 <?= $this->endSection() ;?>

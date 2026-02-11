@@ -109,6 +109,14 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('tasks/notification-task/(:any)','TaskController::notificationTask/$1');
     $routes->delete('task/delete/(:any)', 'TaskController::delete/$1');
     $routes->post('task/start','TaskController::start');
+    $routes->post('master-task/get-activities','TaskController::getActivities');
+    //master tasks 
+    $routes->get('master-task','MasterTaskController::index');
+    $routes->post('master-tasks/list','MasterTaskController::list');
+    $routes->get('task/create-master-task','MasterTaskController::create');
+    $routes->get('master-task/edit/(:any)','MasterTaskController::create/$1');
+    $routes->post('master-task/save','MasterTaskController::save');
+    $routes->post('master-task/delete/(:any)','MasterTaskController::delete/$1');
     //replay
     $routes->get('tasks/my-tasks','TaskController::myTask');
     $routes->get('task/my-task','TaskController::myTaskList');

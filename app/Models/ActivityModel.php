@@ -112,7 +112,9 @@ class ActivityModel extends Model
 
     function getActivity($taskId=false,$searchInput=false,$filter=false,$startDate=false,$endDate=false) {
         $builder = $this->db->table ('activities as a')
-            ->select('a.activity_title,a.activity_description,a.status,a.id,a.progress,a.duedate,a.created_at');
+            ->select('a.activity_title,a.activity_description,a.status,a.id,a.progress,a.duedate,a.created_at,
+            mt.title as task_title');
+            $builder->join('mastertasks as mt','mt.id = a.task_id','left');
             if($searchInput) {
                  $builder->like('a.activity_title',$searchInput);
             }
@@ -153,6 +155,14 @@ class ActivityModel extends Model
                 $builder->like('a.activity_title',$search)
                     ->orLike('t.title',$search);
             }
+            $result = $builder->get()->getResultArray();
+            return  $result;
+    }
+    function getactivityBymastarTask($taskId) {
+        $builder = $this->db->table('activities as a')
+            ->select('a.id,a.activity_title as title')
+            ->join('mastertasks as mt','mt.id = a.task_id','left')
+            ->where('a.task_id',$taskId);
             $result = $builder->get()->getResultArray();
             return  $result;
     }

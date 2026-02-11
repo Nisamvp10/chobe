@@ -11,6 +11,7 @@ use App\Models\AssigntaskModel;
 use App\Models\TaskactivityModel;
 use App\Models\TaskStaffActivityModel;
 use App\Models\ActivitycommentsModel;
+use App\Models\MasterTaskModel;
 use DateTime;
 
 class ActivitiesController extends Controller {
@@ -22,6 +23,7 @@ protected $userModel;
 protected $taskStaffActivityModel;
 protected $taskassignModel;
 protected $commentModel;
+protected $masterTaskModel;
 
     function __construct(){
         $this->taskModel = new TaskModel();
@@ -32,9 +34,11 @@ protected $commentModel;
         $this->activityTaskModel = new TaskactivityModel();
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
         $this->commentModel = new ActivitycommentsModel();
+        $this->masterTaskModel = new MasterTaskModel();
     }
 
     function activities($id=false) {
+       
         $id = decryptor($id);
         $task = $this->taskModel->where('id',$id)->first();
         if(!empty($task)) {
@@ -153,8 +157,9 @@ protected $commentModel;
             return $this->response->setJSON(['success' => false, 'message' => lang('Custom.accessDenied')]);
         }
 
-        $activity = $this->activityModel->select('id,activity_title,activity_description')->where('id',$id)->get()->getRow();
+        $activity = $this->activityModel->select('id,activity_title,task_id,activity_description')->where('id',$id)->get()->getRow();
         if($activity) {
+            $activity->task_id = encryptor($activity->task_id);
             return $this->response->setJSON(['success' => true, 'result' => $activity]);
         }
         return $this->response->setJSON(['success' => false, 'message' => 'Item not Found']);
@@ -251,7 +256,8 @@ protected $commentModel;
         $page = (!haspermission('','view_activity_task') ? lang('Custom.accessDenied') : 'Activity Tasks' );
         $tasks = $this->taskModel->findAll();
         $staff =  $this->staffModal->where('role !=',1)->findAll();
-        return view('admin/activities/list',compact('page','tasks','staff'));
+        $masterTasks = $this->masterTaskModel->where('status','active')->findAll();
+        return view('admin/activities/list',compact('page','tasks','staff','masterTasks'));
         
     }
 
@@ -301,6 +307,7 @@ protected $commentModel;
         if(!haspermission('','task_view')) {
             return $this->response->setJSON(['success' => false, 'message' => lang('Custom.accessDenied')]);
         }
+        
 
         $taskId    = $this->request->getGet('task');
         $search    = $this->request->getGet('search');

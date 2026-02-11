@@ -90,3 +90,29 @@ $('#taskCreate').on('submit', function (e) {
         }
     })
 })
+
+document.addEventListener('click', async (e) => {
+    if (e.target.closest('.masetrTask')) {
+        let html = '';
+        const id = e.target.value;
+        $.ajax({
+            url: App.getSiteurl() + 'master-task/get-activities',
+            method: 'POST',
+            data: { id: id },
+            success: function (response) {
+                if (response.success) {
+                    response.activities.forEach(activity => {
+                        html += `
+                        <div class="activity-wrapper border rounded-md p-3 flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" name="activity[]" class="activity-checkbox hidden" data-id="${activity.id}" value="${activity.id}" id="activity-${activity.id}">
+                                <label for="activity-${activity.id}">${activity.title}</label>
+                            </div>
+                        </div>`;
+                    });
+                    $('#activities').html(html);
+                }
+            }
+        })
+    }
+})

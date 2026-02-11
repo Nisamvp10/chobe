@@ -140,7 +140,7 @@ let allData = [];
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S/O </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity Task</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
                          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                     </tr>
                 </thead>
@@ -154,7 +154,7 @@ let allData = [];
                     <td class="px-6 py-4 whitespace-nowrap">${start + indx+1}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${task.activity_title}</td>
                     <td class="px-6 py-4 ">${task.activity_description}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${task.created_at}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${task.task_title}</td>
                      <td class="px-6 py-4 whitespace-nowrap"><a onclick="openModal(${task.id})"  class="text-blue-600 hover:text-blue-800 mr-3">Edit</a></td>
                 </tr>
             `;
