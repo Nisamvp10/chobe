@@ -3,10 +3,10 @@ namespace App\Controllers;
 use App\Models\BranchesModel;
 use App\Models\ProjectsModel;
 use App\Models\ProjectunitModel;
-use App\Models\MasterTaskModel;
+use App\Models\MastertaskModel;
 use App\Models\UserModel;
 
-class MasterTaskController extends BaseController
+class MasterTaskController extends BaseCo   ntroller
 {
     public $branchModel;
     public $projects;
@@ -19,8 +19,8 @@ class MasterTaskController extends BaseController
         $this->branchModel = new BranchesModel();
         $this->projects = new ProjectsModel();
         $this->projectUnitModel = new ProjectunitModel();
-        $this->masterTaskModel = new MasterTaskModel();
-        $this->userModel = new UserModel();
+        $this->masterTaskModel = new MastertaskModel();
+        $this->userModel = new UserModel(); 
     }
     public function index()
     {
