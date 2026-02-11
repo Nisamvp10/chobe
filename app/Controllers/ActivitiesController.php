@@ -11,7 +11,7 @@ use App\Models\AssigntaskModel;
 use App\Models\TaskactivityModel;
 use App\Models\TaskStaffActivityModel;
 use App\Models\ActivitycommentsModel;
-use App\Models\MasterTaskModel;
+use App\Models\MastertaskModel;
 use DateTime;
 
 class ActivitiesController extends Controller {
@@ -34,7 +34,7 @@ protected $masterTaskModel;
         $this->activityTaskModel = new TaskactivityModel();
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
         $this->commentModel = new ActivitycommentsModel();
-        $this->masterTaskModel = new MasterTaskModel();
+        $this->masterTaskModel = new MastertaskModel();
     }
 
     function activities($id=false) {
