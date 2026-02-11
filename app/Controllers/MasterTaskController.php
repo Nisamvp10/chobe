@@ -3,11 +3,11 @@ namespace App\Controllers;
 use App\Models\BranchesModel;
 use App\Models\ProjectsModel;
 use App\Models\ProjectunitModel;
-use App\Models\MastertaskModel;
+use App\Models\MasterTaskModel;
 use App\Models\UserModel;
 
-class MasterTaskController extends BaseCo   ntroller
-{
+class MasterTaskController extends BaseController
+{ 
     public $branchModel;
     public $projects;
     public $projectUnitModel;
