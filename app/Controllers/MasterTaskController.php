@@ -3,7 +3,7 @@ namespace App\Controllers;
 use App\Models\BranchesModel;
 use App\Models\ProjectsModel;
 use App\Models\ProjectunitModel;
-use App\Models\MasterTaskModel;
+use App\Models\MastertaskModel;
 use App\Models\UserModel;
 
 class MasterTaskController extends BaseController
