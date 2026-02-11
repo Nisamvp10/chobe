@@ -23,6 +23,10 @@ class ReportModel extends Model
                 't.created_at',
                 't.status as taskStatus',
                 'tsa.status as activityStatus',
+                'alw.name as allocated_to',
+                'alw.id as allocated_to_id',
+                'assi.name as assigned_to',
+                'assi.id as assigned_to_id',
                 'a.id as activity_id',
                 'a.activity_title',
 
@@ -43,6 +47,8 @@ class ReportModel extends Model
             $builder->join('mastertasks mt', 'mt.id = t.created_from_template', 'left');
             $builder->join('project_unit pu', 'pu.id = t.project_unit', 'left');
             $builder->join('task_staff_activities tsa', 'tsa.task_id = t.id', 'left');
+            $builder->join('users alw', 'alw.id = pu.allocated_to', 'left');
+            $builder->join('users assi', 'assi.id = pu.assigned_to', 'left');
             $builder->join('activities a', 'a.id = tsa.task_activity_id', 'left');
 
             /* ✅ JOIN LAST COMMENT PER TASK + ACTIVITY */

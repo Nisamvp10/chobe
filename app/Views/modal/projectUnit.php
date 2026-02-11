@@ -116,7 +116,7 @@
               </div> 
                 
                 <!-- out of row -->
-                 <div class="grid grid-cols-3 gap-3">
+                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Allocated To</label>
                          <div class="responseive">
@@ -134,12 +134,12 @@
                             <div class="invalid-feedback" id="allocated_date_error"></div>
                         </div>
                       </div>
-                       <div >
+                       <div class="hidden" >
                           <label class="block text-sm font-medium text-gray-700 mb-1">Allocated Type</label>
                             <div class="responseive">
-                                <select id="allocatedType" name="allocatedType" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <select id="allocatedType" readonly name="allocatedType" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                   <option value="">Choose Type</option>
-                                  <option value="1">Permanantly</option>
+                                  <option selected value="1">Permanantly</option>
                                   <option value="1">Temporary</option>
                                 </select>
                                 <div class="invalid-feedback" id="allocatedType_error"></div>
@@ -164,13 +164,13 @@
                         </div>
                       </div>
                        
-                       <div >
-                          <label class="block text-sm font-medium text-gray-700 mb-1">Allocated Type</label>
+                       <div class="hidden" >
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Assigned Type</label>
                             <div class="responseive">
-                                <select id="assignedType" name="assignedType" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <select id="assignedType" readonly name="assignedType" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                   <option value="">Choose Type</option>
                                   <option value="1">Permanantly</option>
-                                  <option value="2">Temporary</option>
+                                  <option selected value="2">Temporary</option>
                                 </select>
                                 <div class="invalid-feedback" id="assignedType_error"></div>
                             </div>

@@ -1,12 +1,12 @@
 
-function openModal(id=false) {
-    toggleModal('projectUnitModal',true);
+function openModal(id = false) {
+    toggleModal('projectUnitModal', true);
 
     let modal = $('#projectUnitModal');
     modal.find('.head').text(id ? 'Edit Project Unit' : 'Add Project Unit');
     let webForm = document.getElementById('projectUnitForm');
-    webForm.querySelector('#store').value ='';
-    webForm.querySelector('#projectId').value ='';
+    webForm.querySelector('#store').value = '';
+    webForm.querySelector('#projectId').value = '';
     webForm.querySelector('#old_name').value = '';
     webForm.querySelector('#oracle_code').value = '';
     webForm.querySelector('#polaris_code').value = '';
@@ -19,44 +19,44 @@ function openModal(id=false) {
     webForm.querySelector('#allocated_date').value = '';
     webForm.querySelector('#assigned_to').value = '';
     webForm.querySelector('#assigned_date').value = '';
-    webForm.querySelector('#allocatedType').value = '';
-    webForm.querySelector('#assignedType').value = '';
+    webForm.querySelector('#allocatedType').value = 1;
+    webForm.querySelector('#assignedType').value = 2;
     webForm.querySelector('#allocated_to').value = '';
-    
-    if(id) {
-        fetch(App.getSiteurl()+`api/project-units/${id}`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) {
-                webForm.querySelector('#store').value = data.result.store;
-                webForm.querySelector('#old_name').value = data.result.oldstore_name;
-                webForm.querySelector('#oracle_code').value = data.result.oracle_code;
-                webForm.querySelector('#polaris_code').value = data.result.polaris_code;
-                webForm.querySelector('#rm_mail').value = data.result.rm_mail;
-                webForm.querySelector('#contact_number').value = data.result.contact_number;
-                webForm.querySelector('#client').value = data.result.client_id;
-                webForm.querySelector('#start_date').value =  data.result.start_date;
-                webForm.querySelector('#rm').value =  data.result.rm_mail;
-                webForm.querySelector('#allocated_date').value = data.result.allocated_date;
-                webForm.querySelector('#assigned_to').value = '';
-                webForm.querySelector('#assigned_date').value = data.result.assigned_date;
-                webForm.querySelector('#projectId').value =data.result.id;
 
-                loadClientUsers(data.result.client_id, {
-                    rm: data.result.regional_manager_id,
-                    store_manager: data.result.manager_id,
-                    allocated_to: data.result.allocated_to,
-                    assigned_to: data.result.assigned_to
-                });
-                $('#rm').val(data.result.regional_manager_id).trigger('change');
+    if (id) {
+        fetch(App.getSiteurl() + `api/project-units/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    webForm.querySelector('#store').value = data.result.store;
+                    webForm.querySelector('#old_name').value = data.result.oldstore_name;
+                    webForm.querySelector('#oracle_code').value = data.result.oracle_code;
+                    webForm.querySelector('#polaris_code').value = data.result.polaris_code;
+                    webForm.querySelector('#rm_mail').value = data.result.rm_mail;
+                    webForm.querySelector('#contact_number').value = data.result.contact_number;
+                    webForm.querySelector('#client').value = data.result.client_id;
+                    webForm.querySelector('#start_date').value = data.result.start_date;
+                    webForm.querySelector('#rm').value = data.result.rm_mail;
+                    webForm.querySelector('#allocated_date').value = data.result.allocated_date;
+                    webForm.querySelector('#assigned_to').value = '';
+                    webForm.querySelector('#assigned_date').value = data.result.assigned_date;
+                    webForm.querySelector('#projectId').value = data.result.id;
 
-                
-                let assignType = (data.result.assigned_type == 'permanently') ? 1 :2;
-                let allocatedType = (data.result.allocated_type == 'permanently') ? 1 :2;
-                webForm.querySelector('#allocatedType').value = allocatedType;
-                webForm.querySelector('#assignedType').value = assignType;
-            }
-        })
+                    loadClientUsers(data.result.client_id, {
+                        rm: data.result.regional_manager_id,
+                        store_manager: data.result.manager_id,
+                        allocated_to: data.result.allocated_to,
+                        assigned_to: data.result.assigned_to
+                    });
+                    $('#rm').val(data.result.regional_manager_id).trigger('change');
+
+
+                    let assignType = (data.result.assigned_type == 'permanently') ? 1 : 2;
+                    let allocatedType = (data.result.allocated_type == 'permanently') ? 1 : 2;
+                    webForm.querySelector('#allocatedType').value = allocatedType;
+                    webForm.querySelector('#assignedType').value = assignType;
+                }
+            })
     }
 }
 
@@ -114,7 +114,7 @@ function loadClientUsers(clientId, selected = {}) {
                 });
             }
 
-          
+
             if (selected.rm) {
                 $('#rm').val(selected.rm);
             }
@@ -140,7 +140,7 @@ function loadClientUsers(clientId, selected = {}) {
 
 
 
-function openModalbulk($id=false) {
+function openModalbulk($id = false) {
     toggleModal('bulkUnit', true);
     $('#bulkUnit .head').text($id ? 'Edit Bulk Units' : 'Add Bulk Units');
 }
@@ -150,71 +150,70 @@ $(document).on('submit', '#unitBulkForm', function (e) {
     let webForm = $(this);
     let formData = new FormData(this);
     let butn = $(webForm).find('button[type="submit"]');
-    butn.attr('disabled',true).html('Processing..');
-     $.ajax({
-        url : App.getSiteurl() +'projectunit/bulk-upload',
-        method:'POST',
+    butn.attr('disabled', true).html('Processing..');
+    $.ajax({
+        url: App.getSiteurl() + 'projectunit/bulk-upload',
+        method: 'POST',
         data: formData,
         contentType: false,
         processData: false,
-        dataType : 'json',
+        dataType: 'json',
 
-        success:function(response)
-        { 
-            if(response.success) {
-                 toastr.success(response.message);
-                 butn.attr('disabled',false).html('Save Changes');
-            }else{
-                 toastr.error(response.message);
-                 butn.attr('disabled',false).html('Save Changes');
+        success: function (response) {
+            if (response.success) {
+                toastr.success(response.message);
+                butn.attr('disabled', false).html('Save Changes');
+            } else {
+                toastr.error(response.message);
+                butn.attr('disabled', false).html('Save Changes');
             }
-        },error:function(err){
+        }, error: function (err) {
             console.log(err);
-        },completed:function(){
-            butn.attr('disabled',false).html('Save Changes');
+        }, completed: function () {
+            butn.attr('disabled', false).html('Save Changes');
         }
     })
 })
-  document.getElementById('chooseFileBtn').addEventListener('click', function () {
-        document.getElementById('staff_excel').click();
-    });
+document.getElementById('chooseFileBtn').addEventListener('click', function () {
+    document.getElementById('staff_excel').click();
+});
 
 
-    // here
-    projects();
-          // modal
-       
-        //$(document).ready(function() {
+// here
+projects();
+// modal
 
-            function projects(search = '') {
-                let filter = $('#filerStatus').val();
-                $.ajax({
-                    url: App.getSiteurl()+"project-unit/list",
-                    type: "post",
-                    data: { search: search,filter:filter },
-                    dataType: "json",
-                    success: function(response) {
-                        
-                        if (response.success) {
-                            renderunitTable(response.projects);
-                        }
-                    }
-                });
+//$(document).ready(function() {
+
+function projects(search = '') {
+    let filter = $('#filerStatus').val();
+    $.ajax({
+        url: App.getSiteurl() + "project-unit/list",
+        type: "post",
+        data: { search: search, filter: filter },
+        dataType: "json",
+        success: function (response) {
+
+            if (response.success) {
+                renderunitTable(response.projects);
             }
+        }
+    });
+}
 
-            function renderunitTable(projects){
-                let html = '';
-                let count = 1;
+function renderunitTable(projects) {
+    let html = '';
+    let count = 1;
 
-                if (projects.length === 0) {
-                    html += `
+    if (projects.length === 0) {
+        html += `
                         <div class="text-center py-8">
                             <h3 class="text-lg font-medium text-gray-700">No Projects found</h3>
                             <p class="text-gray-500 mt-1">Try adjusting your search</p>
                         </div>
                     `;
-                }else{
-                    html += `
+    } else {
+        html += `
                         <table class="min-w-full divide-y divide-gray-200 border bg-gray-100">
                             <thead>
                                 <tr>
@@ -232,10 +231,10 @@ $(document).on('submit', '#unitBulkForm', function (e) {
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                     `;
-                    projects.forEach(project => {  
-                        console.log(project)            
-                        html += `
-                            <tr class="hover:bg-gray-50 ${project.is_active ==0 ? 'bg-red-100 bg-opacity-50' :'' }"  >
+        projects.forEach(project => {
+            console.log(project)
+            html += `
+                            <tr class="hover:bg-gray-50 ${project.is_active == 0 ? 'bg-red-100 bg-opacity-50' : ''}"  >
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="text-sm font-medium text-gray-900">${count}</div>
@@ -266,101 +265,95 @@ $(document).on('submit', '#unitBulkForm', function (e) {
                                     <div class="text-sm text-gray-900">${project.contact_number}</div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium">
-                                ${project.is_active == 1 ?  `<a onclick="openModal('${project.encrypted_id}')" class="text-blue-600 hover:text-blue-800 mr-3">Edit</a>` :`<span data-id="${project.encrypted_id}" onclick="unlockCategory(this)" class="text-blue-600 hover:text-blue-800 mr-3 cursor-pointer "><i class="bi bi-lock"></i></span>` }
+                                ${project.is_active == 1 ? `<a onclick="openModal('${project.encrypted_id}')" class="text-blue-600 hover:text-blue-800 mr-3">Edit</a>` : `<span data-id="${project.encrypted_id}" onclick="unlockCategory(this)" class="text-blue-600 hover:text-blue-800 mr-3 cursor-pointer "><i class="bi bi-lock"></i></span>`}
                                 </td>
                             </tr>
                         `;
-                        count++;
-                    });
-                    
+            count++;
+        });
 
-                    html += `</tbody></table>`;
-                }
-                $('#projectTable').html(html);
-            }
-            //loadClients();
 
-            $('#searchInput').on('input',function(){
-                let value = $(this).val();
-                projects(value);
-            })
-            $('#filerStatus').on('change',function(){
-                let value = $('#searchInput').val();
-                projects(value);
-            })
-       
-            $('#projectUnitForm').on('submit', function(e) {
-                let webForm = $('#projectUnitForm');
-                e.preventDefault();
-
-                $('.is-invalid').removeClass('is-invalid');
-                $('.invalid-feedback').empty();
-
-                $('#submitBtn').prop('disabled', true).html(
-                    '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
-                );
-
-                $.ajax({
-                    url : App.getSiteurl()+'project-unit/save',
-                    method:'POST',
-                    data: $(this).serialize(),
-                    dataType : 'json',
-                    success:function(response)
-                    { 
-                        if(response.success){
-                              $('#submitBtn').prop('disabled', false).html('save');
-                            toastr.success(response.message);
-                            webForm[0].reset();
-                            closeModal();
-                            projects();
-                        }else{
-                             $('#submitBtn').prop('disabled', false).html('save');
-                            if(response.errors){
-                                $.each(response.errors,function(field,message)
-                                {
-                                    $('#'+ field).addClass('is-invalid');
-                                    $('#' + field + '_error').text(message);
-                                })
-                            }else{
-                                 toastr.error(response.message);
-                            }
-                        }
-                    },error: function() {
-                        toastr.error('An error occurred while saving Project');
-                    },
-                    complete: function() {
-                        // Re-enable submit button
-                        $('#submitBtn').prop('disabled', false).text('Save ');
-                    }
-                })
-            })
-    
-//})
-function unlockCategory(e){
-        if(confirm('are you sure ! You want to Unlock Category'))
-        {
-            $(e).prop('disabled', true).html(
-                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Unlocking...'
-            );
-            let id = $(e).data('id');
-            $.ajax({
-                url : App.getSiteurl()+'project/unlock',
-                method:'POST',
-                data: {id:id},
-                dataType : 'json',
-                success:function(response)
-                {
-                    if(response.success)
-                    {
-                        toastr.success(response.message);
-                          setTimeout(function() {
-                           projects();
-                        }, 3000)
-                        
-                    }else{
-                        toastr.error(response.message);
-                    }
-                }
-            })
-        }
+        html += `</tbody></table>`;
     }
+    $('#projectTable').html(html);
+}
+//loadClients();
+
+$('#searchInput').on('input', function () {
+    let value = $(this).val();
+    projects(value);
+})
+$('#filerStatus').on('change', function () {
+    let value = $('#searchInput').val();
+    projects(value);
+})
+
+$('#projectUnitForm').on('submit', function (e) {
+    let webForm = $('#projectUnitForm');
+    e.preventDefault();
+
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').empty();
+
+    $('#submitBtn').prop('disabled', true).html(
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+    );
+
+    $.ajax({
+        url: App.getSiteurl() + 'project-unit/save',
+        method: 'POST',
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function (response) {
+            if (response.success) {
+                $('#submitBtn').prop('disabled', false).html('save');
+                toastr.success(response.message);
+                webForm[0].reset();
+                projects();
+            } else {
+                $('#submitBtn').prop('disabled', false).html('save');
+                if (response.errors) {
+                    $.each(response.errors, function (field, message) {
+                        $('#' + field).addClass('is-invalid');
+                        $('#' + field + '_error').text(message);
+                    })
+                } else {
+                    toastr.error(response.message);
+                }
+            }
+        }, error: function () {
+            toastr.error('An error occurred while saving Project');
+        },
+        complete: function () {
+            // Re-enable submit button
+            $('#submitBtn').prop('disabled', false).text('Save ');
+        }
+    })
+})
+
+//})
+function unlockCategory(e) {
+    if (confirm('are you sure ! You want to Unlock Category')) {
+        $(e).prop('disabled', true).html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Unlocking...'
+        );
+        let id = $(e).data('id');
+        $.ajax({
+            url: App.getSiteurl() + 'project/unlock',
+            method: 'POST',
+            data: { id: id },
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    setTimeout(function () {
+                        projects();
+                    }, 3000)
+
+                } else {
+                    toastr.error(response.message);
+                }
+            }
+        })
+    }
+}

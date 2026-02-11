@@ -245,13 +245,15 @@ class ReportController extends controller
         // GROUP DATA
         foreach ($reportResult as $repo) {
             $taskId = $repo['taskId'];
-
+         
             if (!isset($resultData[$taskId])) {
                 $resultData[$taskId] = [
                     'taskId'       => $taskId,
                     'storeName'    => $repo['store_name'],
                     'oldStoreName' => $repo['oldstore_name'],
                     'oracleCode'   => $repo['oracle_code'],
+                    'allocated_to' => $repo['allocated_to'],
+                    'assigned_to'  => ($repo['allocated_to_id'] == $repo['assigned_to_id'] ? NULL : $repo['assigned_to']), //$repo['assigned_to']
                     'activities'   => []
                 ];
             }
@@ -280,7 +282,7 @@ class ReportController extends controller
         $sheet = $spreadsheet->getActiveSheet();
 
         // HEADER
-        $header = ['SL NO', 'CODE', 'STORE NAME', 'OLD NAME'];
+        $header = ['SL NO', 'CODE', 'STORE NAME', 'OLD NAME','ALLOCATED TO','ASSIGNED TO'];
         for ($i = 0; $i < $maxActivities; $i++) {
             $header[] = $activityHeaders[$i] ?? 'Activity '.($i+1);
         }
@@ -299,12 +301,14 @@ class ReportController extends controller
         $sl = 1;
 
         foreach ($resultData as $task) {
-
+          
             $row = [
                 $sl++,
                 $task['oracleCode'],
                 $task['storeName'],
-                $task['oldStoreName']
+                $task['oldStoreName'],
+                $task['allocated_to'],
+                $task['assigned_to']
             ];
 
             foreach ($task['activities'] as $act) {
