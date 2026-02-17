@@ -741,7 +741,7 @@ a{
                   <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'master-task') === 0 && strpos(uri_string(), 'master-task') === false ? 'active' : '' ?>" href="<?= base_url('master-task') ?>">
                         <i class="bi bi-list-check"></i>
-                        <span> Task Master</span>
+                        <span> Task </span>
                     </a>
                 </li>
                 <li class="nav-item">
