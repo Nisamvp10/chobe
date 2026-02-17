@@ -747,7 +747,7 @@ a{
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'tasks') === 0 && strpos(uri_string(), 'tasks') === false ? 'active' : '' ?>" href="<?= base_url('tasks') ?>">
                         <i class="bi bi-list-check"></i>
-                        <span> tasks</span>
+                        <span> Tasks</span>
                     </a>
                 </li>
                 <?php }  if( $userRole != 1) { ?>
