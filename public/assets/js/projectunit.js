@@ -246,11 +246,12 @@ function renderunitTable(projects) {
                                  <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">${project.oldstore_name}</div>
                                 </td>
-                                <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">#${project.polaris_code}</div>
-                                </td>
+                               
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">#${project.oracle_code}</div>
+                                </td>
+                                 <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">#${project.polaris_code}</div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">${project.rm_mail}</div>
