@@ -76,7 +76,7 @@ function renderTable(tasks) {
                 <span class="px-2 py-2 rounded-2 text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${priority}">${task.priority}</span>
             </div>
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
-            <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium">${task.title}  [${task.created}]</span></div>
+            <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium">${task.title}  <span class="text-[14px] text-gray-900"> [${task.created}]</span></div>
             <div >
 
             <div class="d-flex align-items-center mb-2 flex gap-1">
@@ -105,7 +105,7 @@ function renderTable(tasks) {
                             </div>`}
                     `).join('')}
                 </div>
-                <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
+                <span class="text-xs text-gray-500 hidden ${dueClass}">${duedateText}</span>
             </div>
                        <div class="flex space-x-1 flex justify-between items-center gap-2 ">
             <div>

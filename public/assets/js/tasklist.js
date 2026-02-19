@@ -54,7 +54,7 @@ function renderTable(tasks) {
                 today.setHours(0, 0, 0, 0);
 
                 duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-                dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900';
+                dueClass = dueDate < today && task.status != 'Completed' ? 'text-red-600' : 'text-gray-900';
             } else {
                 duedateText = 'No Due Date';
                 dueClass = 'd-none';
@@ -121,7 +121,7 @@ function renderTable(tasks) {
 
                    
                 </div>
-                <span class="text-xs text-gray-500 ${dueClass}">${duedateText}</span>
+                <span class="text-xs text-gray-500 hidden ${dueClass}">${duedateText}</span>
             </div>
            <div class="flex space-x-1 flex justify-between items-center gap-2 ">
             <div>

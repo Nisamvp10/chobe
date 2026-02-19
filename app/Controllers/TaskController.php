@@ -196,6 +196,11 @@ class TaskController extends Controller {
             //$this->mastertaskModel->update($taskId, $data);
             $getTask = $this->taskModel->where('id',$taskId)->get()->getRow();
             $data['taskmode'] = $getTask->taskmode;
+            $data['task_gen_date'] = (
+                $masterTask->tasktype == 1
+                    ? date('Y-m-d', strtotime($getTask->task_gen_date))
+                    : date('Y-m-d', strtotime('+1 day', strtotime($getTask->task_gen_date)))
+            );
             if (!$this->taskModel->update($taskId, $data)) {
                     return $this->response->setJSON([
                         'success' => false,
@@ -372,10 +377,12 @@ class TaskController extends Controller {
                         'description'     => 'Auto generated daily verification task',
                         'project_unit_id' => $unit['id'],
                         'status'          => 'pending',
+                        'task_gen_date'   => ($masterTask->tasktype == 1 ? date('Y-m-d', strtotime('-1 day')) : date('Y-m-d')),
                         'created_by'      => session('user_data')['id'] ?? null,
                         'created_at'      => date('Y-m-d H:i:s')
                     ];
                     $data['project_unit'] = $unit['id'];
+                    $data['task_gen_date'] = ($masterTask->tasktype == 1 ? date('Y-m-d', strtotime('-1 day')) : date('Y-m-d'));
 
                     $newTaskId = $this->taskModel->insert($data, true);
                     $masterTaskData['created_by'] = session('user_data')['id'];
@@ -737,7 +744,7 @@ class TaskController extends Controller {
                         'status'    => $task['status'],
                         'action'    => 0,//$task['action'],
                         'progress'  => $task['progress'],
-                        'created'   => date('d-m-Y',strtotime($task['created_at'])),
+                        'created'   => date('d-m-Y',strtotime($task['task_gen_date'])),
                         'allUsers'  => $allusers,
                         'overdue_date' => $task['next_run_date'],
                         'polarisCode'   => $task['polaris_code'],
@@ -825,7 +832,7 @@ class TaskController extends Controller {
                     'duedate'   => $task['next_run_date'],
                     'polarisCode'   => $task['polaris_code'],
                     'ducument'  => $task['image_url'],
-                    'created'   => date('d-m-Y',strtotime($task['created_at'])),
+                    'created'   => date('d-m-Y',strtotime($task['task_gen_date'])),
                     'users'     => [],
                 ];
 

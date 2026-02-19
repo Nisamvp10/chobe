@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 class TaskModel extends Model {
     protected $table = 'tasks';
     protected $primaryKey ='id';
-    protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','status','taskmode','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
+    protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','task_gen_date','task_gen_date','status','taskmode','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
 
     protected $useSoftDeletes = false; // IMPORTANT
 
@@ -21,6 +21,7 @@ class TaskModel extends Model {
                 t.created_at, u.profileimg, u.name, u.id as userId, 
                 t.progress, a.role, a.priority as userPriority,ti.image_url,
                 t.created_from_template,
+                t.taskmode,t.task_gen_date,
                 c.id as clientId')
             ->join('project_unit as b', 'b.id = t.project_unit', 'left')
             ->join('clients as c', 'b.client_id = c.id', 'left')
@@ -45,8 +46,8 @@ class TaskModel extends Model {
             if(!empty($startDate) && !empty($endDate)) {
                 $startDate = date('Y-m-d 00:00:00', strtotime($startDate));
                 $endDate   = date('Y-m-d 23:59:59', strtotime($endDate));
-                $builder->where('t.created_at >=', $startDate);
-                $builder->where('t.created_at <=', $endDate);
+                $builder->where('t.task_gen_date >=', $startDate);
+                $builder->where('t.task_gen_date <=', $endDate);
             }
             
             if(session('user_data')['role'] != 1 ) {
@@ -81,7 +82,7 @@ class TaskModel extends Model {
             ->select('t.id, t.title, t.description, t.status, t.completed_at, t.project_id,t.next_run_date,
                 b.polaris_code,
                 t.priority, t.overdue_date, b.store as branch_name, b.id as store, 
-                t.created_at, u.profileimg, u.name, u.id as userId, 
+                t.created_at, u.profileimg, u.name, u.id as userId, t.taskmode,t.task_gen_date,
                 t.progress, a.role, a.priority as userPriority,ti.image_url')
            ->join('project_unit as b', 'b.id = t.project_unit', 'left')
             ->join('task_assignees as a', 'a.task_id = t.id')
