@@ -146,86 +146,111 @@ class ReportController extends controller
         );
 
         $groupedTasks = [];
-        $activityHeaders = [];
+        $activityHeaders = []; // activity_id => activity_title
 
-        /** STEP 1: GROUP BY TASK **/
+        /* ============================================
+        STEP 1: GROUP DATA BY TASK + ACTIVITY_ID
+        ============================================ */
+
         foreach ($reportResult as $repo) {
-            $taskId = $repo['taskId'];
+
+            $taskId     = $repo['taskId'];
+            $activityId = $repo['activity_id'];
 
             if (!isset($groupedTasks[$taskId])) {
                 $groupedTasks[$taskId] = [
                     'oracleCode'   => $repo['oracle_code'],
                     'storeName'    => $repo['store_name'],
                     'oldStoreName' => $repo['oldstore_name'],
-                    'date' => date('Y-m-d',strtotime($repo['created_at'])),
+                    'task'         => $repo['task_title'],
+                    'date'         => date('Y-m-d', strtotime($repo['created_at'])),
+                    'assignAllocatedTo' => $repo['allocated_to'],
+                    'assignAssignedTo'  => $repo['assigned_to'],
                     'activities'   => []
                 ];
             }
 
-            $activityIndex = count($groupedTasks[$taskId]['activities']);
-
-            // Dynamic header
-            if (!isset($activityHeaders[$activityIndex])) {
-                $activityHeaders[$activityIndex] =
-                    $repo['activity_title'] ; //. ' (ID:' . $repo['activity_id'] . ')'
+            // Save unique activity headers
+            if (!empty($activityId) && !isset($activityHeaders[$activityId])) {
+                $activityHeaders[$activityId] = $repo['activity_title'];
             }
 
-            $groupedTasks[$taskId]['activities'][] =
-                !empty($repo['last_comment'] || $repo['last_comment'] != "Nill")
-                    ? $repo['last_comment']
-                    : 'Not commented';
+            // Save comment under correct activity_id
+            if (!empty($activityId)) {
+                $groupedTasks[$taskId]['activities'][$activityId] =
+                    (!empty($repo['last_comment']) && $repo['last_comment'] != 'Nill')
+                        ? $repo['last_comment']
+                        : 'Nill';
+            }
+        }
+        
+
+        /* ============================================
+        STEP 2: SORT ACTIVITIES BY ID (Optional)
+        ============================================ */
+        ksort($activityHeaders);
+
+        /* ============================================
+        STEP 3: BUILD HEADERS
+        ============================================ */
+
+        $headers = [
+            'SL NO',
+            'CODE',
+            'STORE NAME',
+            'OLD NAME',
+            'DATE',
+            'TASK',
+            'ALLOCATED TO',
+            'ASSIGNED TO'
+        ];
+
+        foreach ($activityHeaders as $activityId => $title) {
+            $headers[] = $title ;//. ' (ID:' . $activityId . ')';
         }
 
-        /** STEP 2: FIND MAX ACTIVITIES **/
-        $maxActivities = 0;
-        foreach ($groupedTasks as $task) {
-            $maxActivities = max($maxActivities, count($task['activities']));
-        }
+        /* ============================================
+        STEP 4: BUILD TABLE ROWS
+        ============================================ */
 
-        /** STEP 3: BUILD HEADERS **/
-        $headers = ['SL NO', 'CODE', 'STORE NAME', 'OLD NAME','DATE'];
-        for ($i = 0; $i < $maxActivities; $i++) {
-            $headers[] = $activityHeaders[$i] ?? 'Activity ' . ($i + 1);
-        }
-
-        /** STEP 4: BUILD TABLE ROWS **/
         $rows = [];
         $sl = 1;
 
         foreach ($groupedTasks as $task) {
+
             $row = [
                 $sl++,
                 $task['oracleCode'],
                 $task['storeName'],
                 $task['oldStoreName'],
                 $task['date'],
+                $task['task'],
+                $task['assignAllocatedTo'],
+                $task['assignAssignedTo']
             ];
 
-            // Activity values
-            foreach ($task['activities'] as $activity) {
-                $row[] = $activity;
-            }
-
-            // Fill empty cells
-            for ($i = count($task['activities']); $i < $maxActivities; $i++) {
-                $row[] = '';
+            // Fill activity columns correctly
+            foreach ($activityHeaders as $activityId => $title) {
+                $row[] = $task['activities'][$activityId] ?? '---';
             }
 
             $rows[] = $row;
         }
 
+        /* ============================================
+        FINAL JSON RESPONSE
+        ============================================ */
+
         return $this->response->setJSON([
             'success' => true,
             'headers' => $headers,
-            'result'    => $rows
+            'result'  => $rows
         ]);
     }
 
 
-
     public function generateReport()
     {
-        // IMPORTANT: clear output buffer
         if (ob_get_length()) ob_end_clean();
 
         $reportModel = new ReportModel();
@@ -235,105 +260,124 @@ class ReportController extends controller
         $filter    = $this->request->getGet('filter');
         $startDate = $this->request->getGet('startDate');
         $endDate   = $this->request->getGet('endDate');
-        $prounit   = $this->request->getGet('prounit');
+        $prounit   = $this->request->getGet('projectUnit');
 
-        $reportResult = $reportModel->getReports($search, $filter, $startDate, $endDate, $prounit);
+        $reportResult = $reportModel->getReports(
+            $search,
+            $filter,
+            $startDate,
+            $endDate,
+            $prounit
+        );
+        $groupedTasks = [];
+        $activityHeaders = []; // activity_id => title
 
-        $resultData = [];
-        $activityHeaders = [];
+        /* ============================================
+        SAME LOGIC AS list() METHOD
+        ============================================ */
 
-        // GROUP DATA
         foreach ($reportResult as $repo) {
-            $taskId = $repo['taskId'];
-         
-            if (!isset($resultData[$taskId])) {
-                $resultData[$taskId] = [
+
+            $taskId     = $repo['taskId'];
+            $activityId = $repo['activity_id'];
+
+            if (!isset($groupedTasks[$taskId])) {
+                $groupedTasks[$taskId] = [
                     'taskId'       => $taskId,
+                    'oracleCode'   => $repo['oracle_code'],
                     'storeName'    => $repo['store_name'],
                     'oldStoreName' => $repo['oldstore_name'],
-                    'oracleCode'   => $repo['oracle_code'],
+                    'date'         =>  date('Y-m-d', strtotime($repo['created_at'])),
+                    'task'         => $repo['task_title'],
                     'allocated_to' => $repo['allocated_to'],
-                    'assigned_to'  => ($repo['allocated_to_id'] == $repo['assigned_to_id'] ? NULL : $repo['assigned_to']), //$repo['assigned_to']
+                    'assigned_to'  => ($repo['allocated_to_id'] == $repo['assigned_to_id'] ? NULL : $repo['assigned_to']),
                     'activities'   => []
                 ];
             }
 
-            $idx = count($resultData[$taskId]['activities']);
-
-            if (!isset($activityHeaders[$idx])) {
-                $activityHeaders[$idx] = $repo['activity_title'];
+            if (!empty($activityId) && !isset($activityHeaders[$activityId])) {
+                $activityHeaders[$activityId] = $repo['activity_title'];
             }
 
-            $resultData[$taskId]['activities'][] = [
-                'activity_id'    => $repo['activity_id'],
-                'comment'        => $repo['last_comment'] ?: 'Not commented',
-                'taskStatus'     => $repo['taskStatus'],
-                'activityStatus' => $repo['activityStatus']
-            ];
+            if (!empty($activityId)) {
+                $groupedTasks[$taskId]['activities'][$activityId] = [
+                    'comment'        => $repo['last_comment'] ?: 'Not commented',
+                    'taskStatus'     => $repo['taskStatus'],
+                    'activityStatus' => $repo['activityStatus']
+                ];
+            }
         }
 
-        // MAX ACTIVITY COUNT
-        $maxActivities = 0;
-        foreach ($resultData as $t) {
-            $maxActivities = max($maxActivities, count($t['activities']));
-        }
+        ksort($activityHeaders);
+
+        /* ============================================
+        CREATE EXCEL
+        ============================================ */
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        // HEADER
-        $header = ['SL NO', 'CODE', 'STORE NAME', 'OLD NAME','ALLOCATED TO','ASSIGNED TO'];
-        for ($i = 0; $i < $maxActivities; $i++) {
-            $header[] = $activityHeaders[$i] ?? 'Activity '.($i+1);
+        $header = ['SL NO', 'CODE', 'STORE NAME', 'OLD NAME', 'DATE','TASK','ALLOCATED TO', 'ASSIGNED TO'];
+
+        foreach ($activityHeaders as $activityId => $title) {
+            $header[] = $title;
         }
 
         $sheet->fromArray($header, null, 'A1');
 
-        // STYLE HEADER
         $highestColumn = $sheet->getHighestColumn();
         $sheet->getStyle("A1:{$highestColumn}1")->getFont()->setBold(true);
         $sheet->getStyle("A1:{$highestColumn}1")->getAlignment()
             ->setHorizontal(Alignment::HORIZONTAL_CENTER)
             ->setVertical(Alignment::VERTICAL_CENTER);
 
-        // DATA
         $rowNo = 2;
         $sl = 1;
 
-        foreach ($resultData as $task) {
-          
+        foreach ($groupedTasks as $task) {
+
             $row = [
                 $sl++,
                 $task['oracleCode'],
                 $task['storeName'],
                 $task['oldStoreName'],
+                $task['date'],
+                $task['task'],
                 $task['allocated_to'],
                 $task['assigned_to']
             ];
 
-            foreach ($task['activities'] as $act) {
+            foreach ($activityHeaders as $activityId => $title) {
 
-                if ($act['taskStatus'] == 'Completed' && $act['activityStatus'] == 'completed') {
-                    $taskStaffActivityModel
-                        ->where([
-                            'task_activity_id' => $act['activity_id'],
-                            'task_id'          => $task['taskId']
-                        ])
-                        ->set(['commet_status' => 2])
-                        ->update();
+                if (isset($task['activities'][$activityId])) {
+
+                    $act = $task['activities'][$activityId];
+
+                    // Update comment status if completed
+                    if ($act['taskStatus'] == 'Completed' && $act['activityStatus'] == 'completed') {
+                        $taskStaffActivityModel
+                            ->where([
+                                'task_activity_id' => $activityId,
+                                'task_id'          => $task['taskId']
+                            ])
+                            ->set(['commet_status' => 2])
+                            ->update();
+                    }
+
+                    $row[] = $act['comment'];
+
+                } else {
+                    $row[] = '';
                 }
-
-                $row[] = $act['comment'];
-            }
-
-            while (count($row) < count($header)) {
-                $row[] = '';
             }
 
             $sheet->fromArray($row, null, 'A'.$rowNo++);
         }
 
-        // AUTO SIZE BASED ON CONTENT (SAFE)
+        /* ============================================
+        AUTO SIZE
+        ============================================ */
+
         $highestColumnIndex = Coordinate::columnIndexFromString($sheet->getHighestColumn());
 
         for ($col = 1; $col <= $highestColumnIndex; $col++) {
@@ -342,7 +386,10 @@ class ReportController extends controller
             $sheet->getStyle($columnLetter)->getAlignment()->setWrapText(true);
         }
 
-        // OUTPUT
+        /* ============================================
+        DOWNLOAD
+        ============================================ */
+
         $filename = 'task_report_'.date('Y-m-d_H-i-s').'.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

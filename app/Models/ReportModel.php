@@ -30,28 +30,28 @@ class ReportModel extends Model
                 'a.id as activity_id',
                 'a.activity_title',
 
-                // ✅ Activity status (group-based)
+                //  Activity status (group-based)
                 "CASE 
                     WHEN SUM(tsa.status = 'completed') > 0 
                     THEN 'completed' 
                     ELSE 'pending' 
                 END as activity_status",
 
-                // ✅ Last comment per TASK + ACTIVITY
+                //  Last comment per TASK + ACTIVITY
                 'COALESCE(ac.comment, "Nill") as last_comment',
                 'ac.created_at as comment_time'
             ]);
 
             /* =================== JOINS =================== */
 
-            $builder->join('mastertasks mt', 'mt.id = t.created_from_template', 'left');
-            $builder->join('project_unit pu', 'pu.id = t.project_unit', 'left');
+            $builder->join('mastertasks mt', 'mt.id = t.created_from_template', 'left');//7 mastertasks now 
+            $builder->join('project_unit pu', 'pu.id = t.project_unit', 'left'); //5 projrct units now 
             $builder->join('task_staff_activities tsa', 'tsa.task_id = t.id', 'left');
             $builder->join('users alw', 'alw.id = pu.allocated_to', 'left');
             $builder->join('users assi', 'assi.id = pu.assigned_to', 'left');
             $builder->join('activities a', 'a.id = tsa.task_activity_id', 'left');
 
-            /* ✅ JOIN LAST COMMENT PER TASK + ACTIVITY */
+            /*  JOIN LAST COMMENT PER TASK + ACTIVITY */
             $builder->join(
                 '(SELECT ac1.*
                 FROM activities_comments ac1

@@ -5,6 +5,8 @@
             <th>CODE</th>
             <th>STORE NAME</th>
             <th>OLD NAME</th>
+            <th>ALLOCATED TO</th>
+            <th>ASSIGNED TO</th>
 
             <?php for ($i = 0; $i < $maxActivities; $i++): ?>
                 <th><?= esc($activityHeaders[$i] ?? 'Activity ' . ($i + 1)) ?></th>
@@ -19,9 +21,11 @@
                 <td><?= esc($row['code']) ?></td>
                 <td><?= esc($row['store_name']) ?></td>
                 <td><?= esc($row['old_name']) ?></td>
+                <td><?= esc($row['assignAllocatedTo']) ?></td>
+                <td><?= esc($row['assignAssignedTo']) ?></td>
 
                 <?php for ($i = 1; $i <= $maxActivities; $i++): ?>
-                    <td><?= esc($row['activity_' . $i]) ?></td>
+                    <td> <?= esc($row['activity_' . $i]) ?></td>
                 <?php endfor; ?>
             </tr>
         <?php endforeach; ?>
