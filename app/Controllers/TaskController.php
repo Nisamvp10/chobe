@@ -595,7 +595,92 @@ class TaskController extends Controller {
             'message' => 'Daily tasks created successfully'
         ]);
     }
+ private function newtaskAssign($taskType) {
+         $masterTasks = $this->mastertaskModel->where(['status'=>'active','tasktype'=>$taskType])->findAll();
+         $projectUnits = $this->projectUnitModel->where('status', 1)->findAll();
+         foreach ($masterTasks as $masterTask) {
+            foreach ($projectUnits as $unit) {
+              
+                $taskId=$this->taskModel->insert([
+                    'project_id'            => $masterTask['id'],
+                    'project_unit'          => $unit['id'],
+                    'title'                 => $masterTask['title'],
+                    'description'           => $masterTask['description'],
+                    'branch'                => 'all',
+                    'overdue_date'          => date('Y-m-d', strtotime('+1 day')),
+                    'priority'              =>1,
+                    'status'                => 'Pending',
+                    'progress'              => 0,
+                    'taskmode'              => $taskType,
+                    'recurrence'            => 'daily',
+                    'next_run_date'         => date('Y-m-d', strtotime('+1 day')),
+                    'created_from_template' => $masterTask['id'],
+                    'created_at'            => date('Y-m-d H:i:s'),
+                ],true);
 
+                 $masterActivities = $this->activityModel
+                    ->where(['status'=>'active','activity_type'=>1,'task_id'=>$masterTask['id']])
+                    ->findAll();
+                    foreach ($masterActivities as $act) {
+                        $this->taskActivityModel->insert([
+                            'task_id'   => $taskId,
+                            'activity_id' => $act['id'],
+                            'created_at'=> date('Y-m-d H:i:s')
+                        ]);
+                    }
+
+                // 6️⃣ Collect permanently allocated staff
+                $staffIds = [];
+
+                if (!empty($unit['allocated_to']) && $unit['allocated_type'] === 'permanently') {
+                    $staffIds[] = $unit['allocated_to'];
+                }
+
+                if (!empty($unit['assigned_to']) && $unit['assigned_type'] === 'permanently') {
+                    $staffIds[] = $unit['assigned_to'];
+                }
+
+                $staffIds = array_unique($staffIds);
+
+                if (empty($staffIds)) {
+                    continue;
+                }
+
+                // 7️⃣ Assign staff + activities
+                foreach ($staffIds as $staffId) {
+
+                    $this->taskassignModel->insert([
+                        'task_id'   => $taskId,
+                        'staff_id'  => $staffId,
+                        'status'    => 'assigned',
+                        'created_at'=> date('Y-m-d H:i:s')
+                    ]);
+
+                    foreach ($masterActivities as $act) {
+                        $this->taskStaffActivityModel->insert([
+                            'task_id'          => $taskId,
+                            'task_activity_id' => $act['id'],
+                            'staff_id'         => $staffId,
+                            'status'           => 'pending',
+                            'progress'         => 'pending',
+                        ]);
+                    }
+
+                    $this->notificationModel->insert([
+                        'user_id'    => $staffId,
+                        'task_id'    => $taskId,
+                        'type'       => 'new_task',
+                        'title'      => 'New Task',
+                        'created_by' => session('user_data')['id'],
+                        'message'    => 'A daily task has been assigned to you',
+                        'created_at' => date('Y-m-d H:i:s')
+                    ]);
+                }
+
+
+            }
+         }
+    }
  
 
         function list() {

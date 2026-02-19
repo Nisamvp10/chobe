@@ -35,7 +35,7 @@ class ActivitycommentsController extends Controller {
         }
 
         $rules = [
-            'comment' => 'required|min_length[2]',
+            'comment' => 'required|min_length[1]',
         ];
         if (!$this->validate($rules)) {
             return $this->response->setJSON([
