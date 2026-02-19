@@ -88,7 +88,7 @@ function renderTable(tasks) {
                 <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${priority}">${task.priority}</span>
             </div>
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
-            <div class="text-xs text-gray-500 mb-3">Branch: <span class="font-medium nixx">${(task.branch_name == null ? 'All Brach' : task.title)} [${task.created} ]</span></div>
+            <div class="text-xs text-gray-500 mb-3">Branch:  <span class="text-[14px] text-gray-900 font-medium">${(task.branch_name == null ? 'All Brach' : task.title)} [${task.created} ]</span></div>
             <div >
             <div class="d-flex align-items-center mb-2 flex gap-1">
                 <div class="w-[70%]  justify-content-between itm-align-end bg-gray-200 rounded-full h-2">
