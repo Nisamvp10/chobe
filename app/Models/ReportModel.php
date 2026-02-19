@@ -96,7 +96,10 @@ class ReportModel extends Model
         //$builder->join('activities_comments ac', 'ac.task_id = t.id', 'left');
     
         if (!empty($search) && $search != 'all') {
-            $builder->like('t.title', $search);
+            $builder->groupStart()
+                ->like('t.title', $search)
+                ->orLike('ac.comment', $search)
+            ->groupEnd();
         }
 
         if (!empty($prounit) && $prounit != 'all') {
