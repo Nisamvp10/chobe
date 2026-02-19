@@ -652,7 +652,8 @@ let selectedTaskId = null;
 
 function deleteTask(e) {
     let taskTitle = '';
-    selectedTaskId = $('#actionId').val();
+    selectedTaskId = taskOpenId //$('#actionId').val();
+
     $('#deleteTaskMessage').text(`Are you sure you want to delete ? This action cannot be undone.`);
 };
 
@@ -662,7 +663,6 @@ $('#confirmDeleteTask').on('click', function () {
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...'
     );
     if (selectedTaskId) {
-
         $.ajax({
             url: App.getSiteurl() + `task/delete/${selectedTaskId}`,
             type: 'POST',

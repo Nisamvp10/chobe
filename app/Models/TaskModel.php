@@ -29,6 +29,7 @@ class TaskModel extends Model {
             ->join('user_position as up', 'u.position_id = up.id', 'left')
             ->join('task_images as ti', 'ti.task_id = t.id', 'left')
             ->where('up.type !=',1)
+            ->where('t.tasktype',1)
             ->orderBy('t.id', 'DESC');
             if($filter && $filter != 'all')  {
                // $filter = ($filter == 'pending' ? 'Pending' : ($filter == "progress" ? 'In_Progres' :'Completed'));
@@ -91,6 +92,7 @@ class TaskModel extends Model {
             ->orderBy('t.id', 'DESC');
             $builder->groupStart()
             ->where('t.status !=', 'Completed')
+            ->where('t.tasktype',1)
             ->orWhere('t.created_at >=', 'DATE_SUB(NOW(), INTERVAL 1 DAY)', false)
             ->groupEnd();
 

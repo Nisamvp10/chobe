@@ -465,7 +465,6 @@ class TaskController extends Controller {
         $mode = $this->request->getPost('assignmentMode'); 
         $taskType = ($mode === 'permanent') ? 1 : 2;
         $templates = $this->taskModel->where(['recurrence' => 'daily','taskmode'   => $taskType])->where('next_run_date <=', $today)->groupBy('created_from_template')->findAll();
-//echo $this->taskModel->getlastQuery();exit();
         if (empty($templates)) {
             return $this->response->setJSON([
                 'success' => true,
@@ -928,6 +927,7 @@ class TaskController extends Controller {
 
         if ($taskModel->find(decryptor($id))) {
             //$taskModel->delete($id);
+            $taskModel->update(decryptor($id), ['tasktype' => 2]);
             return $this->response->setJSON(['status' => true,'msg' => 'Task deleted successfully!']);
         }
 
