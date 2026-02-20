@@ -1,3 +1,14 @@
+$(document).on('click', '.comment-text', function () {
+    toggleCustomModal('commentModal', true);
+    let taskId = $(this).data('task-id');
+    let activityId = $(this).data('activity-id');
+    let commentText = $(this).data('commenttext');
+    $('#commentModal #taskId').val(taskId);
+    $('#commentModal #activityId').val(activityId);
+    $('#commentModal #comment').val(commentText);
+})
+
+
 $(function () {
     $('#filterDate').daterangepicker({
         opens: 'left',
@@ -38,9 +49,10 @@ $('#downloadReport').on('click', function () {
     let search = $('#searchInput').val();
     let filter = $('#filerStatus').val();
     let projectUnit = $('#projectUnitFilter').val();
+    let project = $('#projectFilter').val();
     let startDate = ($('#filterDate').val() || '').split('to')[0]?.trim() || '';
     let endDate = ($('#filterDate').val() || '').split('to')[1]?.trim() || '';
 
-    window.location.href = App.getSiteurl() + 'report/generate?search=' + encodeURIComponent(search) + '&filter=' + encodeURIComponent(filter) + '&startDate=' + encodeURIComponent(startDate) + '&endDate=' + encodeURIComponent(endDate) + '&projectUnit=' + encodeURIComponent(projectUnit);
+    window.location.href = App.getSiteurl() + 'report/generate?search=' + encodeURIComponent(search) + '&filter=' + encodeURIComponent(filter) + '&startDate=' + encodeURIComponent(startDate) + '&endDate=' + encodeURIComponent(endDate) + '&projectUnit=' + encodeURIComponent(projectUnit) + '&project=' + encodeURIComponent(project);
 })
 // <?=base_url('report/generate');?>

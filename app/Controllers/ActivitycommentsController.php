@@ -49,6 +49,7 @@ class ActivitycommentsController extends Controller {
         $comment = trim($this->request->getPost('comment'));
         if($taskId) {
             $activity = $this->taskStaffActivityModel->find($activityId); //task_activity_id
+            //echo $this->taskStaffActivityModel->getLastQuery(); exit();
             $activitytaskId = $activity['task_activity_id'];
              $this->taskStaffActivityModel->where(['task_activity_id'=> $activitytaskId,'task_id' => $taskId])
             ->set([

@@ -1,72 +1,72 @@
 
- //$(document).ready(function() {
-     $('#filerStatus').on('change',function() {
-        loadTask();
-    })
+//$(document).ready(function() {
+$('#filerStatus').on('change', function () {
+    loadTask();
+})
 
-    function loadTask(search = '',startDate ='', endDate='') {
-        
-        let  filter = $('#taskFilerStatus').val();
-        let taskId = $('#tasktbl').data('task');
-        $.ajax({
+function loadTask(search = '', startDate = '', endDate = '') {
 
-            url: App.getSiteurl()+'task/activities',
-            type: "GET",
-            data: { task:taskId,search: search,filter:filter,startDate:startDate,endDate:endDate},
-            dataType: "json",
-            success: function(response) {
-                if (response.success) {
-                    renderTable(response.task);
-                }
+    let filter = $('#taskFilerStatus').val();
+    let taskId = $('#tasktbl').data('task');
+    $.ajax({
+
+        url: App.getSiteurl() + 'task/activities',
+        type: "GET",
+        data: { task: taskId, search: search, filter: filter, startDate: startDate, endDate: endDate },
+        dataType: "json",
+        success: function (response) {
+            if (response.success) {
+                renderTable(response.task);
             }
-        });
-        
-    }
+        }
+    });
 
-    function renderTable(tasks){
+}
 
-        let html = '';
-        let pending = '';
-        let inProgress ='';
-        let completed = ''
-        let ui ='';
-        taskHTML = '';
+function renderTable(tasks) {
 
-        if (tasks.length === 0) {
-            taskHTML += `
+    let html = '';
+    let pending = '';
+    let inProgress = '';
+    let completed = ''
+    let ui = '';
+    taskHTML = '';
+
+    if (tasks.length === 0) {
+        taskHTML += `
                 <div class="text-center py-8">
                     <h3 class="text-lg font-medium text-gray-700">No Clients found</h3>
                     <p class="text-gray-500 mt-1"> <?=(!haspermission('','view_clients') ? :'Try adjusting your search');?></p>
                 </div>`;
-        }else{
-            
-           
-            tasks.forEach(task => {
+    } else {
 
-              const dueDate = new Date(task.overdue_date);
+
+        tasks.forEach(task => {
+
+            const dueDate = new Date(task.overdue_date);
             const createdOn = new Date(task.createdAt);
             const today = new Date();
             dueDate.setHours(0, 0, 0, 0);
             today.setHours(0, 0, 0, 0);
 
             let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-            let dueClass =    task.status === "pending" && dueDate < today         ? "text-red-600"        : "text-gray-900";
+            let dueClass = task.status === "pending" && dueDate < today ? "text-red-600" : "text-gray-900";
 
-            let createdOnText = createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });         
-            
-                var priority = (task.priority =='High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
-                var status = (task.status =='pending' ? 'bg-red-500 text-white' : (task.status == "In_Progress" ? 'bg-yellow-500 text-yellow-800' : (task.status == "completed" ? 'bg-green-500 text-white' : 'bg-green-500 text-green-800' ) ));
-                const progress = task.progress ?? 0;
+            let createdOnText = createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-                let unlock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-unlock h-4 w-4">
+            var priority = (task.priority == 'High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
+            var status = (task.status == 'pending' ? 'bg-red-500 text-white' : (task.status == "In_Progress" ? 'bg-yellow-500 text-yellow-800' : (task.status == "completed" ? 'bg-green-500 text-white' : 'bg-green-500 text-green-800')));
+            const progress = task.progress ?? 0;
+
+            let unlock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-unlock h-4 w-4">
                             <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
                             <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
                             </svg>`;
-                let lock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock h-4 w-4 ">
+            let lock = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock h-4 w-4 ">
                                 <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
-                // 
-            let ectivitUrl = App.getSiteurl()+`activities/${task.id}`;
-             const taskHTML = `<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition border-l-4 ${task.status === 'pending' ? 'border-orange-500' : 'border-green-500'} p-4 draggable-task cursor-pointer" draggable="true" data-id="${task.id}">
+            // 
+            let ectivitUrl = App.getSiteurl() + `activities/${task.id}`;
+            const taskHTML = `<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition border-l-4 ${task.status === 'pending' ? 'border-orange-500' : 'border-green-500'} p-4 draggable-task cursor-pointer" draggable="true" data-id="${task.id}">
 
     <!-- TITLE -->
     <h6 class="text-sm font-semibold text-blue-600 truncate mb-2">
@@ -95,7 +95,7 @@
                         ${task.comment ? 'bg-gray-200 cursor-not-allowed' : ''}"
                     ${task.comment ? 'disabled' : ''}>${task.comment ?? ''}</textarea>
 
-                <!-- ✏️ EDIT BUTTON -->
+                <!--  EDIT BUTTON -->
                 ${task.comment ? `
                 <button type="button"
                         class="edit-comment p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -103,7 +103,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen "><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path></svg>
                 </button>` : ''}
 
-                <!-- ✔ SAVE BUTTON -->
+                <!--  SAVE BUTTON -->
                 <button type="submit"
                         class="save-comment p-2 bg-green-500 text-white rounded hover:bg-green-600
                             ${task.comment ? 'hidden' : ''}"
@@ -172,9 +172,9 @@
     </div>
 
 </div>`
-    
-                // 
-                progressBar = `<div class="flex items-center gap-2">
+
+            // 
+            progressBar = `<div class="flex items-center gap-2">
                             <div
                                 role="progressbar"
                                 aria-valuemin=${0}
@@ -189,11 +189,11 @@
                             <span class="text-xs">${progress}%</span>
                             </div>
                             `;
-                                            html += `
+            html += `
                     <tr class="hover:bg-gray-50">
                         <td class="px-2 py-1 whitespace-nowrap">
                             <div class="flex items-center">
-                              <a class="hover:text-gray-800" href="${App.getSiteurl()+'task/view/'}${task.id}">
+                              <a class="hover:text-gray-800" href="${App.getSiteurl() + 'task/view/'}${task.id}">
                             ${task.title}
                             </a>
                             </div>
@@ -223,42 +223,41 @@
                        
                     </tr>
                 `;
-                 console.log(taskHTML)
-                    ui += taskHTML;
-                if (task.status === 'pending') {
-                    pending += taskHTML;
-                  
-                } else if (task.status === 'in_Progress') {
-                    inProgress += taskHTML;
-                } else {
-                    completed += taskHTML;
-                }
-                
-                });
-                   
-                }
-               
-                // $('#taskPending').html(pending);
-                // $('#inProgress').html(inProgress);
-                // $('#completed').html(completed);
-               
-                $('#taskTableUI').html(ui);
-                
-            }
-        loadTask();
+            ui += taskHTML;
+            if (task.status === 'pending') {
+                pending += taskHTML;
 
-        
+            } else if (task.status === 'in_Progress') {
+                inProgress += taskHTML;
+            } else {
+                completed += taskHTML;
+            }
+
+        });
+
+    }
+
+    // $('#taskPending').html(pending);
+    // $('#inProgress').html(inProgress);
+    // $('#completed').html(completed);
+
+    $('#taskTableUI').html(ui);
+
+}
+loadTask();
+
+
 function openTaskModal(el) {
     const modal = document.getElementById('taskModal');
     const progressEl = document.getElementById('progressIndicator');
-    
+
     const progressLabel = document.getElementById('progressLabel');
     const taskId = document.getElementById('taskId');
     modal.classList.remove('hidden');
-    
+
 
     // Fill modal fields from data attributes
-    let gettaskId =  modal.querySelector('.modal-title').textContent = el.dataset.activity;
+    let gettaskId = modal.querySelector('.modal-title').textContent = el.dataset.activity;
     taskId.value = gettaskId;
     modal.querySelector('.modal-title').textContent = el.dataset.title;
     modal.querySelector('.modal-desc').textContent = el.dataset.desc;
@@ -267,28 +266,27 @@ function openTaskModal(el) {
     let status = el.dataset.status;
 
     statusEl.textContent = status;
-    statusEl.className = `modal-status ${
-        status === 'pending' ? '!text-red-800 capitalize' : 'capitalize !text-green-500'
-    }`;
+    statusEl.className = `modal-status ${status === 'pending' ? '!text-red-800 capitalize' : 'capitalize !text-green-500'
+        }`;
     modal.querySelector('.modal-date').textContent = el.dataset.date;
     let progress = modal.querySelector('.modal-progress-bar').style.width = el.dataset.progress;
 
     let progressbar = el.dataset.progressbar;
 
-     let documentUi = el.dataset.doc ? ` <div class="d-flex align-items-center mb-2 mt-2 d-none">
+    let documentUi = el.dataset.doc ? ` <div class="d-flex align-items-center mb-2 mt-2 d-none">
                 <a href="${el.dataset.doc}" target="_blank" class="relative px-3 py-1  overflow-hidden flex items-center justify-center rounded-lg text-xs border-1 rouded-5 border text-blue-700">
                     Doc
-                </a>`:'';
+                </a>`: '';
     $('#documents').html(documentUi);
-      
+
     //console.log(progressbar)
     let priority = modal.querySelector('.modal-priority').textContent = el.dataset.priority;
     // modal.querySelector('.modal-duration').textContent = el.dataset.duration;
     progressEl.classList.remove('bg-red-500', 'bg-yellow-500', 'bg-green-500');
 
-    let progressCls = (progressbar  < 50 ? 'bg-red-500' : (progressbar > 80 ? 'bg-green-500' :'bg-yellow-500'));
+    let progressCls = (progressbar < 50 ? 'bg-red-500' : (progressbar > 80 ? 'bg-green-500' : 'bg-yellow-500'));
     progressEl.classList.add(progressCls);
-  
+
     //edit data
     const users = JSON.parse(el.dataset.profiles);
     //renderStaffList(users);
@@ -302,56 +300,56 @@ function openTaskModal(el) {
             priorityEl.classList.add(cls);
         });
 
-        modal.classList.remove('hidden'); 
+        modal.classList.remove('hidden');
     }
-        const profilesContainer = modal.querySelector('.modal-profiles');
-        profilesContainer.innerHTML = '';
+    const profilesContainer = modal.querySelector('.modal-profiles');
+    profilesContainer.innerHTML = '';
 
-        try {
-           
-            users.forEach(user => {
-               const wrapper = document.createElement('div');
-                wrapper.className =  'flex items-center gap-2 bg-gray-50 p-2 rounded mb-2';
+    try {
 
-                const avatar = document.createElement('div');
-                avatar.className = 'relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs';
-                avatar.innerHTML = `${user.img ? `<img src="${user.img}" alt="" class="w-full h-full object-cover">` :`<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+        users.forEach(user => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex items-center gap-2 bg-gray-50 p-2 rounded mb-2';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs';
+            avatar.innerHTML = `${user.img ? `<img src="${user.img}" alt="" class="w-full h-full object-cover">` : `<div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
                                     <span class="text-blue-600 font-medium">${user.staffName.charAt(0)}</span>
                             </div>`}`;
 
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'text-sm text-gray-700';
-                nameSpan.textContent = user.staffName;
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'text-sm text-gray-700';
+            nameSpan.textContent = user.staffName;
 
-                const prio = document.createElement('span');
-                prioText = (user.userPriority ==1 ? 'High' : (user.userPriority == 2 ? 'Medium' : 'Low'));
-                prio.className = (user.userPriority ==1 ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (user.userPriority == 2 ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
-                prio.textContent = prioText;
+            const prio = document.createElement('span');
+            prioText = (user.userPriority == 1 ? 'High' : (user.userPriority == 2 ? 'Medium' : 'Low'));
+            prio.className = (user.userPriority == 1 ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (user.userPriority == 2 ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
+            prio.textContent = prioText;
 
-                wrapper.appendChild(avatar);
-                wrapper.appendChild(nameSpan);
-                wrapper.appendChild(prio);
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(nameSpan);
+            wrapper.appendChild(prio);
 
-                profilesContainer.appendChild(wrapper);
-            });
-        } catch (e) {
-            console.error('Invalid profile data:', e);
-        }
-        
-        renderHistory(gettaskId)
-        startPolling(gettaskId);   
+            profilesContainer.appendChild(wrapper);
+        });
+    } catch (e) {
+        console.error('Invalid profile data:', e);
+    }
+
+    renderHistory(gettaskId)
+    startPolling(gettaskId);
 }
 
 function closeTaskModal() {
-  document.getElementById('taskModal').classList.add('hidden');
-  
+    document.getElementById('taskModal').classList.add('hidden');
+
 }
 
 function closeTaskModal(event) {
-  if (!event || event.target.id === "taskModal" || event.target.innerText === "✕") {
-    document.getElementById("taskModal").classList.add("hidden");
-    stopPolling()
-  }
+    if (!event || event.target.id === "taskModal" || event.target.innerText === "✕") {
+        document.getElementById("taskModal").classList.add("hidden");
+        stopPolling()
+    }
 }
 let isHistoryOpen = false;
 
@@ -421,7 +419,7 @@ function hideReplyForm() {
 //         data: { taskId: id},
 //         dataType: "json",
 //         success: function(response) {
-          
+
 //             if (response.success) {
 //                 renderReplayUi(response.replay);
 //             }
@@ -433,7 +431,7 @@ function hideReplyForm() {
 //   from =`<div>
 //             <form class="mb-4" method="post" id="replyTaskForm">
 //                 <?= csrf_field() ;?>
-                
+
 //                   <div class="flex space-x-2" >
 //                     <textarea placeholder="Enter your Comments..." name="replay" class="flex-1 min-h-[100px] p-3 border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
 //                      <div class="invalid-feedback" id="replay_error"></div>
@@ -470,7 +468,7 @@ function hideReplyForm() {
 //             </span>
 //         `);
 //         lastReplyId = rply.rpId
-        
+
 //         const replyDateObj = new Date(rply.created_at);
 
 //         const msgDate = replyDateObj.toDateString(); // compare only date
@@ -572,7 +570,7 @@ function renderHistory(taskId) {
         success: function (response) {
             if (response.success) {
                 renderReplayUi(response.replay);
-            }else{
+            } else {
                 toastr.error(response.message)
             }
         }
@@ -653,18 +651,17 @@ function renderReplayUi(replay) {
 
                         <!-- Avatar -->
                         <div class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xs">
-                            ${
-                                rply.profileimg
-                                ? `<img src="${rply.profileimg}" class="w-full h-full object-cover">`
-                                : `<span class="font-semibold">${rply.name.charAt(0)}</span>`
-                            }
+                            ${rply.profileimg
+                    ? `<img src="${rply.profileimg}" class="w-full h-full object-cover">`
+                    : `<span class="font-semibold">${rply.name.charAt(0)}</span>`
+                }
                         </div>
 
                         <!-- Message -->
                         <div class="px-4 py-2 rounded-2xl shadow text-sm
                             ${isAdmin
-                                ? 'bg-blue-600 text-white rounded-br-sm'
-                                : 'bg-gray-100 text-gray-800 rounded-bl-sm'}">
+                    ? 'bg-blue-600 text-white rounded-br-sm'
+                    : 'bg-gray-100 text-gray-800 rounded-bl-sm'}">
                             <p>${rply.reply_text}</p>
                             <div class="mt-1 text-[11px] opacity-70 text-right">
                                 ${time}
@@ -692,12 +689,12 @@ $(document).on('submit', '#replyTaskForm', function (e) {
     let formData = new FormData(this);
     formData.append('taskId', taskId);
 
-   $('#submitBtn').prop('disabled', true).html(
+    $('#submitBtn').prop('disabled', true).html(
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
     );
 
     $.ajax({
-        url:App.getSiteurl()+'task/activity/replay',
+        url: App.getSiteurl() + 'task/activity/replay',
         method: 'POST',
         data: formData,
         processData: false,
@@ -706,8 +703,8 @@ $(document).on('submit', '#replyTaskForm', function (e) {
             if (res.success) {
                 $('#replyTaskForm')[0].reset();
                 renderHistory(taskId); // 🔄 refresh immediately
-            }else{
-                 toastr.error(res.message);
+            } else {
+                toastr.error(res.message);
             }
         },
         complete: function () {
@@ -721,7 +718,7 @@ $(document).on('submit', '#replyTaskForm', function (e) {
 
 //     let id =  $('#taskId').val();
 //     let webForm = $('#replyTaskForm');
-   
+
 //     e.preventDefault();
 //     let formData = new FormData(this);
 //     formData.append('taskId', id);
@@ -769,17 +766,17 @@ $(document).on('click', '.locktotask', function (e) {
     e.preventDefault();
     let activityId = $(this).data('id');
     $.ajax({
-        method :  'POST',
-        url : App.getSiteurl() + 'activity/lock',
-        data:{id:activityId},
+        method: 'POST',
+        url: App.getSiteurl() + 'activity/lock',
+        data: { id: activityId },
         dataType: 'json',
-        success:function(res) {
-           if(res.success) {
-            toastr.success(res.message);
-            loadTask();
-           }else{
-            toastr.error(res.message);
-           }
+        success: function (res) {
+            if (res.success) {
+                toastr.success(res.message);
+                loadTask();
+            } else {
+                toastr.error(res.message);
+            }
         }
     })
 })

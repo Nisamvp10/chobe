@@ -106,8 +106,9 @@
             </div>
             <!-- close table -->
 </div><!-- body -->
-<?= $this->endSection(); ?>
+<?= view('modal/commentModal') ;?>
 
+<?= $this->endSection(); ?>
 
 
 <?= $this->section('scripts') ?>
@@ -143,51 +144,125 @@
                 });
             }
 
-            function renderTable(result){
-                let html = '';
+            // function renderTable(result){
+            //     let html = '';
 
-                if (result.result.length === 0) {
-                    html += `
-                        <div class="text-center py-8">
-                            <h3 class="text-lg font-medium text-gray-700">No Clients found</h3>
-                            <p class="text-gray-500 mt-1"> <?=(!haspermission('','report') ? :'Try adjusting your search');?></p>
-                        </div>
-                    `;
-                }else{
-                    html += `
-                        <table class="min-w-full divide-y divide-gray-200 border border-collapse">
-                            <thead class="bg-gray-100">
-                                <tr>`;
-                                if(result.headers.length > 0) {
-                                    result.headers.forEach(header => {
-                                        html += `<th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`;
-                                    })
-                                }
+            //     if (result.result.length === 0) {
+            //         html += `
+            //             <div class="text-center py-8">
+            //                 <h3 class="text-lg font-medium text-gray-700">No Clients found</h3>
+            //                 <p class="text-gray-500 mt-1"> <?=(!haspermission('','report') ? :'Try adjusting your search');?></p>
+            //             </div>
+            //         `;
+            //     }else{
+            //         html += `
+            //             <table class="min-w-full divide-y divide-gray-200 border border-collapse">
+            //                 <thead class="bg-gray-100">
+            //                     <tr>`;
+            //                     if(result.headers.length > 0) {
+            //                         result.headers.forEach(header => {
+            //                             html += `<th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`;
+            //                         })
+            //                     }
                                     
-                                  html += `</tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                    `;
-                 if (result.result && result.result.length > 0) {
-                            result.result.forEach(row => {
-                                html += `<tr class="hover:bg-gray-50">`;
+            //                       html += `</tr>
+            //                 </thead>
+            //                 <tbody class="bg-white divide-y divide-gray-200">
+            //         `;
+            //      if (result.result && result.result.length > 0) {
+            //                 result.result.forEach(row => {
+            //                     html += `<tr class="hover:bg-gray-50">`;
 
-                                row.forEach(col => {
-                                    html += `
-                                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                                            ${col ?? ''}
-                                        </td>`;
-                                });
+            //                     row.forEach(col => {
+            //                         html += `
+            //                             <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+            //                                 ${col ?? ''}
+            //                             </td>`;
+            //                     });
 
-                                html += `</tr>`;
-                            });
-                        }
+            //                     html += `</tr>`;
+            //                 });
+            //             }
                     
 
-                    html += `</tbody></table>`;
+            //         html += `</tbody></table>`;
+            //     }
+            //     $('#clientsTable').html(html);
+            // }
+function renderTable(result){
+
+    let html = '';
+
+    if (result.result.length === 0) {
+        html += `
+            <div class="text-center py-8">
+                <h3 class="text-lg font-medium text-gray-700">No Data Found</h3>
+            </div>
+        `;
+    } else {
+
+        html += `
+        <table class="min-w-full divide-y divide-gray-200 border border-collapse">
+            <thead class="bg-gray-100">
+                <tr>`;
+
+        result.headers.forEach(header => {
+            html += `
+                <th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    ${header}
+                </th>`;
+        });
+
+        html += `
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+        `;
+
+        result.result.forEach((row, rowIndex) => {
+
+            html += `<tr class="hover:bg-gray-50">`;
+
+            row.forEach((col, colIndex) => {
+
+                // First 8 columns = normal text
+                if(colIndex < 8){
+
+                    html += `
+                        <td class="px-4 py-2 text-sm text-gray-900">
+                            ${col ?? ''}
+                        </td>`;
+
+                } else {
+
+                    // 🔥 FIX HERE: col is OBJECT
+                    let commentText = col?.comment ?? 'Nill';
+                    let activityId   = col?.activityId ?? '';
+                    let taskId       = col?.taskId ?? '';
+
+                    html += `
+                        <td class="px-4 py-2 text-sm text-gray-900">
+                            <div class="editable-cell">
+
+                                <span data-activity-id="${activityId}" data-task-id="${taskId}" data-commentText="${commentText === 'Nill' ? '' : commentText}" class="${activityId ? 'comment-text' : ''} cursor-pointer hover:text-blue-600">
+                                    ${commentText}
+                                </span>
+                            </div>
+                        </td>`;
                 }
-                $('#clientsTable').html(html);
-            }
+
+            });
+
+            html += `</tr>`;
+        });
+
+        html += `</tbody></table>`;
+    }
+
+    $('#clientsTable').html(html);
+}
+
+
             loadReports();
 
             $('#searchInput').on('input',function(){
@@ -199,6 +274,58 @@
                 loadReports(value);
             })
         });
+
+        // Click text → show input
+
+
+
+
+
+// Save edit
+$('#commentForm').on('submit',function(e){
+    e.preventDefault();
+    formData = new FormData(this);
+    let taskId = formData.get('taskId');
+    let activityId = formData.get('activityId');
+    let comment = formData.get('comment');
+    let webForm = $('#commentForm');
+
+    if(!comment){
+        toastr.error('Comment is required');
+        return;
+    }
+
+    $.ajax({
+            url: App.getSiteurl() + 'activity/save-comment',
+            method: 'POST',
+            data: {
+                taskId: taskId,
+                activityId: activityId,
+                comment: comment
+            },
+            dataType: 'json',
+            success: function (res) {
+
+                if (res.success) {
+                toastr.success(res.message);
+                loadReports();
+                webForm[0].reset();
+
+                } else {
+                    toastr.error('Failed to save comment');
+                }
+            },
+            error: function () {
+                alert('Server error');
+            },
+            complete: function () {
+                submitBtn.disabled = false;
+            }
+        });
+
+    });
+
+
     </script>
 <?= $this->endSection() ?>
 

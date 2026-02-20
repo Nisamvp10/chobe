@@ -34,7 +34,7 @@ class ActivityModel extends Model
             cm.name as cmName,
             cm.profileimg as cmImg,
             cm.id as cmId,
-            p.store as branch_name,
+            p.store as branch_name, 
             u.profileimg')
 
         ->join('activities as a', 'a.id = tsa.task_activity_id', 'left')

@@ -29,6 +29,7 @@ class ReportModel extends Model
                 'assi.id as assigned_to_id',
                 'a.id as activity_id',
                 'a.activity_title',
+                'tsa.id as tsaactivityId',
 
                 //  Activity status (group-based)
                 "CASE 
@@ -39,7 +40,8 @@ class ReportModel extends Model
 
                 //  Last comment per TASK + ACTIVITY
                 'COALESCE(ac.comment, "Nill") as last_comment',
-                'ac.created_at as comment_time'
+                'ac.created_at as comment_time',
+                'ac.id as comment_id'
             ]);
 
             /* =================== JOINS =================== */

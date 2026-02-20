@@ -130,7 +130,7 @@ class ReportController extends controller
     // }
 
 
-    public function list()
+   public function list()
     {
         $reportModel = new ReportModel();
 
@@ -151,16 +151,17 @@ class ReportController extends controller
         );
 
         $groupedTasks = [];
-        $activityHeaders = []; // activity_id => activity_title
+        $activityHeaders = [];
 
         /* ============================================
-        STEP 1: GROUP DATA BY TASK + ACTIVITY_ID
+        STEP 1: GROUP DATA CORRECTLY
         ============================================ */
 
         foreach ($reportResult as $repo) {
 
             $taskId     = $repo['taskId'];
             $activityId = $repo['activity_id'];
+            $tsaactivityId = $repo['tsaactivityId'];
 
             if (!isset($groupedTasks[$taskId])) {
                 $groupedTasks[$taskId] = [
@@ -175,28 +176,32 @@ class ReportController extends controller
                 ];
             }
 
-            // Save unique activity headers
+            // Store unique activity headers
             if (!empty($activityId) && !isset($activityHeaders[$activityId])) {
                 $activityHeaders[$activityId] = $repo['activity_title'];
             }
 
-            // Save comment under correct activity_id
+            // Map activity properly using activityId as KEY
             if (!empty($activityId)) {
-                $groupedTasks[$taskId]['activities'][$activityId] =
-                    (!empty($repo['last_comment']) && $repo['last_comment'] != 'Nill')
-                        ? $repo['last_comment']
-                        : 'Nill';
+
+                $groupedTasks[$taskId]['activities'][$activityId] = [
+                    'comment'    => (!empty($repo['last_comment']) && $repo['last_comment'] != 'Nill')
+                                        ? $repo['last_comment']
+                                        : 'Nill',
+                    'activityId' => encryptor($tsaactivityId) ?? '',
+                    'taskId'     => encryptor($taskId) ?? ''
+                ];
             }
         }
-        
 
         /* ============================================
-        STEP 2: SORT ACTIVITIES BY ID (Optional)
+        STEP 2: SORT ACTIVITIES
         ============================================ */
+
         ksort($activityHeaders);
 
         /* ============================================
-        STEP 3: BUILD HEADERS
+        STEP 3: BUILD TABLE HEADERS
         ============================================ */
 
         $headers = [
@@ -211,7 +216,7 @@ class ReportController extends controller
         ];
 
         foreach ($activityHeaders as $activityId => $title) {
-            $headers[] = $title ;//. ' (ID:' . $activityId . ')';
+            $headers[] = $title . ' (' . $activityId . ')';
         }
 
         /* ============================================
@@ -231,12 +236,24 @@ class ReportController extends controller
                 $task['date'],
                 $task['task'],
                 $task['assignAllocatedTo'],
-                $task['assignAssignedTo']
+                $task['assignAssignedTo'],
             ];
 
-            // Fill activity columns correctly
             foreach ($activityHeaders as $activityId => $title) {
-                $row[] = $task['activities'][$activityId] ?? '---';
+
+                if (isset($task['activities'][$activityId])) {
+
+                    // Activity assigned
+                    $row[] = $task['activities'][$activityId];
+
+                } else {
+
+                    // Activity NOT assigned → show 
+                    $row[] = [
+                        'comment' => '---',
+                        'comment_id' => ''
+                    ];
+                }
             }
 
             $rows[] = $row;
@@ -253,7 +270,6 @@ class ReportController extends controller
         ]);
     }
 
-
     public function generateReport()
     {
         if (ob_get_length()) ob_end_clean();
@@ -266,13 +282,15 @@ class ReportController extends controller
         $startDate = $this->request->getGet('startDate');
         $endDate   = $this->request->getGet('endDate');
         $prounit   = $this->request->getGet('projectUnit');
+        $project   = $this->request->getGet('project');
 
         $reportResult = $reportModel->getReports(
             $search,
             $filter,
             $startDate,
             $endDate,
-            $prounit
+            $prounit,
+            $project
         );
         $groupedTasks = [];
         $activityHeaders = []; // activity_id => title
