@@ -12,6 +12,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use App\Models\TaskStaffActivityModel;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use App\Models\ProjectsModel;
 
 
 class ReportController extends controller
@@ -20,9 +21,11 @@ class ReportController extends controller
     {   
         $page = (!haspermission('','report') ? lang('Custom.accessDenied') : 'Reports' );
         $rojectUnitModel = new ProjectunitModel();
+        $projectModel = new ProjectsModel();
 
         $projectUnits = $rojectUnitModel->where('status',1)->findAll();
-        return view('admin/reports/index',compact('page','projectUnits'));
+        $projectsList = $projectModel->where('is_active',1)->findAll();
+        return view('admin/reports/index',compact('page','projectUnits','projectsList'));
     }
     // function list()
     // {   
@@ -136,13 +139,15 @@ class ReportController extends controller
         $startDate = $this->request->getGet('startDate');
         $endDate   = $this->request->getGet('endDate');
         $prounit   = $this->request->getGet('prounit');
+        $project   = $this->request->getGet('project');
 
         $reportResult = $reportModel->getReports(
             $search,
             $filter,
             $startDate,
             $endDate,
-            $prounit
+            $prounit,
+            $project
         );
 
         $groupedTasks = [];

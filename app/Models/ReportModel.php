@@ -8,7 +8,7 @@ class ReportModel extends Model
     protected $table = 'tasks';   // <-- important
     protected $primaryKey = 'id';
 
-     public function getReports($search = '', $filter = '', $startDate = '', $endDate = '', $prounit = '')
+     public function getReports($search = '', $filter = '', $startDate = '', $endDate = '', $prounit = '', $project = '')
     {
        $builder = $this->db->table('tasks t');
 
@@ -108,6 +108,9 @@ class ReportModel extends Model
 
         if (!empty($filter) && $filter != 'all') {
             $builder->where('t.status', $filter);
+        }
+        if (!empty($project) && $project != 'all') {
+            $builder->where('t.project_id', $project);
         }
 
         if (!empty($startDate) && !empty($endDate)) {
