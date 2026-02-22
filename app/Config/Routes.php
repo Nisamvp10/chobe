@@ -147,6 +147,10 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('reports','ReportController::index');
     $routes->get('reports/list','ReportController::list');
     $routes->get('report/generate','ReportController::generateReport');
+    //user report
+    $routes->get('user-report','ReportController::userReport');
+    $routes->get('user-report/userReportList','ReportController::userReportList');
+    $routes->get('user-report/generate','ReportController::userReportGenerate');
     //role by staff
     $routes->get('role-master','RolemasterController::index');
     $routes->post('rolemaster/save','RolemasterController::save');

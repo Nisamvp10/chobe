@@ -27,6 +27,16 @@ class ReportController extends controller
         $projectsList = $projectModel->where('is_active',1)->findAll();
         return view('admin/reports/index',compact('page','projectUnits','projectsList'));
     }
+    public function userReport()
+    {   
+        $page = (!haspermission('','user_report_view') ? lang('Custom.accessDenied') : 'User Report' );
+        $rojectUnitModel = new ProjectunitModel();
+        $projectModel = new ProjectsModel();
+
+        $projectUnits = $rojectUnitModel->where('status',1)->findAll();
+        $projectsList = $projectModel->where('is_active',1)->findAll();
+        return view('admin/reports/userReport',compact('page','projectUnits','projectsList'));
+    }
     // function list()
     // {   
     //     $reportModel = new ReportModel();
@@ -128,9 +138,20 @@ class ReportController extends controller
     //     //return $this->response->setJSON(['success' => true , 'result' => $reportResult ]);
        
     // }
+    public function userReportList()
+    {
+        $repo =  $this->reportUi($this->request->getGet(),true);
+       return $this->response->setJSON($repo);
+    }
+
+    public function list() {
+       $repo =  $this->reportUi($this->request->getGet(),false);
+       return $this->response->setJSON($repo);
+        
+    }
 
 
-   public function list()
+   public function reportUi($get,$reportType)
     {
         $reportModel = new ReportModel();
 
@@ -147,7 +168,8 @@ class ReportController extends controller
             $startDate,
             $endDate,
             $prounit,
-            $project
+            $project,
+            $reportType
         );
 
         $groupedTasks = [];
@@ -263,11 +285,16 @@ class ReportController extends controller
         FINAL JSON RESPONSE
         ============================================ */
 
-        return $this->response->setJSON([
+        // return $this->response->setJSON([
+        //     'success' => true,
+        //     'headers' => $headers,
+        //     'result'  => $rows
+        // ]);
+        return [
             'success' => true,
             'headers' => $headers,
             'result'  => $rows
-        ]);
+        ];
     }
 
     public function generateReport()
@@ -424,5 +451,7 @@ class ReportController extends controller
         exit;
     }
 
+ 
+    
 
 }

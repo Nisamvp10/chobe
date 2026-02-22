@@ -816,10 +816,19 @@ a{
                     </a>
                 </li>
                 <?php endif; ?>
+
+                 <?php if(haspermission('','user_report_view')) {  ?>
+                <li class="nav-item">
+                    <a class="nav-link <?= strpos(uri_string(), 'user-report') === 0 ? 'active' : '' ?>" href="<?= base_url('user-report') ?>">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>User Report</span>
+                    </a>
+                </li>
+                <?php } ?>
                 
                 <?php if(haspermission('','view_report')) {  ?>
                 <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'dashboard/reports') === 0 ? 'active' : '' ?>" href="<?= base_url('dashboard/reports') ?>">
+                    <a class="nav-link <?= strpos(uri_string(), 'dashboard/reports') === 0 ? 'active' : '' ?>" href="<?= base_url('reports') ?>">
                         <i class="bi bi-bar-chart"></i>
                         <span>Reports</span>
                     </a>
@@ -840,6 +849,7 @@ a{
                         <span>Branches</span>
                     </a>
                 </li>
+                
 
                  <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'projects') === 0 ? 'active' : '' ?>" href="<?= base_url('projects') ?>">

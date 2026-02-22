@@ -8,7 +8,7 @@ class ReportModel extends Model
     protected $table = 'tasks';   // <-- important
     protected $primaryKey = 'id';
 
-     public function getReports($search = '', $filter = '', $startDate = '', $endDate = '', $prounit = '', $project = '')
+     public function getReports($search = '', $filter = '', $startDate = '', $endDate = '', $prounit = '', $project = '', $user = false)
     {
        $builder = $this->db->table('tasks t');
 
@@ -52,6 +52,10 @@ class ReportModel extends Model
             $builder->join('users alw', 'alw.id = pu.allocated_to', 'left');
             $builder->join('users assi', 'assi.id = pu.assigned_to', 'left');
             $builder->join('activities a', 'a.id = tsa.task_activity_id', 'left');
+            //optional 
+            if($user){
+                $builder->join('task_assignees as ta', 'ta.task_id = t.id');
+            }
 
             /*  JOIN LAST COMMENT PER TASK + ACTIVITY */
             $builder->join(
@@ -96,6 +100,10 @@ class ReportModel extends Model
         // $builder->orderBy('t.id', 'ASC');
         // $builder->orderBy('a.id', 'ASC');
         //$builder->join('activities_comments ac', 'ac.task_id = t.id', 'left');
+
+        if($user){
+            $builder->where('ta.staff_id',session('user_data')['id']);
+        }
     
         if (!empty($search) && $search != 'all') {
             $builder->groupStart()
