@@ -106,6 +106,7 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.NO</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Projects</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -124,8 +125,11 @@
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">${project.project}</div>
                                 </td>
+                                <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${project.client_name}</div>
+                                </td>
                               
-                                <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium">
+                                <td class="px-2 py-2 whitespace-nowrap text-center text-sm font-medium">
                                 ${project.is_active ==1 ?  `<a href="<?=base_url('settings/project/edit/');?>${project.encrypted_id}" class="text-blue-600 hover:text-blue-800 mr-3">View</a>` :`<span data-id="${project.encrypted_id}" onclick="unlockCategory(this)" class="text-blue-600 hover:text-blue-800 mr-3 cursor-pointer "><i class="bi bi-lock"></i></span>` }
                                 </td>
                             </tr>

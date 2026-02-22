@@ -137,7 +137,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('activitties/getstaffbytask','ActivitiesController::getStaffBytask');
     $routes->post('activity/lock','ActivitiesController::lock');
     //projects 
-    $routes->get('settings/projects','ProjectsController::index');
+    $routes->get('projects','ProjectsController::index');
     $routes->get('project/list','ProjectsController::projectList');
     $routes->post('project/save','ProjectsController::save');
     $routes->get('settings/project/edit/(:any)','ProjectsController::create/$1');

@@ -842,7 +842,7 @@ a{
                 </li>
 
                  <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'dashboard/notifications') === 0 ? 'active' : '' ?>" href="<?= base_url('settings/projects') ?>">
+                    <a class="nav-link <?= strpos(uri_string(), 'projects') === 0 ? 'active' : '' ?>" href="<?= base_url('projects') ?>">
                         <i class="bi bi-diagram-3-fill"></i>
                         <span>Projects</span>
                         <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>

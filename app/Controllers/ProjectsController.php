@@ -2,19 +2,23 @@
 namespace App\Controllers;
 use CodeIgniter\Controller;
 use App\Models\ProjectsModel;
+use App\Models\ClientsModel;
 
 class ProjectsController extends Controller{
 
     protected $projectModel;
+    protected $clientsModel;
     
     function __construct() {
 
         $this->projectModel = new ProjectsModel();
+        $this->clientsModel = new ClientsModel();
 
     }
     function index() {
         $page = "Projects";
-        return view('admin/projects/index',compact('page'));
+        $clients = $this->clientsModel->where('status',1)->orderBy('id','DESC')->findAll();
+        return view('admin/projects/index',compact('page','clients'));
     }
 
     function create($id =false)
@@ -22,7 +26,8 @@ class ProjectsController extends Controller{
         $page = "Edit Project" ; 
         $id = decryptor($id);
         $data = $this->projectModel->where(['id'=> $id,'is_active' =>1])->first();
-        return view('admin/projects/edit',compact('page','data'));
+        $clients = $this->clientsModel->where('status',1)->orderBy('id','DESC')->findAll();
+        return view('admin/projects/edit',compact('page','data','clients'));
     }
 
     function save(){
@@ -38,6 +43,7 @@ class ProjectsController extends Controller{
 
         $rules = [
             'project' => 'required|min_length[3]|max_length[100]',
+            'client' => 'required',
         ];
 
         if(!$this->validate($rules)){
@@ -47,10 +53,12 @@ class ProjectsController extends Controller{
             ]);
         }
         $project = $this->request->getVar('project');
+        $client = $this->request->getVar('client');
         $id = decryptor($this->request->getVar('projectId'));
 
         $data = [
             'project' => $project,
+            'client_id' => $client,
         ];
         
         if($id)
@@ -90,19 +98,20 @@ class ProjectsController extends Controller{
         $search = $this->request->getVar('search');
         $filter = $this->request->getVar('filter');
 
-        $builder = $this->projectModel->select('id,project,is_active')->orderBy('id DESC');
+        $builder = $this->projectModel->select('projects.id,projects.project,projects.is_active,clients.name as client_name')->orderBy('projects.id DESC')->join('clients', 'clients.id = projects.client_id');
 
         if($filter !=='all'){
-            $builder->where('is_active',$filter);
+            $builder->where('projects.is_active',$filter);
         }
 
         if(!empty($search))
         {
             $builder->groupStart()
-                ->like('project',$search)
+                ->like('projects.project',$search)
+                ->like('clients.name',$search)
                 ->groupEnd();
         }
-
+        $builder->where('projects.is_active',1);
         $projects = $builder->findAll();
         foreach($projects as &$project){
             $project['encrypted_id'] = encryptor($project['id']);

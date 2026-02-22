@@ -18,6 +18,19 @@
                 <input type="text" id="project" name="project" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter category name" required>
                  <div class="invalid-feedback" id="project_error"></div>
             </div>
+            <div class="mb-4">
+                <label for="client" class="block text-sm font-medium text-gray-700 mb-1">Client</label>
+                <select id="client" name="client" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+                    <option value="">Select Client</option>
+                    <?php 
+                    if(!empty($clients)){
+                        foreach($clients as $client): ?>
+                            <option value="<?= $client['id'] ?>"><?= $client['name'] ?></option>
+                        <?php endforeach; 
+                    }?>
+                </select>
+                 <div class="invalid-feedback" id="client_error"></div>
+            </div>
 
             <div class="flex justify-end gap-3">
                 <button type="button" onclick="closeModal()" class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>

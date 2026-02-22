@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 
 class ProjectsModel extends Model{
     protected $table ='projects';
-    protected $allowedFields = ['id','project','is_active','created_at','updated_at','created_by'];
+    protected $allowedFields = ['id','project','client_id','is_active','created_at','updated_at','created_by'];
     protected $primaryKey = 'id';
 
     function getCategory() {
