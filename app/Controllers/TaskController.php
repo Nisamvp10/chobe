@@ -323,8 +323,10 @@ class TaskController extends Controller {
 
         } else {
                 $db->transStart();
+                //projects 
+                $projectId = $this->projects->where('id', $masterTask->project_unit_id)->first();
             // 1️⃣ Get all active project units
-                $projectUnits = $this->projectUnitModel->where('status', 1)->findAll();
+                $projectUnits = $this->projectUnitModel->where('client_id', $projectId['client_id'])->where('status', 1)->findAll();
                 if (empty($projectUnits)) {
                     return $this->response->setJSON([
                         'success' => false,
@@ -472,6 +474,7 @@ class TaskController extends Controller {
         $mode = $this->request->getPost('assignmentMode'); 
         $taskType = ($mode === 'permanent') ? 1 : 2;
         $templates = $this->taskModel->where(['recurrence' => 'daily','taskmode'   => $taskType])->where('next_run_date <=', $today)->groupBy('created_from_template')->findAll();
+       
         if (empty($templates)) {
             return $this->response->setJSON([
                 'success' => true,
@@ -480,11 +483,17 @@ class TaskController extends Controller {
         }
 
         // 2️⃣ Fetch active project units
-        $projectUnits = $this->projectUnitModel->where('status', 1)->findAll();
         $taskCreated = false; 
 
         foreach ($templates as $template) {
-
+            //choose project id aginst clients id
+            $projectId = $this->projects->where('id', $template['project_id'])->first();
+            
+            if (empty($projectId)) {
+               continue;
+            }
+            $projectUnits = $this->projectUnitModel->where('client_id', $projectId['client_id'])->where('status', 1)->findAll();
+            //echo $this->projects->getLastQuery(); exit();
             foreach ($projectUnits as $unit) {
 
                 // 3️⃣ Check if THIS unit already has task today
