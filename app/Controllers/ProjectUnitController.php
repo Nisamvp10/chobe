@@ -61,9 +61,9 @@ class ProjectUnitController extends Controller
             'store_manager'   => 'required',
             'allocated_to'     => 'required',
             'allocated_date'     => 'required',
-            'allocatedType'     => 'required',
+            //'allocatedType'     => 'required',
             'rm_mail'  => 'required|min_length[2]',
-            //'status'  => 'required',
+            //'status'  => 'required',{allocatedType: "The allocatedType field is required."}
         ];
 
         if(!$this->validate($rules))
@@ -89,10 +89,10 @@ class ProjectUnitController extends Controller
 
         $allocated_to   = $this->request->getPost('allocated_to');
         $allocated_date = $this->request->getPost('allocated_date');
-        $allocated_type = $this->request->getPost('allocatedType');
+        $allocated_type = 1;// $this->request->getPost('allocatedType');
         $assigned_to    = $this->request->getPost('assigned_to');
         $assigned_date  = $this->request->getPost('assigned_date');
-        $assigned_type  = $this->request->getPost('assignedType');
+        $assigned_type  = 2;//$this->request->getPost('assignedType'); 
 
 
         $data = [
