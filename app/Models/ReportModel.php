@@ -21,6 +21,7 @@ class ReportModel extends Model
                 'pu.oldstore_name',
                 'pu.oracle_code',
                 't.created_at',
+                't.task_gen_date',
                 't.status as taskStatus',
                 'tsa.status as activityStatus',
                 'alw.name as allocated_to',
