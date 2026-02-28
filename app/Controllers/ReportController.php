@@ -191,7 +191,7 @@ class ReportController extends controller
                     'storeName'    => $repo['store_name'],
                     'oldStoreName' => $repo['oldstore_name'],
                     'task'         => $repo['task_title'],
-                    'date'         => date('Y-m-d', strtotime($repo['created_at'])),
+                    'date'         => date('Y-m-d', strtotime($repo['task_gen_date'])),
                     'assignAllocatedTo' => $repo['allocated_to'],
                     'assignAssignedTo'  => $repo['assigned_to'],
                     'activities'   => []
