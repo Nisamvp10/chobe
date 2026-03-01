@@ -16,6 +16,17 @@
                     </a>
                 </div>
                 <?php } ?>
+                    <!-- group ac tivity task complete-->
+                    <?php
+                if(haspermission(session('user_data')['role'],'create_task')) { ?>
+                <div>
+                    <a href="<?= base_url('task/group_activity_task_complete') ?>" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i> Activity Overview
+                    </a>
+                </div>
+                <?php } ?>
+
+
                  <?php
                 if(haspermission('','daily_assign')) { ?>
                 <div>

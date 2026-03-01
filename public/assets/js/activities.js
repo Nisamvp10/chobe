@@ -98,3 +98,62 @@ function renderStaffList(staffs) {
     }
     $('#participantsactivityTasks').html(html);
 }
+
+
+document.addEventListener('change', async (e) => {
+    if (e.target.closest('.masetrTask')) {
+        let html = '';
+        const id = e.target.value;
+        $.ajax({
+            url: App.getSiteurl() + 'master-task/get-activities',
+            method: 'POST',
+            data: { id: id },
+            success: function (response) {
+                if (response.success) {
+                    response.activities.forEach(activity => {
+                        html += `<option value="${activity.id}">${activity.title}</option>  `;
+                    });
+                    $('#activities').append(html);
+                }
+            }
+        })
+    }
+})
+
+$('#commentActivities').on('submit', function (e) {
+    e.preventDefault();
+    let formData = new FormData(this);
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').empty();
+    $('#submitBtn').prop('disabled', true).html(
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
+    );
+    $.ajax({
+        url: App.getSiteurl() + 'comment-group-activities/save',
+        method: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            if (response.success) {
+                toastr.success(response.message);
+                webForm[0].reset();
+                allactivities();
+            } else {
+                if (response.errors) {
+                    $.each(response.errors, function (field, message) {
+                        $('#' + field).addClass('is-invalid');
+                        $('#' + field + '_error').text(message);
+                    })
+                } else {
+                    toastr.error(response.message);
+                }
+            }
+        }, error: function () {
+            toastr.error('An error occurred while saving Service');
+        }, complete: function () {
+            // Re-enable submit button
+            $('#submitBtn').prop('disabled', false).text('Save');
+        }
+    })
+})

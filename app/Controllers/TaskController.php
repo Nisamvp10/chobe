@@ -16,6 +16,7 @@ use App\Models\ProjectunitModel;
 use App\Models\TaskactivityModel;
 use App\Models\TaskStaffActivityModel;
 use App\Models\MastertaskModel;
+use App\Models\ActivitycommentsModel;
 class TaskController extends Controller {
 
     protected $branchModel;
@@ -31,6 +32,7 @@ class TaskController extends Controller {
     protected $projectUnitModel;
     protected $taskStaffActivityModel;
     protected $mastertaskModel;
+    protected $activitycommentsModel;
     function __construct() {
         $this->branchModel = new BranchesModel();
         $this->taskModel = new TaskModel();
@@ -45,7 +47,7 @@ class TaskController extends Controller {
         $this->taskActivityModel = new TaskactivityModel();
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
         $this->mastertaskModel = new MastertaskModel();
-        
+        $this->activitycommentsModel = new ActivitycommentsModel();
     }
 
     function index($taskStatus= false) {
@@ -1077,13 +1079,111 @@ class TaskController extends Controller {
         }
     }
 
-function getActivities() {
-    $id = $this->request->getPost('id');
-   // $activities = $this->activityModel->where('task_id', $id)->findAll();
-   $activities = $this->activityModel->getactivityBymastarTask($id);
-    return $this->response->setJSON([
-        'success' => true,
-        'activities' => $activities
-    ]);
-}
+    function getActivities() {
+        $id = $this->request->getPost('id');
+    // $activities = $this->activityModel->where('task_id', $id)->findAll();
+    $activities = $this->activityModel->getactivityBymastarTask($id);
+        return $this->response->setJSON([
+            'success' => true,
+            'activities' => $activities
+        ]);
+    }
+
+    function groupActivityTaskComplete() {
+        $page = (!haspermission('','create_task')) ? lang('Custom.accessDenied') : 'Group Activity Task ';
+        if(!haspermission('','create_task')) {
+            $route = view('admin/pages-error-404',compact('page'));
+        } else {
+           $masterTasks = $this->mastertaskModel->where('status','active')->findAll();
+            $route =  view('admin/task/group_activity_task_complete',compact('page','masterTasks'));
+        }
+        return $route;
+    }
+
+    public function saveCommentGroupActivities(){
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => lang('Custom.invalidRequest')
+            ]);
+        }
+
+        if(!haspermission('','create_task')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => lang('Custom.permissionDenied')
+            ]);
+        }
+
+        $rules = [
+            'masetrTask' => 'required',
+            'activities' => 'required',
+            'comment' => 'required',
+            'date' => 'required',
+        ];
+
+        if(!$this->validate($rules)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'errors' => $this->validator->getErrors()
+            ]);
+        }
+
+        $masterTask = $this->request->getPost('masetrTask');
+        $activityId = $this->request->getPost('activities');
+        $comments = $this->request->getPost('comment');
+        $taskGenDate = $this->request->getPost('date');
+
+        $taskInfo = $this->taskModel->where(['created_from_template'=>$masterTask,'task_gen_date'=>$taskGenDate])->get()->getResult();
+       // echo $this->taskModel->getLastQuery();
+       if(!empty($taskInfo)) {
+            foreach($taskInfo as $task) {
+                
+                $taskId = $task->id;
+                $activity = $this->taskStaffActivityModel->where(['task_activity_id'=>$activityId,'task_id'=>$taskId])->get()->getRow(); //task_activity_id
+                $this->taskStaffActivityModel->where(['task_activity_id'=> $activityId,'task_id' => $taskId])->set([
+                        'completed_at' => date('Y-m-d H:i:s'),
+                        'complated_by' => session('user_data')['id'],
+                        'status'    => 'completed',
+                        'progress'  => 'completed',
+                    ])->update();
+
+                    $commtns = [
+                            'task_id' => $taskId,
+                            'user_id' => session('user_data')['id'] ?? null,
+                            'activity_id' => $activityId,
+                            'comment' => $comments,
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'status'	    => 1,
+                            'created_by'	=> session('user_data')['id'],
+                    ];
+            
+
+                /* 🔹 UPDATE TASK PROGRESS */
+                $totalActivities = $this->taskStaffActivityModel->where('task_id', $taskId)->groupBy('task_activity_id')->countAllResults();
+
+                $completedActivities = $this->taskStaffActivityModel->where(['task_id' => $taskId,'status'  => 'completed'])->groupBy('task_activity_id')->countAllResults();
+
+                $progress = ($totalActivities > 0) ? round(($completedActivities / $totalActivities) * 100, 2) : 0;
+
+                $taskUpdate = [
+                    'progress' => $progress,
+                    'status'   => ($progress >= 100) ? 'Completed' : 'Pending'
+                ];
+
+                $this->taskModel->update($taskId, $taskUpdate);
+                $this->activitycommentsModel->insert($commtns);
+            }
+            return $this->response->setJSON([
+                'success'   => true,
+                'message'   => 'Data Inserted Successfully'
+            ]);
+       }else{
+            return $this->response->setJSON([
+                'success'   => false,
+                'message'   => 'Data Not Found'
+            ]);
+       }
+      //  print_r($taskInfo);
+    }
 }
