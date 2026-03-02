@@ -76,17 +76,17 @@
             </div>
 
             <div class="w-full">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">File Upload</label>
+                <!-- excel file only support -->
                 <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
-                    <i class="bi bi-pencil text-xl text-gray-400"></i>
+                    <i class="bi bi-file-earmark-excel text-xl text-gray-400"></i>
                 </div>
-                <textarea name="comment" id="comment" class="pl-10 mt-2 flex min-h-[80px] w-full rounded-md border border-input bg-background  py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"></textarea>
-                <div class="invalid-feedback" id="comment_error"></div>
+                <input type="file" name="file" accept=".xlsx" id="file" class="pl-10 mt-2 flex  w-full rounded-md border border-input bg-background  py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                <div class="invalid-feedback" id="file_error"></div>
                 </div>
             </div>
         </div>
-        <div class="grid grid-cols-3 gap-4 pb-4" id="activities"></div>
     
         
        

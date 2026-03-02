@@ -17,6 +17,8 @@ use App\Models\TaskactivityModel;
 use App\Models\TaskStaffActivityModel;
 use App\Models\MastertaskModel;
 use App\Models\ActivitycommentsModel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 class TaskController extends Controller {
 
     protected $branchModel;
@@ -1118,7 +1120,7 @@ class TaskController extends Controller {
         $rules = [
             'masetrTask' => 'required',
             'activities' => 'required',
-            'comment' => 'required',
+          //  'comment' => 'required',
             'date' => 'required',
         ];
 
@@ -1128,19 +1130,105 @@ class TaskController extends Controller {
                 'errors' => $this->validator->getErrors()
             ]);
         }
+        $file = $this->request->getFile('file');
+        if (!$file->isValid() || $file->getExtension() === '') {
+            return $this->response->setJSON(['success' =>false,'errors' => ['file' => 'Please upload a valid Excel file' ]]);
+        }
+
+        $ext = $file->getClientExtension();
+        if (!in_array($ext, ['xls', 'xlsx'])) {
+            return $this->response->setJSON(['success' =>false,'errors' => [ 'file' => 'Only .xls or .xlsx files allowed'] ]);
+        }
+        
 
         $masterTask = $this->request->getPost('masetrTask');
         $activityId = $this->request->getPost('activities');
-        $comments = $this->request->getPost('comment');
+       // $comments = $this->request->getPost('comment');
         $taskGenDate = $this->request->getPost('date');
+
+        $filePath = $file->getTempName();
+        $spreadsheet = IOFactory::load($filePath);
+        $sheet = $spreadsheet->getActiveSheet();
+        //$rows = $sheet->toArray();
+        $rows = $sheet->toArray(null, true, true, true);
 
         $taskInfo = $this->taskModel->where(['created_from_template'=>$masterTask,'task_gen_date'=>$taskGenDate])->get()->getResult();
        // echo $this->taskModel->getLastQuery();
+       // the excel file mentioned project unit id and remrt (comment )
+        $invalidCode = [];
+       if(!empty($rows)) {
+        foreach($rows as $row) {
+           $polarisCode = trim($row['A'] ?? '');
+           $remart      = trim($row['B'] ?? '');
+           if (!$polarisCode) continue;
+
+                $projectUnit = $this->projectUnitModel->where('oracle_code', $polarisCode)->get()->getRow();
+
+                if ($projectUnit) {
+                    $projectUnitId = $projectUnit->id;
+                    $taskInfo = $this->taskModel->where(['created_from_template'=>$masterTask,'task_gen_date'=>$taskGenDate,'project_unit'=>$projectUnitId])->get()->getResult();
+                    if($taskInfo) {
+                        foreach($taskInfo as $task) {
+                            $taskId = $task->id;
+                            $activity = $this->taskStaffActivityModel->where(['task_activity_id'=>$activityId,'task_id'=>$taskId])->get()->getRow(); //task_activity_id
+                            //
+                            $this->taskStaffActivityModel->where(['task_activity_id'=> $activityId,'task_id' => $taskId])->set([
+                                    'completed_at' => date('Y-m-d H:i:s'),
+                                    'complated_by' => session('user_data')['id'],
+                                    'status'    => 'completed',
+                                    'progress'  => 'completed',
+                                ])->update();
+                                $commtns = [
+                                        'task_id' => $taskId,
+                                        'user_id' => session('user_data')['id'] ?? null,
+                                        'activity_id' => $activityId,
+                                        'comment' => $remart,
+                                        'created_at' => date('Y-m-d H:i:s'),
+                                        'status'	    => 1,
+                                        'created_by'	=> session('user_data')['id'],
+                                ];
+                        
+
+                            /* 🔹 UPDATE TASK PROGRESS */
+                            $totalActivities = $this->taskStaffActivityModel->where('task_id', $taskId)->groupBy('task_activity_id')->countAllResults();
+
+                            $completedActivities = $this->taskStaffActivityModel->where(['task_id' => $taskId,'status'  => 'completed'])->groupBy('task_activity_id')->countAllResults();
+
+                            $progress = ($totalActivities > 0) ? ($completedActivities / $totalActivities) * 100 : 0;
+
+                           
+                            $taskUpdate = [
+                                'progress' => $progress,
+                                'status'   => ($progress >= 100) ? 'Completed' : 'Pending'
+                            ];
+
+                            $this->taskModel->update($taskId, $taskUpdate);
+                            $this->activitycommentsModel->insert($commtns);
+                           // echo $this->taskModel->getLastQuery(); 
+                        }
+                         return $this->response->setJSON([
+                            'success'   => true,
+                            'message'   => 'Data Inserted Successfully'
+                        ]);
+                    }
+
+                } else {
+                    $invalidCode[] = $polarisCode;
+                }
+             
+                      
+            }
+       }
+       
+
+       exit();
        if(!empty($taskInfo)) {
             foreach($taskInfo as $task) {
-                
+
                 $taskId = $task->id;
                 $activity = $this->taskStaffActivityModel->where(['task_activity_id'=>$activityId,'task_id'=>$taskId])->get()->getRow(); //task_activity_id
+                //
+                print_r($activity); exit();
                 $this->taskStaffActivityModel->where(['task_activity_id'=> $activityId,'task_id' => $taskId])->set([
                         'completed_at' => date('Y-m-d H:i:s'),
                         'complated_by' => session('user_data')['id'],
