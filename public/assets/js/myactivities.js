@@ -137,7 +137,7 @@ function renderTable(tasks) {
         </span>
 
         <span>${createdOnText}</span>
-        <span>${duedateText}</span>
+        <span class="hidden">${duedateText}</span>
 
         <!-- VIEW ICON -->
         <button

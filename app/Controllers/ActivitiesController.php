@@ -370,7 +370,7 @@ protected $masterTaskModel;
                     'branch_name'   => $task['branch_name'],
                     'progress'      => $task['progress'],
                     'overdue_date' => date('Y-m-d', strtotime($task['created_at'] . ' +1 day')),
-                    'createdAt'     => $task['created_at'],
+                    'createdAt'     => $task['task_gen_date'],
                     'staffStatus' => 'pending',//$task['staffStatus'],
                     'copen'         =>  $task['commet_status'],
                     'comment'        => $lastComment->comment ?? '',

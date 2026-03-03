@@ -20,6 +20,7 @@ class ActivityModel extends Model
             tsa.commet_status,
             tsa.completed_at,
             t.id,
+            t.task_gen_date,
             tsa.task_activity_id,
             tsa.staff_id,
             a.activity_title,
