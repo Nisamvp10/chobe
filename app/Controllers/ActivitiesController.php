@@ -44,7 +44,7 @@ protected $masterTaskModel;
         if(!empty($task)) {
             $staff =  $this->taskassignModel->getMasterTaskStaff($id);
             //echo $this->taskassignModel->getLastQuery();
-            $page = "Task : " .$task['title'].' - '.date('d-m-Y',strtotime($task['created_at']));;
+            $page = "Task : " .$task['title'].' - '.date('d-m-Y',strtotime($task['task_gen_date']));;
         }else{
             $page = '';
             $staff = '';
@@ -61,7 +61,7 @@ protected $masterTaskModel;
         $task = $this->taskModel->where('id',$id)->first();
         if(!empty($task)) {
             $staff =  $this->staffModal->where('role !=',1)->findAll();
-            $page = "Task : " .$task['title'].' - '.date('d-m-Y',strtotime($task['created_at']));
+            $page = "Task : " .$task['title'].' - '.date('d-m-Y',strtotime($task['task_gen_date']));
         }else{
             $page = '';
             $staff = '';
