@@ -170,6 +170,17 @@ class ProjectUnitController extends Controller
         {
             $builder->groupStart()
                 ->like('project_unit.store',$search)
+                ->orlike('project_unit.oldstore_name',$search)
+                ->orlike('project_unit.oracle_code',$search)
+                ->orlike('project_unit.polaris_code',$search)
+                ->orlike('project_unit.rm_mail',$search)
+                ->orlike('project_unit.contact_number',$search)
+                ->orlike('project_unit.start_date',$search)
+                ->orlike('project_unit.contact_number',$search)
+                ->orlike('project_unit.allocated_to',$search)
+                ->orlike('project_unit.assigned_to',$search)
+                ->orlike('project_unit.manager_id',$search)
+                ->orlike('project_unit.regional_manager_id',$search)
                 ->groupEnd();
         }
 

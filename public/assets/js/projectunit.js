@@ -203,9 +203,17 @@ function projects(search = '') {
     });
 }
 
+let currentPage = 1;
+let rowsPerPage = 20;
+let allData = [];
+
 function renderunitTable(projects) {
     let html = '';
     let count = 1;
+    allData = projects;
+    let start = (currentPage - 1) * rowsPerPage;
+    let end = start + rowsPerPage;
+    let pagination = allData.slice(start, end);
 
     if (projects.length === 0) {
         html += `
@@ -233,12 +241,12 @@ function renderunitTable(projects) {
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                     `;
-        projects.forEach(project => {
+        pagination.forEach((project, index) => {
             html += `
                             <tr class="hover:bg-gray-50 ${project.is_active == 0 ? 'bg-red-100 bg-opacity-50' : ''}"  >
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="text-sm font-medium text-gray-900">${count}</div>
+                                        <div class="text-sm font-medium text-gray-900">${start + index + 1}</div>
                                     </div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
@@ -276,9 +284,52 @@ function renderunitTable(projects) {
 
 
         html += `</tbody></table>`;
+        let totalPages = Math.ceil(projects.length / rowsPerPage);
+        html += `
+            <div class="flex justify-between items-center mt-4">
+                <div>
+                    <label class="mr-2">Rows per page:</label>
+                    <select onchange="changeRowsPerPage(this.value)" class="px-2 py-1 border rounded">
+                
+                        <option value="10"  ${rowsPerPage == 10 ? 'selected' : ''}>10</option>
+                        <option value="20"  ${rowsPerPage == 20 ? 'selected' : ''}>20</option>
+                        <option value="50"  ${rowsPerPage == 50 ? 'selected' : ''}>50</option>
+                        <option value="100" ${rowsPerPage == 100 ? 'selected' : ''}>100</option>
+                    </select>
+                </div>
+                <div>
+                    <button onclick="prevPage()" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Prev</button>
+                    <span class="mx-2">Page ${currentPage} of ${totalPages}</span>
+                    <button onclick="nextPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Next</button>
+                </div>
+            </div>`;
     }
     $('#projectTable').html(html);
 }
+
+
+
+// Change rows per page
+function changeRowsPerPage(value) {
+    rowsPerPage = parseInt(value);
+    currentPage = 1;
+    renderunitTable(allData);
+}
+
+// Pagination functions
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderunitTable(allData);
+    }
+}
+function nextPage(totalPages) {
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderunitTable(allData);
+    }
+}
+
 //loadClients();
 
 $('#searchInput').on('input', function () {
