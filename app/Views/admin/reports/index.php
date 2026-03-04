@@ -102,7 +102,7 @@
             </div>
             <!-- table -->
              <div class="overflow-x-auto">
-                <div id="clientsTable"></div>
+                <div id="clientsTable" class="max-h-[80vh] overflow-y-auto overflow-x-auto "></div>
             </div>
             <!-- close table -->
 </div><!-- body -->
@@ -202,8 +202,13 @@ function renderTable(result){
     } else {
 
         html += `
-        <table class="min-w-full divide-y divide-gray-200 border border-collapse">
-            <thead class="bg-gray-100">
+        <table id="tableContainer" class="min-w-full border border-collapse">
+            <button onclick="toggleFullscreen()" 
+            class="absolute right-2 top-2 bg-blue-600 text-white px-3 py-1 rounded text-sm z-20 fullBtn">
+            <i class="bi bi-fullscreen"></i>
+        </button>
+
+            <thead class="bg-gray-100 sticky top-0 z-10">
                 <tr>`;
 
         result.headers.forEach(header => {
@@ -216,7 +221,7 @@ function renderTable(result){
         html += `
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="bg-white divide- divide-gray-200 ">
         `;
 
         result.result.forEach((row, rowIndex) => {
@@ -229,7 +234,7 @@ function renderTable(result){
                 if(colIndex < 8){
 
                     html += `
-                        <td class="px-4 py-2 text-sm text-gray-900">
+                        <td class="px-4 py-2 text-sm text-gray-900 odd:bg-gray-50 even:bg-white hover:bg-gray-100">
                             ${col ?? ''}
                         </td>`;
 
@@ -324,7 +329,18 @@ $('#commentForm').on('submit',function(e){
         });
 
     });
+function toggleFullscreen() {
+    const container = document.getElementById("tableContainer");
+    const button = container.querySelector("button");
 
+    container.classList.toggle("fullscreen-table");
+
+    if (container.classList.contains("fullscreen-table")) {
+        $('button.fullBtn').html('<i class="bi bi-mouse-fill"></i>');
+    } else {
+        $('button.fullBtn').html('<i class="bi bi-fullscreen"></i>');
+    }
+}
 
     </script>
 <?= $this->endSection() ?>

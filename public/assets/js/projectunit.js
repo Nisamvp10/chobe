@@ -55,6 +55,8 @@ function openModal(id = false) {
                     let allocatedType = (data.result.allocated_type == 'permanently') ? 1 : 2;
                     webForm.querySelector('#allocatedType').value = allocatedType;
                     webForm.querySelector('#assignedType').value = assignType;
+                    //data-close="projectUnitModal" click automatic close the modal
+
                 }
             })
     }
@@ -232,7 +234,6 @@ function renderunitTable(projects) {
                             <tbody class="bg-white divide-y divide-gray-200">
                     `;
         projects.forEach(project => {
-            console.log(project)
             html += `
                             <tr class="hover:bg-gray-50 ${project.is_active == 0 ? 'bg-red-100 bg-opacity-50' : ''}"  >
                                 <td class="px-2 py-2 whitespace-nowrap">
@@ -266,7 +267,7 @@ function renderunitTable(projects) {
                                     <div class="text-sm text-gray-900">${project.contact_number}</div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium">
-                                ${project.is_active == 1 ? `<a onclick="openModal('${project.encrypted_id}')" class="text-blue-600 hover:text-blue-800 mr-3">Edit</a>` : `<span data-id="${project.encrypted_id}" onclick="unlockCategory(this)" class="text-blue-600 hover:text-blue-800 mr-3 cursor-pointer "><i class="bi bi-lock"></i></span>`}
+                                ${project.is_active == 1 ? `<a onclick="openModal('${project.encrypted_id}')" class=" hover:text-blue-800 mr-3 ${project.allocated_to == 0 || project.assigned_to == 0 ? '!text-red-600' : '!text-blue-600'} ">Edit</a>` : `<span data-id="${project.encrypted_id}" onclick="unlockCategory(this)" class="text-blue-600 hover:text-blue-800 mr-3 cursor-pointer "><i class="bi bi-lock"></i></span>`}
                                 </td>
                             </tr>
                         `;
@@ -309,6 +310,7 @@ $('#projectUnitForm').on('submit', function (e) {
             if (response.success) {
                 $('#submitBtn').prop('disabled', false).html('save');
                 toastr.success(response.message);
+                toggleCustomModal('projectUnitModal', false);
                 webForm[0].reset();
                 projects();
             } else {

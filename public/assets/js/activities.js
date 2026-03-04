@@ -123,6 +123,7 @@ document.addEventListener('change', async (e) => {
 $('#commentActivities').on('submit', function (e) {
     e.preventDefault();
     let formData = new FormData(this);
+    let webForm = $('#commentActivities');
     $('.is-invalid').removeClass('is-invalid');
     $('.invalid-feedback').empty();
     $('#submitBtn').prop('disabled', true).html(
@@ -138,8 +139,12 @@ $('#commentActivities').on('submit', function (e) {
             if (response.success) {
                 toastr.success(response.message);
                 webForm[0].reset();
-                allactivities();
             } else {
+                if (response.msg_errors) {
+                    response.msg_errors.forEach(msg => {
+                        toastr.error(msg);
+                    });
+                }
                 if (response.errors) {
                     $.each(response.errors, function (field, message) {
                         $('#' + field).addClass('is-invalid');

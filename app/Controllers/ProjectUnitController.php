@@ -153,8 +153,11 @@ class ProjectUnitController extends Controller
         $search = $this->request->getVar('search');
         $filter = $this->request->getVar('filter');
 
-        $builder = $this->projectUnitModel->select('project_unit.id,project_unit.store,project_unit.oldstore_name,project_unit.oracle_code,c.name as clientName,project_unit.status as is_active,
-        project_unit.polaris_code,project_unit.rm_mail,project_unit.contact_number,project_unit.start_date,project_unit.contact_number,
+        $builder = $this->projectUnitModel->select('project_unit.id,
+        project_unit.store,project_unit.oldstore_name,project_unit.oracle_code,c.name as clientName,project_unit.status as is_active,
+        project_unit.polaris_code,
+        project_unit.rm_mail,project_unit.contact_number,project_unit.start_date,project_unit.contact_number,
+        project_unit.allocated_to,project_unit.assigned_to,
         m.name as manager,rm.name as rm,')
         ->join('clients as c', 'c.id = project_unit.client_id', 'left')
         ->join('users as m', 'm.id = project_unit.manager_id', 'left')

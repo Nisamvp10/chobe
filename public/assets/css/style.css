@@ -1,56 +1,86 @@
-  .step1, .step2, .step3, .step4 {
-      display: none;
+  .step1,
+  .step2,
+  .step3,
+  .step4 {
+    display: none;
   }
+
   .step-active {
-      display: block;
+    display: block;
   }
-.assign-card {
-  display: block;
-  cursor: pointer;
-}
 
-.assign-card input:checked + .card-inner {
-  border-color: #7c3aed;
-  background-color: #f5f3ff;
-}
+  .assign-card {
+    display: block;
+    cursor: pointer;
+  }
 
-.assign-card input:checked + .card-inner .radio-dot {
-  border-color: #7c3aed;
-}
+  .assign-card input:checked+.card-inner {
+    border-color: #7c3aed;
+    background-color: #f5f3ff;
+  }
 
-.assign-card input:checked + .card-inner .radio-dot::after {
-  opacity: 1;
-}
+  .assign-card input:checked+.card-inner .radio-dot {
+    border-color: #7c3aed;
+  }
 
-.card-inner {
-  display: flex;
-  gap: 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px;
-  transition: all 0.2s ease;
-  align-items: center;
-}
+  .assign-card input:checked+.card-inner .radio-dot::after {
+    opacity: 1;
+  }
 
-.radio-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 9999px;
-  border: 2px solid #d1d5db;
-  position: relative;
-  margin-top: 2px;
-}
+  .card-inner {
+    display: flex;
+    gap: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.2s ease;
+    align-items: center;
+  }
 
-.radio-dot::after {
-  content: '';
-  width: 8px;
-  height: 8px;
-  background: #7c3aed;
-  border-radius: 9999px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-}
+  .radio-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    border: 2px solid #d1d5db;
+    position: relative;
+    margin-top: 2px;
+  }
 
+  .radio-dot::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: #7c3aed;
+    border-radius: 9999px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+  }
+
+  table tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+  }
+
+  table tbody tr:nth-child(even) {
+    background-color: #ffffff;
+  }
+
+  .fullscreen-table {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    background: white;
+    z-index: 9991;
+    padding: 20px;
+  }
+
+  .fullBtn {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    z-index: 9999;
+  }
