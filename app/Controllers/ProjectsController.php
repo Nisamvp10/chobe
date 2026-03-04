@@ -59,6 +59,7 @@ class ProjectsController extends Controller{
         $data = [
             'project' => $project,
             'client_id' => $client,
+            'is_active'=>1
         ];
         
         if($id)

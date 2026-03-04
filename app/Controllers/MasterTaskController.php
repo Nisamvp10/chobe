@@ -84,7 +84,7 @@ class MasterTaskController extends BaseController
             'project' => 'required',
         ];
         if(!$this->validate($rules)){
-            return $this->response->setJSON(['success' => false,'message' => $this->validator->getErrors()]);
+            return $this->response->setJSON(['success' => false,'errors' => $this->validator->getErrors()]);
         }
         $data = [
             'title' => $this->request->getPost('title'),

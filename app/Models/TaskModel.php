@@ -29,7 +29,7 @@ class TaskModel extends Model {
             ->join('users as u', 'u.id = a.staff_id')
             ->join('user_position as up', 'u.position_id = up.id', 'left')
             ->join('task_images as ti', 'ti.task_id = t.id', 'left')
-            ->where('up.type !=',1)
+            // ->where('up.type !=',1)
             ->where('t.tasktype',1)
             ->orderBy('t.id', 'DESC');
             if($filter && $filter != 'all')  {

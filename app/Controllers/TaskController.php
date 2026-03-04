@@ -104,8 +104,6 @@ class TaskController extends Controller {
         ];
 
         //taskCreate
-
-       
         // if (empty($taskId)) {
         //     $rules['taskmode'] = 'required';
         //     $rules['project'] = 'required';
@@ -143,22 +141,6 @@ class TaskController extends Controller {
                 //'next_run_date' => date('Y-m-d', strtotime('+1 day')),
             ];
              
-            
-      
-       
-        // $data = [
-        //     'title'         => $this->request->getPost('title'),
-        //     'description'   => $this->request->getPost('description'),
-        //     'overdue_date'  => $this->request->getPost('duedate') ?: null,
-        //     'priority'      => $this->request->getPost('priority'),
-        //     'branch'        => 'all',
-        //     'project_unit'  => $this->request->getPost('projectUnit') ?: null,
-        //     'project_id'    => $this->request->getPost('project') ?: null,
-        //     'status'        => $this->request->getPost('status') ?? 'Pending',
-        //     'recurrence'    => 'daily',
-        //     'taskmode'      => $this->request->getPost('taskmode'),
-        //     'next_run_date' => date('Y-m-d', strtotime('+1 day')),
-        // ];
 
         if (!empty($taskId)) {
             $progress = $this->request->getPost('progress');
@@ -266,7 +248,6 @@ class TaskController extends Controller {
                                 'errors'  => $this->taskassignModel->errors()
                             ]);
                         }
-
                         // assign activities
                         // foreach ($allTaskActivityIds as $taskActivityId) {
                         //     $this->taskStaffActivityModel->insert([
@@ -391,11 +372,6 @@ class TaskController extends Controller {
                         if (empty($staffs)) {
                             continue;
                         }
-
-
-                        print_r($staffs);
-                        exit();
-
                         /* 🔴 DUPLICATE CHECK (IMPORTANT) */
                         $existingTask = $this->taskModel
                             ->where('created_from_template', $masterTskId)
@@ -409,8 +385,6 @@ class TaskController extends Controller {
                                 'message' => 'Task already exists'
                             ]);
                         }
-
-
                         /* 🔹 Create Task */
                         $data['project_unit'] = $unit['id'];
                         $data['task_gen_date']   = ($masterTask->tasktype == 1 ? date('Y-m-d', strtotime('-1 day')) : date('Y-m-d'));
@@ -441,9 +415,8 @@ class TaskController extends Controller {
                             //         'created_at'       => date('Y-m-d H:i:s')
                             //     ]);
                             // }
-
-
                             foreach ($masterActivities as $act) {
+                                //one staff $act 23 activities 
 
                                 $insertData = [
                                     'task_id'          => $newTaskId,
@@ -461,7 +434,6 @@ class TaskController extends Controller {
                                     exit;
                                 }
                             }
-
                             $this->notificationModel->insert([
                                 'user_id'    => $staffId,
                                 'task_id'    => $newTaskId,
@@ -598,7 +570,7 @@ class TaskController extends Controller {
                     $staffIds[] = $unit['allocated_to'];
                 }
 
-                if (!empty($unit['assigned_to']) && $unit['assigned_type'] === 'permanently') {
+                if (!empty($unit['assigned_to'])) {
                     $staffIds[] = $unit['assigned_to'];
                 }
 

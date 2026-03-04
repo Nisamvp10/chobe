@@ -102,7 +102,7 @@
             </div>
             <!-- table -->
              <div class="overflow-x-auto">
-                <div id="clientsTable" class="max-h-[80vh] overflow-y-auto overflow-x-auto "></div>
+                <div id="clientsTable" class="max-h-[70vh] overflow-y-auto overflow-x-auto custom-scroll-wrapper"></div>
             </div>
             <!-- close table -->
 </div><!-- body -->
@@ -144,51 +144,6 @@
                 });
             }
 
-            // function renderTable(result){
-            //     let html = '';
-
-            //     if (result.result.length === 0) {
-            //         html += `
-            //             <div class="text-center py-8">
-            //                 <h3 class="text-lg font-medium text-gray-700">No Clients found</h3>
-            //                 <p class="text-gray-500 mt-1"> <?=(!haspermission('','report') ? :'Try adjusting your search');?></p>
-            //             </div>
-            //         `;
-            //     }else{
-            //         html += `
-            //             <table class="min-w-full divide-y divide-gray-200 border border-collapse">
-            //                 <thead class="bg-gray-100">
-            //                     <tr>`;
-            //                     if(result.headers.length > 0) {
-            //                         result.headers.forEach(header => {
-            //                             html += `<th class="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`;
-            //                         })
-            //                     }
-                                    
-            //                       html += `</tr>
-            //                 </thead>
-            //                 <tbody class="bg-white divide-y divide-gray-200">
-            //         `;
-            //      if (result.result && result.result.length > 0) {
-            //                 result.result.forEach(row => {
-            //                     html += `<tr class="hover:bg-gray-50">`;
-
-            //                     row.forEach(col => {
-            //                         html += `
-            //                             <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-            //                                 ${col ?? ''}
-            //                             </td>`;
-            //                     });
-
-            //                     html += `</tr>`;
-            //                 });
-            //             }
-                    
-
-            //         html += `</tbody></table>`;
-            //     }
-            //     $('#clientsTable').html(html);
-            // }
 function renderTable(result){
 
     let html = '';
@@ -202,6 +157,10 @@ function renderTable(result){
     } else {
 
         html += `
+         <div class="custom-scrollbar">
+            <div class="custom-thumb" id="scrollThumb"></div>
+        </div>
+        
         <table id="tableContainer" class="min-w-full border border-collapse">
             <button onclick="toggleFullscreen()" 
             class="absolute right-2 top-2 bg-blue-600 text-white px-3 py-1 rounded text-sm z-20 fullBtn">
@@ -267,8 +226,7 @@ function renderTable(result){
     $('#clientsTable').html(html);
 }
 
-
-            loadReports();
+    loadReports();
 
             $('#searchInput').on('input',function(){
                 let value = $(this).val();
@@ -281,11 +239,6 @@ function renderTable(result){
         });
 
         // Click text → show input
-
-
-
-
-
 // Save edit
 $('#commentForm').on('submit',function(e){
     e.preventDefault();
@@ -341,6 +294,31 @@ function toggleFullscreen() {
         $('button.fullBtn').html('<i class="bi bi-fullscreen"></i>');
     }
 }
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  const content = document.getElementById('tableContainer');
+  const thumb = document.getElementById('scrollThumb');
+  const scrollbar = document.querySelector('.custom-scrollbar');
+
+  if (!content || !thumb || !scrollbar) return;
+
+  const wrapper = content.parentElement;
+
+  wrapper.addEventListener('scroll', () => {
+    alert('scroll');
+    const maxScroll = content.scrollWidth - wrapper.clientWidth;
+    const maxThumbMove = scrollbar.clientWidth - thumb.clientWidth;
+
+    if (maxScroll > 0) {
+      thumb.style.left =
+        (wrapper.scrollLeft / maxScroll) * maxThumbMove + 'px';
+    }
+  });
+
+});
+
 
     </script>
 <?= $this->endSection() ?>
