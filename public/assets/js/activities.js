@@ -42,8 +42,11 @@ $('#taskCreate').on('submit', function (e) {
         success: function (response) {
             if (response.success) {
                 toastr.success(response.message);
-                webForm[0].reset();
-                allactivities();
+                setTimeout(() => {
+                    toggleCustomModal('activities', false);
+                    webForm[0].reset();
+                    allactivities();
+                }, 1000);
             } else {
                 if (response.errors) {
                     $.each(response.errors, function (field, message) {
@@ -145,7 +148,7 @@ $('#commentActivities').on('submit', function (e) {
                         toastr.error(msg);
                     });
                 }
-                if (response.errors) {
+                else if (response.errors) {
                     $.each(response.errors, function (field, message) {
                         $('#' + field).addClass('is-invalid');
                         $('#' + field + '_error').text(message);
