@@ -140,7 +140,7 @@ class TaskController extends Controller {
                 'status'        => $this->request->getPost('status') ?? 'Pending',
                 'recurrence'    => 'daily',
                 'taskmode'      => $masterTask->tasktype,
-                'next_run_date' => date('Y-m-d', strtotime('+1 day')),
+                //'next_run_date' => date('Y-m-d', strtotime('+1 day')),
             ];
              
             
@@ -326,113 +326,153 @@ class TaskController extends Controller {
                 ]);
 
         } else {
-                $db->transStart();
-                //projects 
-                $projectId = $this->projects->where('id', $masterTask->project_unit_id)->first();
-            // 1️⃣ Get all active project units
-                $projectUnits = $this->projectUnitModel->where('client_id', $projectId['client_id'])->where('status', 1)->findAll();
-                if (empty($projectUnits)) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'No active project units found'
-                    ]);
-                }
+               $db->transStart();
 
-                // 2️⃣ Get master activities
-                //$masterActivities = $this->taskActivityModel->where('status', 1)->findAll();
-                 $masterActivities = $this->activityModel
-                    ->where('status', 'active')
-                    ->where('activity_type', 1)
-                    ->where('task_id',$masterTaskId)
-                    ->findAll();
+                    // Get project
+                    $projectId = $this->projects
+                        ->where('id', $masterTask->project_unit_id)
+                        ->first();
 
 
-                if (empty($masterActivities)) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'No master activities found'
-                    ]);
-                }
-                 $masterTskId = $masterTaskId;//$this->mastertaskModel->insert( $masterTaskData,true);
-                foreach ($projectUnits as $unit) {
-
-                    /* ===============================
-                    🔹 COLLECT PERMANENT STAFF
-                    ================================ */
-                    $staffs = [];
-
-                    if (!empty($unit['allocated_to']) && $unit['allocated_type'] === 'permanently') {
-                        $staffs[] = $unit['allocated_to'];
-                    }
-
-                    if (!empty($unit['assigned_to']) && $unit['assigned_type'] === 'permanently') {
-                        $staffs[] = $unit['assigned_to'];
-                    }
-
-                    $staffs = array_unique($staffs);
-
-                    if (empty($staffs)) {
-                        continue; // skip project unit
-                    }
-
-                    /* ===============================
-                    🔹 CREATE TASK (PER PROJECT UNIT)
-                    ================================ */
-                    $taskData = [
-                        'title'           => 'Daily Verification Task',
-                        'description'     => 'Auto generated daily verification task',
-                        'project_unit_id' => $unit['id'],
-                        'status'          => 'pending',
-                        'task_gen_date'   => ($masterTask->tasktype == 1 ? date('Y-m-d', strtotime('-1 day')) : date('Y-m-d')),
-                        'created_by'      => session('user_data')['id'] ?? null,
-                        'created_at'      => date('Y-m-d H:i:s')
-                    ];
-                    $data['project_unit'] = $unit['id'];
-                    $data['task_gen_date'] = ($masterTask->tasktype == 1 ? date('Y-m-d', strtotime('-1 day')) : date('Y-m-d'));
-
-                    $newTaskId = $this->taskModel->insert($data, true);
-                    $masterTaskData['created_by'] = session('user_data')['id'];
-                  
-
-                    if (!$newTaskId) {
-                        continue;
-                    }
-                     $this->taskModel->update($newTaskId, ['created_from_template' => $masterTskId]);
-
-                    /* ===============================
-                    🔹 ASSIGN STAFF + ACTIVITIES
-                    ================================ */
-                    foreach ($staffs as $staffId) {
-
-                        // Task assignment
-                        $this->taskassignModel->insert([
-                            'task_id'  => $newTaskId,
-                            'staff_id' => $staffId,
-                            'status'   => 'assigned'
+                    if (!$projectId) {
+                        return $this->response->setJSON([
+                            'success' => false,
+                            'message' => 'Project not found'
                         ]);
+                    }
 
-                        // Task activities
-                        foreach ($masterActivities as $act) {
-                            $this->taskStaffActivityModel->insert([
-                                'task_id'          => $newTaskId,
-                                'task_activity_id' => $act['id'],
-                                'staff_id'         => $staffId,
-                                'status'           => 'pending',
-                                'created_at'       => date('Y-m-d H:i:s')
+                    // Get active project units
+                    $projectUnits = $this->projectUnitModel
+                        ->where('client_id', $projectId['client_id'])
+                        ->where('status', 1)
+                        ->findAll(); //120
+                        
+
+                    if (empty($projectUnits)) {
+                        return $this->response->setJSON([
+                            'success' => false,
+                            'message' => 'No active project units found'
+                        ]);
+                    }
+
+                    // Get master activities
+                    $masterActivities = $this->activityModel->where('status', 'active')->where('activity_type', 1)->where('task_id', $masterTaskId)->findAll(); //2
+
+                    if (empty($masterActivities)) {
+                        return $this->response->setJSON([
+                            'success' => false,
+                            'message' => 'No master activities found'
+                        ]);
+                    }
+
+                    $masterTskId = $masterTaskId;
+
+                    // Generate date once
+                    $taskGenDate = ($masterTask->tasktype == 1)
+                        ? date('Y-m-d', strtotime('-1 day'))
+                        : date('Y-m-d');
+                    //count total project units
+                    $totalProjectUnits = count($projectUnits); // project units is 119 
+                    foreach ($projectUnits as $unit) {
+
+                        /* 🔹 Collect Permanent Staff */
+                        $staffs = [];
+
+                        if (!empty($unit['allocated_to'])) {
+                            $staffs[] = $unit['allocated_to'];
+                        }
+
+                        if (!empty($unit['assigned_to'])) {
+                            $staffs[] = $unit['assigned_to'];
+                        }
+
+                        $staffs = array_unique($staffs);
+
+                        if (empty($staffs)) {
+                            continue;
+                        }
+
+
+                        print_r($staffs);
+                        exit();
+
+                        /* 🔴 DUPLICATE CHECK (IMPORTANT) */
+                        $existingTask = $this->taskModel
+                            ->where('created_from_template', $masterTskId)
+                            ->where('project_unit', $unit['id'])
+                            ->where('task_gen_date', $taskGenDate)
+                            ->first();
+
+                        if ($existingTask) {
+                           return $this->response->setJSON([
+                                'success' => false,
+                                'message' => 'Task already exists'
                             ]);
                         }
 
-                        // Notification
-                        $this->notificationModel->insert([
-                            'user_id'    => $staffId,
-                            'task_id'    => $newTaskId,
-                            'type'       => 'new_task',
-                            'title'      => 'New Task Assigned',
-                            'created_by' => session('user_data')['id'] ?? null,
-                            'message'    => 'A daily verification task has been auto assigned'
-                        ]);
+
+                        /* 🔹 Create Task */
+                        $data['project_unit'] = $unit['id'];
+                        $data['task_gen_date']   = ($masterTask->tasktype == 1 ? date('Y-m-d', strtotime('-1 day')) : date('Y-m-d'));
+                        $data['next_run_date'] = ($masterTask->tasktype == 1 ? date('Y-m-d') : date('Y-m-d'));
+
+                        $newTaskId = $this->taskModel->insert($data, true);
+
+                        if (!$newTaskId) {
+                            continue;
+                        }
+                        $this->taskModel->update($newTaskId, ['created_from_template' => $masterTskId]);
+
+                        /* 🔹 Assign Staff + Activities */
+                        foreach ($staffs as $staffId) {
+
+                            $this->taskassignModel->insert([
+                                'task_id'  => $newTaskId,
+                                'staff_id' => $staffId,
+                                'status'   => 'assigned'
+                            ]);
+
+                            // foreach ($masterActivities as $act) {
+                            //     $this->taskStaffActivityModel->insert([
+                            //         'task_id'          => $newTaskId,
+                            //         'task_activity_id' => $act['id'],
+                            //         'staff_id'         => $staffId,
+                            //         'status'           => 'pending',
+                            //         'created_at'       => date('Y-m-d H:i:s')
+                            //     ]);
+                            // }
+
+
+                            foreach ($masterActivities as $act) {
+
+                                $insertData = [
+                                    'task_id'          => $newTaskId,
+                                    'task_activity_id' => $act['id'],
+                                    'staff_id'         => $staffId,
+                                    'status'           => 'pending',
+                                    'created_at'       => date('Y-m-d H:i:s')
+                                ];
+
+                                $result = $this->taskStaffActivityModel->insert($insertData);
+
+                                if (!$result) {
+                                    echo "<pre>";
+                                    print_r($this->taskStaffActivityModel->errors());
+                                    exit;
+                                }
+                            }
+
+                            $this->notificationModel->insert([
+                                'user_id'    => $staffId,
+                                'task_id'    => $newTaskId,
+                                'type'       => 'new_task',
+                                'title'      => 'New Task Assigned',
+                                'created_by' => session('user_data')['id'] ?? null,
+                                'message'    => 'A daily verification task has been auto assigned'
+                            ]);
+                        }
                     }
-                }
+
 
                 $db->transComplete();
 
@@ -1153,22 +1193,40 @@ class TaskController extends Controller {
         $rows = $sheet->toArray(null, true, true, true);
 
         $taskInfo = $this->taskModel->where(['created_from_template'=>$masterTask,'task_gen_date'=>$taskGenDate])->get()->getResult();
-       // echo $this->taskModel->getLastQuery();
        // the excel file mentioned project unit id and remrt (comment )
         $invalidCode = [];
+        $emptyErrors = [];
+        $rowNumber   = 1;
        if(!empty($rows)) {
         foreach($rows as $row) {
-           $polarisCode = trim($row['A'] ?? '');
+           $oracleCode = trim($row['A'] ?? '');
            $remart      = trim($row['B'] ?? '');
-           if (!$polarisCode) continue;
 
-                $projectUnit = $this->projectUnitModel->where('oracle_code', $polarisCode)->get()->getRow();
+            /* 🔴 CHECK EMPTY POLARIS */
+                if ($oracleCode === '') {
+                    $emptyErrors[] = "Row {$rowNumber}: Oracle Code is empty";
+                    $rowNumber++;
+                    continue;
+                }
+
+                /* 🔴 CHECK EMPTY REMARK */
+                if ($remart === '') {
+                    $emptyErrors[] = "Row {$rowNumber}: Remark is empty";
+                    $rowNumber++;
+                    continue;
+                }
+                
+            
+
+                $projectUnit = $this->projectUnitModel->where('oracle_code', $oracleCode)->get()->getRow();
 
                 if ($projectUnit) {
                     $projectUnitId = $projectUnit->id;
                     $taskInfo = $this->taskModel->where(['created_from_template'=>$masterTask,'task_gen_date'=>$taskGenDate,'project_unit'=>$projectUnitId])->get()->getResult();
                     if($taskInfo) {
                         foreach($taskInfo as $task) {
+
+                            
                             $taskId = $task->id;
                             $activity = $this->taskStaffActivityModel->where(['task_activity_id'=>$activityId,'task_id'=>$taskId])->get()->getRow(); //task_activity_id
                             //
@@ -1206,72 +1264,34 @@ class TaskController extends Controller {
                             $this->activitycommentsModel->insert($commtns);
                            // echo $this->taskModel->getLastQuery(); 
                         }
-                         return $this->response->setJSON([
-                            'success'   => true,
-                            'message'   => 'Data Inserted Successfully'
-                        ]);
+                       
                     }
 
                 } else {
-                    $invalidCode[] = $polarisCode;
+                     $invalidCode[] = "Row {$rowNumber}: Invalid Oracle Code ({$oracleCode})";
                 }
-             
+             $rowNumber++;
                       
             }
-       }
-       
-
-       exit();
-       if(!empty($taskInfo)) {
-            foreach($taskInfo as $task) {
-
-                $taskId = $task->id;
-                $activity = $this->taskStaffActivityModel->where(['task_activity_id'=>$activityId,'task_id'=>$taskId])->get()->getRow(); //task_activity_id
-                //
-                print_r($activity); exit();
-                $this->taskStaffActivityModel->where(['task_activity_id'=> $activityId,'task_id' => $taskId])->set([
-                        'completed_at' => date('Y-m-d H:i:s'),
-                        'complated_by' => session('user_data')['id'],
-                        'status'    => 'completed',
-                        'progress'  => 'completed',
-                    ])->update();
-
-                    $commtns = [
-                            'task_id' => $taskId,
-                            'user_id' => session('user_data')['id'] ?? null,
-                            'activity_id' => $activityId,
-                            'comment' => $comments,
-                            'created_at' => date('Y-m-d H:i:s'),
-                            'status'	    => 1,
-                            'created_by'	=> session('user_data')['id'],
-                    ];
-            
-
-                /* 🔹 UPDATE TASK PROGRESS */
-                $totalActivities = $this->taskStaffActivityModel->where('task_id', $taskId)->groupBy('task_activity_id')->countAllResults();
-
-                $completedActivities = $this->taskStaffActivityModel->where(['task_id' => $taskId,'status'  => 'completed'])->groupBy('task_activity_id')->countAllResults();
-
-                $progress = ($totalActivities > 0) ? round(($completedActivities / $totalActivities) * 100, 2) : 0;
-
-                $taskUpdate = [
-                    'progress' => $progress,
-                    'status'   => ($progress >= 100) ? 'Completed' : 'Pending'
-                ];
-
-                $this->taskModel->update($taskId, $taskUpdate);
-                $this->activitycommentsModel->insert($commtns);
+            /* 🔴 RETURN ERRORS IF ANY */
+            if (!empty($emptyErrors) || !empty($invalidCode)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    //'message' => 'Validation errors found',
+                    'msg_errors'  => array_merge($emptyErrors, $invalidCode)
+                ]);
             }
+
             return $this->response->setJSON([
-                'success'   => true,
-                'message'   => 'Data Inserted Successfully'
+                'success' => true,
+                'message' => 'Data Inserted Successfully'
             ]);
-       }else{
+       }
+       else{
             return $this->response->setJSON([
                 'success'   => false,
                 'message'   => 'Data Not Found'
             ]);
        }
-      //  print_r($taskInfo);
     }
 }
