@@ -204,7 +204,7 @@ function projects(search = '') {
 }
 
 let currentPage = 1;
-let rowsPerPage = 20;
+let rowsPerPage = 15;
 let allData = [];
 
 function renderunitTable(projects) {
@@ -291,8 +291,8 @@ function renderunitTable(projects) {
                     <label class="mr-2">Rows per page:</label>
                     <select onchange="changeRowsPerPage(this.value)" class="px-2 py-1 border rounded">
                 
-                        <option value="10"  ${rowsPerPage == 10 ? 'selected' : ''}>10</option>
-                        <option value="20"  ${rowsPerPage == 20 ? 'selected' : ''}>20</option>
+                        <option value="15"  ${rowsPerPage == 15 ? 'selected' : ''}>15</option>
+                        <option value="25"  ${rowsPerPage == 25 ? 'selected' : ''}>25</option>
                         <option value="50"  ${rowsPerPage == 50 ? 'selected' : ''}>50</option>
                         <option value="100" ${rowsPerPage == 100 ? 'selected' : ''}>100</option>
                     </select>
