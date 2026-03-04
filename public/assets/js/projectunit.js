@@ -266,7 +266,7 @@ function renderunitTable(projects) {
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">${project.contact_number}</div>
                                 </td>
-                                <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium">
+                                <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium"> 
                                 ${project.is_active == 1 ? `<a onclick="openModal('${project.encrypted_id}')" class=" hover:text-blue-800 mr-3 ${project.allocated_to == 0 || project.assigned_to == 0 ? '!text-red-600' : '!text-blue-600'} ">Edit</a>` : `<span data-id="${project.encrypted_id}" onclick="unlockCategory(this)" class="text-blue-600 hover:text-blue-800 mr-3 cursor-pointer "><i class="bi bi-lock"></i></span>`}
                                 </td>
                             </tr>
