@@ -1157,7 +1157,7 @@ class TaskController extends Controller {
 
         $rules = [
             'masetrTask' => 'required',
-            'activities' => 'required',
+            //'activities' => 'required',
           //  'comment' => 'required',
             'date' => 'required',
         ];
@@ -1180,7 +1180,7 @@ class TaskController extends Controller {
         
 
         $masterTask = $this->request->getPost('masetrTask');
-        $activityId = $this->request->getPost('activities');
+        //$activityId = $this->request->getPost('activities');
        // $comments = $this->request->getPost('comment');
         $taskGenDate = $this->request->getPost('date');
 
@@ -1198,11 +1198,18 @@ class TaskController extends Controller {
        if(!empty($rows)) {
         foreach($rows as $row) {
            $oracleCode = trim($row['A'] ?? '');
-           $remart      = trim($row['B'] ?? '');
+           $activityId = trim($row['B'] ?? '');
+           $remart     = trim($row['C'] ?? '');
 
             /* 🔴 CHECK EMPTY POLARIS */
                 if ($oracleCode === '') {
                     $emptyErrors[] = "Row {$rowNumber}: Oracle Code is empty";
+                    $rowNumber++;
+                    continue;
+                }
+
+                if ($activityId === '') {
+                    $emptyErrors[] = "Row {$rowNumber}: Activity ID is empty";
                     $rowNumber++;
                     continue;
                 }

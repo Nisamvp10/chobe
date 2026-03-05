@@ -52,7 +52,7 @@
             </div>
         </div>
 
-        <div class="w-full">
+        <div class="w-full hidden">
             <label class="block text-sm font-medium text-gray-700 mb-1">Activities</label>
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">

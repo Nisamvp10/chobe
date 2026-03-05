@@ -106,6 +106,7 @@ document.addEventListener('click', async (e) => {
                         <div class="activity-wrapper border rounded-md p-3 flex items-center justify-between">
                             <div class="flex items-center space-x-2">
                                 <input type="checkbox" name="activity[]" class="activity-checkbox hidden" data-id="${activity.id}" value="${activity.id}" id="activity-${activity.id}">
+                                <div class="w-[40px] h-[40px] bg-primary p-2 rounded-full flex items-center justify-center text-white">${activity.id}</div>
                                 <label for="activity-${activity.id}">${activity.title}</label>
                             </div>
                         </div>`;
