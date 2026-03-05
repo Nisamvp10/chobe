@@ -1,6 +1,4 @@
 <?= $this->extend('layout/main') ?>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-
 <?= $this->section('content') ?>
 
     <!-- titilebar -->
@@ -22,7 +20,7 @@
 
     <!-- body -->
     <div class="bg-white rounded-lg shadow-sm overflow-hidden p-4">
-        <div class="flex flex-col md:flex-row gap-4 mb-6">
+        <div class="flex flex-col md:flex-row gap-4 mb-2">
     
             <!-- Column 1: Search Input -->
             <div class="flex-1 relative">
@@ -60,32 +58,26 @@
             </div>
             </div>
             <!-- table -->
-             <div class="overflow-x-auto" id="tasktbl" data-task="" >
+             <div class="overflow-x-auto pt-1" id="tasktbl" data-task="" >
+                <div class="flex items-center justify-end  m-1 pb-1 ">
+                    <div><span class="px-2 py-2 hover:bg-gray-100 hover:cursor-pointer border border-gray-300 rounded-2 " onclick="multipleDelete()"><i class="bi bi-trash"></i></span></div>
+                </div>
                 
-                <div id="taskTable"></div>
+                <div class="mt-2" id="taskTable"></div>
             </div>
             <!-- close table -->
 </div><!-- body -->
 
 <!-- modal -->
 
-<!-- Modal -->
-
 <?= view('modal/masterActivityModal');?>
+<?= view('modal/delete-alert');?>
 
 <!-- close Modal -->
 <?= $this->endSection(); ?>
 <?= $this->section('scripts') ?>
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Moment.js (must be before daterangepicker.js) -->
-<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-
-<!-- Date Range Picker -->
-<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <script src="<?=base_url('public/assets/js/activities.js') ;?>" ></script>
 
 <script>
@@ -127,17 +119,18 @@ function allactivities(search = '') {
 let currentPage = 1;
 let rowsPerPage = 20;
 let allData = [];
-    function renderTable(tasks) {
-        allData = tasks;
-        let start = (currentPage -1) * rowsPerPage;
+    function renderTable(tasks = []) {
+        allData = Array.isArray(tasks) ? tasks : [];
+        let start = (currentPage - 1) * rowsPerPage;
         let end = start + rowsPerPage;
-       // let pagination =  tasks.slice(start, end);
+
         let pagination = allData.slice(start, end);
+
         let tableHtml = `
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S/O </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><input type="checkbox"  class=" selectAll w-[20px] h-[20px]"> S/O </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity Task</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
@@ -151,11 +144,11 @@ let allData = [];
             
             tableHtml += `
                 <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">${start + indx+1}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${start + indx+1} <input type="checkbox" name="activity_id[]" class="task-checkbox" value="${task.id}"></td>
                     <td class="px-6 py-4 whitespace-nowrap">${task.activity_title}</td>
                     <td class="px-6 py-4 ">${task.activity_description}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${task.task_title}</td>
-                     <td class="px-6 py-4 whitespace-nowrap"><a onclick="openModal(${task.id})"  class="text-blue-600 hover:text-blue-800 mr-3">Edit</a></td>
+                     <td class="px-6 py-4 whitespace-nowrap flex items-center gap-1"><a onclick="openModal(${task.id})"  class="text-blue-600 hover:text-blue-800 mr-3"><i class="bi bi-pencil text-blue-600 hover:text-blue-800 mr-3 border rounded-2 px-2 py-1 hover:cursor-pointer hover:bg-blue-100"></i></a><a  data-id="${task.id}" class="text-red-600 hover:text-red-800 mr-3" onclick="openDeleteModal(this,'deleteAlertModal')" data-message="Are you sure you want to delete ?"><i class="bi bi-trash text-red-600 hover:text-red-800 mr-3 border rounded-2 px-2 py-1 hover:cursor-pointer hover:bg-red-100"></i></a></td>
                 </tr>
             `;
         });
@@ -163,7 +156,7 @@ let allData = [];
         tableHtml +=`</tbody>
         </table></div>`;
 
-        let totalPages = Math.ceil( tasks.length / rowsPerPage);
+        let totalPages = Math.ceil( allData.length / rowsPerPage);
         tableHtml += `
             <div class="flex justify-between items-center mt-4">
                 <div>
@@ -207,7 +200,124 @@ function nextPage(totalPages) {
         renderTable(allData);
     }
 }
+document.addEventListener('click',function(e){
+    // select all checkbox and unselect all checkbox
+    if(e.target.classList.contains('selectAll')){
+        let checked = e.target.checked;
+        if(checked){
+            $('.task-checkbox').prop('checked',true);
+        }else{
+            $('.task-checkbox').prop('checked',false);
+        }
+    }
+    // select individual checkbox
+    if(e.target.classList.contains('task-checkbox')){
+        let checked = e.target.checked;
+        if(checked){
+            
+        }else{
+            $('.task-checkbox').prop('checked',false);
+        }
+    }
+})
 
+
+
+let selectedTaskId = null;
+
+// function deleteThis(e){
+//     let taskTitle ='';
+//     selectedTaskId = $(e).data('id'); 
+//    let message = $(e).data('message')
+//     $('#deleteTaskMessage').text(message);
+// };
+
+// Confirm delete click
+//$('#confirmDelete').on('click', function (e) {
+function confirmDelete(e){
+   
+    //select data-id value from confirmDelete button
+    selectedTaskId = $(e).data('id');
+    if (selectedTaskId) {
+        $('#confirmDelete').prop('disabled', true).html(
+            '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...'
+        );
+
+        $.ajax({
+            url: App.getSiteurl()+`activity/delete/${selectedTaskId}`, 
+            type: 'POST',
+            dataType:'json',
+            data: { _method: 'DELETE' }, // if using method spoofing in CI4
+            success: function (response) {
+               if(response.success) {
+                 setTimeout(function () {
+                    $('#confirmDelete').prop('disabled', false).html(
+                        'Delete'
+                    );
+                    allactivities();
+                    selectedTaskId = null;
+                    toggleCustomModal('deleteAlertModal',false);
+                }, 2000);
+                
+                toastr.success(response.message);
+               }else{
+                 $('#confirmDelete').prop('disabled', false).html(
+                        'Yes'
+                    );
+                toastr.error(response.message);
+               }
+               
+            },
+            error: function () {
+                toastr.error('Error deleting task');
+            }
+        });
+    }
+}
+//multiple delete
+function multipleDelete(){
+    if(confirm('Are you sure you want to delete?')){
+        
+        if($('.task-checkbox:checked').length == 0){
+            toastr.error('Please select at least one task to delete');
+            return;
+        }
+        let selectedTaskIds = [];
+        $('.task-checkbox:checked').each(function() {
+            selectedTaskIds.push($(this).val());
+        });
+        if (selectedTaskIds.length > 0) {
+            $('#confirmDelete').prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...'
+            );
+            $.ajax({
+                url: App.getSiteurl()+`activity/multiple-delete`, 
+                type: 'POST',
+                dataType:'json',
+                data: { _method: 'DELETE',activityIds: selectedTaskIds }, // if using method spoofing in CI4
+                success: function (response) {
+                if(response.success) {
+                    setTimeout(function () {
+                        $('#confirmDelete').prop('disabled', false).html('Delete');
+                        allactivities();
+                        selectedTaskId = null;
+                        toggleCustomModal('deleteAlertModal',false);
+                    }, 2000);
+                    
+                    toastr.success(response.message);
+                }else{
+                    $('#confirmDelete').prop('disabled', false).html('Yes');
+                    toastr.error(response.message);
+                }
+                
+                },
+                error: function () {
+                    toastr.error('Error deleting task');
+                }
+            });
+        }
+    }
+}
 </script>
 
 

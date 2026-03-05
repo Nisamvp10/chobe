@@ -468,10 +468,8 @@ class TaskController extends Controller {
         }
     }
 
-  public function autoAssignTasksWithStaff()
+    public function autoAssignTasksWithStaff()
     {
-        $today = date('Y-m-d');
-
         if (!haspermission('', 'create_task')) {
             return $this->response->setJSON([
                 'success' => false,
@@ -486,46 +484,64 @@ class TaskController extends Controller {
             ]);
         }
 
-        // 1️⃣ Fetch DAILY task templates
+
+        // Assignment mode
         $mode = $this->request->getPost('assignmentMode'); 
         $taskType = ($mode === 'permanent') ? 1 : 2;
-        $templates = $this->taskModel->where(['recurrence' => 'daily','taskmode'   => $taskType])->where('next_run_date <=', $today)->groupBy('created_from_template')->findAll();
-       
-        if (empty($templates)) {
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'No templates to process'
-            ]);
-        }
 
-        // 2️⃣ Fetch active project units
-        $taskCreated = false; 
+        // Dates
+        $taskGenDate = date('Y-m-d', strtotime('-1 day')); 
+        $today = date('Y-m-d');
+        $nextRunDate = $today;
 
+        // Fetch templates
+        $templates = $this->taskModel
+            ->where('recurrence', 'daily')
+            ->where('taskmode', $taskType)
+            ->where('next_run_date <=', $today)
+            ->findAll();
+
+        $taskCreated = false;
+        $errors = [];
         foreach ($templates as $template) {
-            //choose project id aginst clients id
-            $projectId = $this->projects->where('id', $template['project_id'])->first();
-            
-            if (empty($projectId)) {
-               continue;
+
+            // Skip if template itself
+            if (empty($template['created_from_template'])) {
+                continue;
             }
-            $projectUnits = $this->projectUnitModel->where('client_id', $projectId['client_id'])->where('status', 1)->findAll();
-            //echo $this->projects->getLastQuery(); exit();
+
+            $project = $this->projects
+                ->where('id', $template['project_id'])
+                ->first();
+
+            if (!$project) {
+                continue;
+            }
+
+            // Fetch units
+            $projectUnits = $this->projectUnitModel
+                ->where('client_id', $project['client_id'])
+                ->where('status', 1)
+                ->findAll();
+
             foreach ($projectUnits as $unit) {
 
-                // 3️⃣ Check if THIS unit already has task today
+                // Duplicate protection
                 $exists = $this->taskModel
-                    ->where('created_from_template', $template['id'])
-                    ->where('project_unit', $unit['id'])
-                    ->where('DATE(created_at)', $today)
-                    ->where('taskmode', $taskType)
+                    ->where([
+                        'created_from_template' => $template['created_from_template'],
+                        'project_id'            => $template['project_id'],
+                        'project_unit'          => $unit['id'],
+                        'task_gen_date'         => $taskGenDate,
+                        'taskmode'              => $taskType
+                    ])
                     ->countAllResults();
-                    //echo $this->taskModel->getlastQuery();
 
-                if ($exists > 0) {
-                    continue; // Skip only THIS unit
+                if ($exists) {
+                    continue;
                 }
 
-                // 4️⃣ Create new task
+                // Create task
                 $newTaskId = $this->taskModel->insert([
                     'project_id'            => $template['project_id'],
                     'project_unit'          => $unit['id'],
@@ -535,27 +551,40 @@ class TaskController extends Controller {
                     'overdue_date'          => $template['overdue_date'],
                     'priority'              => $template['priority'],
                     'status'                => 'Pending',
+                    'task_gen_date'         => $taskGenDate,
                     'progress'              => 0,
                     'taskmode'              => $taskType,
                     'recurrence'            => 'daily',
-                    'next_run_date'         => date('Y-m-d', strtotime('+1 day')),
+                    'next_run_date'         => $nextRunDate,
                     'created_from_template' => $template['created_from_template'],
                     'created_at'            => date('Y-m-d H:i:s'),
                 ]);
+
+                // set here whiduplicated show message for user
+                if ($exists) {
+                    //set message for loop or array
+                    $errors[] = 'Task already exists'.$unit['id'];
+
+                    continue;
+                }
 
                 if (!$newTaskId) {
                     continue;
                 }
 
-                $taskCreated = true; 
+                $taskCreated = true;
 
-                // 5️⃣ Create task activities
+                // Fetch master activities
                 $masterActivities = $this->activityModel
-                    ->where('status', 'active')
-                    ->where('activity_type', 1)
+                    ->where([
+                        'status' => 'active',
+                        'task_id' => $template['created_from_template'],
+                        'activity_type' => 1
+                    ])
                     ->findAll();
 
                 foreach ($masterActivities as $act) {
+
                     $this->taskActivityModel->insert([
                         'task_id'     => $newTaskId,
                         'activity_id' => $act['id'],
@@ -563,7 +592,7 @@ class TaskController extends Controller {
                     ]);
                 }
 
-                // 6️⃣ Collect permanently allocated staff
+                // Staff collection
                 $staffIds = [];
 
                 if (!empty($unit['allocated_to']) && $unit['allocated_type'] === 'permanently') {
@@ -576,11 +605,6 @@ class TaskController extends Controller {
 
                 $staffIds = array_unique($staffIds);
 
-                if (empty($staffIds)) {
-                    continue;
-                }
-
-                // 7️⃣ Assign staff + activities
                 foreach ($staffIds as $staffId) {
 
                     $this->taskassignModel->insert([
@@ -591,6 +615,7 @@ class TaskController extends Controller {
                     ]);
 
                     foreach ($masterActivities as $act) {
+
                         $this->taskStaffActivityModel->insert([
                             'task_id'          => $newTaskId,
                             'task_activity_id' => $act['id'],
@@ -600,6 +625,7 @@ class TaskController extends Controller {
                         ]);
                     }
 
+                    // Notification
                     $this->notificationModel->insert([
                         'user_id'    => $staffId,
                         'task_id'    => $newTaskId,
@@ -613,11 +639,11 @@ class TaskController extends Controller {
             }
         }
 
-        // ⭐ FINAL MESSAGE CONTROL
+
         if (!$taskCreated) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'All tasks are already assigned for today. Please try tomorrow.'
+                'message' => 'All tasks already assigned.'
             ]);
         }
 

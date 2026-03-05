@@ -136,6 +136,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('task/all-activities','ActivitiesController::getAllActivityList');
     $routes->post('activitties/getstaffbytask','ActivitiesController::getStaffBytask');
     $routes->post('activity/lock','ActivitiesController::lock');
+    $routes->delete('activity/delete/(:any)','ActivitiesController::delete/$1');
+    $routes->delete('activity/multiple-delete','ActivitiesController::multipleDelete');
     //projects 
     $routes->get('projects','ProjectsController::index');
     $routes->get('project/list','ProjectsController::projectList');

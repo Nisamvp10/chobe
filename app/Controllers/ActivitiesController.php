@@ -102,12 +102,14 @@ protected $masterTaskModel;
             'activity_title'        => $this->request->getPost('title'),
             'activity_description'  => $this->request->getPost('description'),
             'activity_type'         =>  $this->request->getPost('type') ?? 2,
-            'status'                =>  $this->request->getPost('status') ?? null,
+            'status'                =>  1,//$this->request->getPost('status') ?? null,
             'task_id'               => $taskId ?? null,
         ];
        
             $activityModel = new ActivityModel();
             $activitiesStaff = new ActivityStaffModel();
+
+
                
                 // $staffs = $this->taskStaffActivityModel->where('task_id',$taskId)->groupBy('staff_id')->get()->getResult(); //$this->request->getPost('staff');
                 // if(!empty($staffs)) {
@@ -120,23 +122,27 @@ protected $masterTaskModel;
                     if ($activitytaskId = $activityModel->insert($data)) {
                             $getlastTask =   $this->activityModel->find($activitytaskId);
                             $this->taskModel->update($getlastTask['task_id'],['status' => 'Pending']);//In_Progress
-                
-                            // foreach ($staffs as $index => $staff) {
-                            //     $assign = [
-                            //         'task_id'       => $taskId,
-                            //         'task_activity_id'  => $activitytaskId,
-                            //         'staff_id' => $staff->staff_id,
-                            //         'status'    => 'pending',
-                            //         'started_at'   => date('Y-m-d H:i:s'),
-                            //         'progress'  => 'pending',
-                            //         'created_at' => date('Y-m-d H:i:s'),
-                            //         'is_open'   => $staff->is_open,
-                            //         'started_by'  => $staff->progress
+                             if($this->request->getPost('type') == 2) {
+                                $staffs = $this->taskStaffActivityModel->where('task_id',$taskId)->groupBy('staff_id')->get()->getResult(); 
+                                if(!empty($staffs)) {
+                                    foreach ($staffs as $index => $staff) {
+                                        $assign = [
+                                            'task_id'       => $taskId,
+                                            'task_activity_id'  => $activitytaskId,
+                                            'staff_id' => $staff->staff_id,
+                                            'status'    => 'pending',
+                                            'started_at'   => date('Y-m-d H:i:s'),
+                                            'progress'  => 'pending',
+                                            'created_at' => date('Y-m-d H:i:s'),
+                                            'is_open'   => $staff->is_open,
+                                            'started_by'  => $staff->progress
+                                                    
+                                        ];
+                                    $this->taskStaffActivityModel->insert($assign);
                                     
-                            //     ];
-                            //    $this->taskStaffActivityModel->insert($assign);
-                            //     $this->notificationModel->insert($notify);
-                            // }
+                                    }
+                                }
+                            }
                             $validStatus = true;
                             $validMsg = 'New Task Added Successfully';
                     
@@ -512,6 +518,58 @@ protected $masterTaskModel;
         return $this->response->setJSON([
             'success' => true,
             'message' => 'Task activities started successfully'
+        ]);
+    }
+    //delete acticity 
+
+    function delete($id=false) {
+        if(!$this->request->isAjax()){
+            return $this->response->setJSON(['success' => false,'message'=>lang('Custom.invalidRequest')]);
+        }
+        if(!haspermission('','activity_delete')){
+            return $this->response->setJSON(['success' => false,'message'=>lang('Custom.accessDenied')]);
+        }
+        
+        $activityId = $id;
+        if($activityId != false){
+            $this->activityModel->update($activityId,['status'=>2]);
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Activity deleted successfully'
+            ]);
+        }else{
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Activity not found'
+            ]);
+        }
+    }
+    function multipleDelete() {
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid Request'
+            ]);
+        }
+        if (!haspermission('', 'activity_delete')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Permission Denied'
+            ]);
+        }
+        $activityIds = $this->request->getPost('activityIds');
+        if (empty($activityIds)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No activities selected'
+            ]);
+        }
+        foreach ($activityIds as $activityId) {
+            $this->activityModel->update($activityId, ['status' => 2]);
+        }
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Activities deleted successfully'
         ]);
     }
 }

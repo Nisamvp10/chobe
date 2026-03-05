@@ -128,8 +128,10 @@ class ActivityModel extends Model
                 $builder->where('a.created_at >=', $startDate);
                 $builder->where('a.created_at <=', $endDate);
             }
-             $builder->where('a.activity_type', 1);
-               $result = $builder->get()->getResultArray();
+            $builder->where('a.activity_type', 1);
+            $builder->where('a.status', 1);
+            $builder->orderBy('a.created_at', 'DESC');
+            $result = $builder->get()->getResultArray();
         return $result;
             
         
@@ -163,7 +165,8 @@ class ActivityModel extends Model
         $builder = $this->db->table('activities as a')
             ->select('a.id,a.activity_title as title')
             ->join('mastertasks as mt','mt.id = a.task_id','left')
-            ->where('a.task_id',$taskId);
+            ->where('a.task_id',$taskId)
+            ->where('a.status', 1);
             $result = $builder->get()->getResultArray();
             return  $result;
     }

@@ -6,6 +6,12 @@ toastr.options = {
 };
 
 
+
+function openDeleteModal(e, modalId = false) {
+  toggleModal(modalId, true);
+  $('#confirmDelete').data('id', $(e).data('id'));
+}
+
 function toggleCustomModal(modalId, show = true) {
   const modal = document.getElementById(modalId);
   if (!modal) return;

@@ -20,6 +20,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Activity Title</label>
                         <div class="relative">
                         <input type="hidden" name="id" value="">
+                        <input type="hidden" name="type" value="2">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
                             <i class="bi bi-list-check text-xl text-gray-400"></i>
                         </div>
