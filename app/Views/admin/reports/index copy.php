@@ -104,9 +104,6 @@
              <div class="overflow-x-auto">
                 <div id="clientsTable" class="max-h-[70vh] overflow-y-auto overflow-x-auto custom-scroll-wrapper"></div>
             </div>
-            <div id="loadingText" class="text-center flex items-center justify-center gap-2"  style="display:none; padding:10px; font-weight:bold;">
-               <i class="bi bi-spinner bi-spin"></i> Loading data...
-            </div>
             <!-- close table -->
 </div><!-- body -->
 <?= view('modal/commentModal') ;?>
@@ -126,40 +123,26 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <script src="<?=base_url('public/assets/js/reports.js') ;?>" ></script>
     <script>
-         $(document).ready(function() {
+        $(document).ready(function() {
 
-            window.loadReports = function (search = '',startDate = '',endDate = '',range = 'today') {
+              window.loadReports = function (search = '', startDate = '', endDate = '') {
+                
+                let filer = $('#filerStatus').val();
+                let projectUnitFilter = $('#projectUnitFilter').val();
+                let projectFilter = $('#projectFilter').val();
 
-            let filer = $('#filerStatus').val();
-            let projectUnitFilter = $('#projectUnitFilter').val();
-            let projectFilter = $('#projectFilter').val();
-
-            $.ajax({
-                url: "<?= site_url('reports/list') ?>",
-                type: "GET",
-                data: {
-                    search: search,
-                    filter: filer,
-                    startDate: startDate,
-                    endDate: endDate,
-                    prounit: projectUnitFilter,
-                    project: projectFilter,
-                    range: range
-                },
-                dataType: "json",
-                beforeSend: function() {
-                    $('#loadingText').show();
-                },
-                success: function(response) {
-                    if (response.success) {
-                        renderTable(response);
+                $.ajax({
+                    url: "<?= site_url('reports/list') ?>",
+                    type: "GET",
+                    data: { search: search,filter:filer ,startDate:startDate,endDate:endDate,prounit:projectUnitFilter,project:projectFilter},
+                    dataType: "json",
+                    success: function(response) {
+                        if (response.success) {
+                            renderTable(response);
+                        }
                     }
-                },
-                complete: function() {
-                    $('#loadingText').hide();
-                }
-            });
-    }
+                });
+            }
 
 function renderTable(result){
 
@@ -255,29 +238,6 @@ function renderTable(result){
             })
         });
 
-        let stage = 0;
-
-$('#clientsTable').on('scroll', function () {
-
-    let scrollTop = $(this).scrollTop();
-    let height = $(this).innerHeight();
-    let scrollHeight = this.scrollHeight;
-
-    if (scrollTop + height >= scrollHeight - 50) {
-
-        stage++;
-
-        if (stage == 1) loadReports('', '', '', '3days');
-        if (stage == 2) loadReports('', '', '', 'week');
-        if (stage == 3) loadReports('', '', '', 'month');
-        if (stage == 4) loadReports('', '', '', '3month');
-        if (stage == 5) loadReports('', '', '', '6month');
-        if (stage == 6) loadReports('', '', '', '365days');
-
-    }
-
-});
-
         // Click text → show input
 // Save edit
 $('#commentForm').on('submit',function(e){
@@ -336,28 +296,28 @@ function toggleFullscreen() {
 }
 
 
-// document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
 
-//   const content = document.getElementById('tableContainer');
-//   const thumb = document.getElementById('scrollThumb');
-//   const scrollbar = document.querySelector('.custom-scrollbar');
+  const content = document.getElementById('tableContainer');
+  const thumb = document.getElementById('scrollThumb');
+  const scrollbar = document.querySelector('.custom-scrollbar');
 
-//   if (!content || !thumb || !scrollbar) return;
+  if (!content || !thumb || !scrollbar) return;
 
-//   const wrapper = content.parentElement;
+  const wrapper = content.parentElement;
 
-//   wrapper.addEventListener('scroll', () => {
-//     alert('scroll');
-//     const maxScroll = content.scrollWidth - wrapper.clientWidth;
-//     const maxThumbMove = scrollbar.clientWidth - thumb.clientWidth;
+  wrapper.addEventListener('scroll', () => {
+    alert('scroll');
+    const maxScroll = content.scrollWidth - wrapper.clientWidth;
+    const maxThumbMove = scrollbar.clientWidth - thumb.clientWidth;
 
-//     if (maxScroll > 0) {
-//       thumb.style.left =
-//         (wrapper.scrollLeft / maxScroll) * maxThumbMove + 'px';
-//     }
-//   });
+    if (maxScroll > 0) {
+      thumb.style.left =
+        (wrapper.scrollLeft / maxScroll) * maxThumbMove + 'px';
+    }
+  });
 
-// });
+});
 
 
     </script>

@@ -161,6 +161,47 @@ class ReportController extends controller
         $endDate   = $this->request->getGet('endDate');
         $prounit   = $this->request->getGet('prounit');
         $project   = $this->request->getGet('project');
+        $range     = $this->request->getGet('range');
+
+        $today = date('Y-m-d');
+        if(empty($startDate)){
+            if ($range == 'today') {
+
+                $startDate = $reportModel->getNearestDate();
+                $endDate   = $startDate;
+
+            } elseif ($range == '3days') {
+
+                $startDate = date('Y-m-d', strtotime('-3 days'));
+                $endDate   = $today;
+
+            } elseif ($range == 'week') {
+
+                $startDate = date('Y-m-d', strtotime('-7 days'));
+                $endDate   = $today;
+
+            } elseif ($range == 'month') {
+
+                $startDate = date('Y-m-d', strtotime('-1 month'));
+                $endDate   = $today;
+
+            } elseif ($range == '3month') {
+
+                $startDate = date('Y-m-d', strtotime('-3 month'));
+                $endDate   = $today;
+
+            } elseif ($range == '6month') {
+
+                $startDate = date('Y-m-d', strtotime('-6 month'));
+                $endDate   = $today;
+
+            } elseif ($range == '365days') {
+
+                $startDate = date('Y-m-d', strtotime('-365 days'));
+                $endDate   = $today;
+
+            }
+        }
 
         $reportResult = $reportModel->getReports(
             $search,
@@ -168,9 +209,11 @@ class ReportController extends controller
             $startDate,
             $endDate,
             $prounit,
-            $project,
-            $reportType
+            $project
         );
+        
+        // $reportResult = $reportModel->getReports($search, $filter, $startDate, $endDate, $prounit, $project, false,);
+       // echo $reportModel->getLastQuery();
 
         $groupedTasks = [];
         $activityHeaders = [];

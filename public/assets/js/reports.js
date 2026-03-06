@@ -35,7 +35,6 @@ $(function () {
         let search = $('#searchInput').val();
         loadReports(search, startDate, endDate)
 
-
     });
 
     // Cancel event
