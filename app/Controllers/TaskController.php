@@ -209,11 +209,10 @@ class TaskController extends Controller {
                 }
 
                 // 3️⃣ Get task activities
-                $allTaskActivities = $this->taskActivityModel
-                    ->where('task_id', $taskId)
-                    ->findAll();
-
-
+                //$allTaskActivities = $this->taskActivityModel->where('task_id', $taskId)->findAll();
+                $teplateId = $getTask->created_from_template;
+                $allTaskActivities = $this->activityModel->where('status', 'active')->where('activity_type', 1)->where('task_id', $teplateId)->findAll();
+               
                 $allTaskActivityIds = array_column($allTaskActivities, 'id');
 
                 // 4️⃣ Existing staff
@@ -249,13 +248,27 @@ class TaskController extends Controller {
                             ]);
                         }
                         // assign activities
-                        // foreach ($allTaskActivityIds as $taskActivityId) {
-                        //     $this->taskStaffActivityModel->insert([
-                        //         'task_activity_id' => $taskActivityId,
-                        //         'staff_id'         => $staffId,
-                        //         'status'           => 'pending'
-                        //     ]);
-                        // }
+                        foreach ($allTaskActivityIds as $taskActivityId) {
+                            //check the activity is completed or not 
+                            $getTaskActivity = $this->taskStaffActivityModel->where('task_activity_id', $taskActivityId)->where('task_id', $taskId)->first();
+                            $activityStatus = 1;
+                            $isprogress =1;
+                            if ($getTaskActivity) {
+                                if($getTaskActivity['status'] == 'completed'){
+                                    $activityStatus = 2;
+                                }
+                                if($getTaskActivity['progress'] == 'completed'){
+                                    $isprogress = 2;
+                                }
+                            }
+                            $this->taskStaffActivityModel->insert([
+                                'task_id' => $taskId,
+                                'task_activity_id' => $taskActivityId,
+                                'staff_id'         => $staffId,
+                                'status'           => $activityStatus,
+                                'progress'         => $isprogress
+                            ]);
+                        }
 
                         // notify
                         $this->notificationModel->insert([
@@ -356,6 +369,8 @@ class TaskController extends Controller {
                     $totalProjectUnits = count($projectUnits); // project units is 119 
                     foreach ($projectUnits as $unit) {
 
+                        
+
                         /* 🔹 Collect Permanent Staff */
                         $staffs = [];
 
@@ -379,17 +394,33 @@ class TaskController extends Controller {
                             ->where('task_gen_date', $taskGenDate)
                             ->first();
 
+                 
+                        //check projectunit duplication like create_template_id and project_unit same show message 
+                        $existingtaskProjectUnit = $this->taskModel
+                            ->where('created_from_template', $masterTskId)
+                            ->where('project_unit', $unit['id'])
+                            ->first();
+                       
+                        if(!empty($existingtaskProjectUnit) && $existingtaskProjectUnit['created_from_template'] == $masterTskId && $existingtaskProjectUnit['project_unit'] == $unit['id']){
+                            // return $this->response->setJSON([
+                            //     'success' => false,
+                            //     'message' => 'Task already exists'
+                            // ]);
+                            continue;
+                        }
+
                         if ($existingTask) {
                            return $this->response->setJSON([
                                 'success' => false,
                                 'message' => 'Task already exists'
                             ]);
                         }
+
                         /* 🔹 Create Task */
                         $data['project_unit'] = $unit['id'];
                         $data['task_gen_date']   = ($masterTask->tasktype == 1 ? date('Y-m-d', strtotime('-1 day')) : date('Y-m-d'));
                         $data['next_run_date'] = ($masterTask->tasktype == 1 ? date('Y-m-d') : date('Y-m-d'));
-
+                        
                         $newTaskId = $this->taskModel->insert($data, true);
 
                         if (!$newTaskId) {
