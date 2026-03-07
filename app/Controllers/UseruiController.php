@@ -35,6 +35,8 @@ class UseruiController extends Controller{
                 'message' => lang('Custom.invalidRequest')
             ]);
         }
+
+      $search = $this->request->getGet('search');
     //    $tasks = $this->taskModel
     // ->select('created_from_template,title,task_gen_date,
     //           COUNT(id) as total_tasks,
@@ -42,7 +44,12 @@ class UseruiController extends Controller{
     // ->where('tasktype', 1)
     // ->groupBy('created_from_template')
     // ->findAll();
-    $tasks = $this->taskModel->where(['tasktype'=>1,'ui' => 1])->findAll();
+    $builder = $this->taskModel->select('tasks.id,tasks.title,tasks.task_gen_date,tasks.status, pu.store as store,pu.polaris_code')->where(['tasktype'=>1,'ui' => 1])
+    ->join('project_unit as pu','tasks.project_unit = pu.id');
+    if(!empty($search)) {
+        $builder->like('tasks.title',$search)->orLike('pu.store',$search)->orLike('pu.polaris_code',$search)->orLike('tasks.task_gen_date',$search);
+    }
+    $tasks = $builder->findAll();
         return $this->response->setJSON([
             'success' => true,
             'tasks'   => $tasks
