@@ -88,7 +88,7 @@
                 if (projects.length === 0) {
                     html += `
                         <div class="text-center py-8">
-                            <h3 class="text-lg font-medium text-gray-700">No Projects found</h3>
+                            <h3 class="text-lg font-medium text-gray-700">No Tasks found</h3>
                             <p class="text-gray-500 mt-1">Try adjusting your search</p>
                         </div>
                     `;
@@ -115,10 +115,10 @@
                                     </div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">${task.title} [${task.total_tasks} / ${task.completed_tasks}]</div>
+                                    <div class="text-sm text-gray-900">${task.title} [${task.task_gen_date}]</div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
-                                   <span data-id="${task.created_from_template}" onclick="locktask(this)" class="text-white -600 hover:text-fff-800 mr-3 !w-[25px] !h-[25px] rounded-2 bg-blue-500 cursor-pointer font-[15px] block text-center   "><i class="bi bi-check"></i></span>
+                                   <span data-id="${task.id}" onclick="locktask(this)" class="text-white -600 hover:text-fff-800 mr-3 !w-[25px] !h-[25px] rounded-2 bg-blue-500 cursor-pointer font-[15px] block text-center   "><i class="bi bi-check"></i></span>
                                 </td>
                               
                                

@@ -35,13 +35,14 @@ class UseruiController extends Controller{
                 'message' => lang('Custom.invalidRequest')
             ]);
         }
-       $tasks = $this->taskModel
-    ->select('created_from_template,title,task_gen_date,
-              COUNT(id) as total_tasks,
-              SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed_tasks')
-    ->where('tasktype', 1)
-    ->groupBy('created_from_template')
-    ->findAll();
+    //    $tasks = $this->taskModel
+    // ->select('created_from_template,title,task_gen_date,
+    //           COUNT(id) as total_tasks,
+    //           SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as completed_tasks')
+    // ->where('tasktype', 1)
+    // ->groupBy('created_from_template')
+    // ->findAll();
+    $tasks = $this->taskModel->where(['tasktype'=>1,'ui' => 1])->findAll();
         return $this->response->setJSON([
             'success' => true,
             'tasks'   => $tasks
@@ -63,14 +64,14 @@ class UseruiController extends Controller{
             ]);
         }
         $id = $this->request->getPost('id');
-        $tasks = $this->taskModel->where(['tasktype'=>1,'created_from_template'=>$id])->find();
+        $tasks = $this->taskModel->where(['tasktype'=>1,'id'=>$id])->first();
 
         if($tasks) {
-            foreach($tasks  as $task) {
-                if($task['status'] == 'Completed') {
-                    $this->taskModel->update($task['id'],['ui'=>2]);
-                }
-            }
+            // foreach($tasks  as $task) {
+                //if($tasks['status'] == 'Completed') {
+                    $this->taskModel->update($tasks['id'],['ui'=>2]);
+                //}
+            // }
              return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Done'
