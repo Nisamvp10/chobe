@@ -402,10 +402,10 @@ class TaskController extends Controller {
                             ->first();
                        
                         if(!empty($existingtaskProjectUnit) && $existingtaskProjectUnit['created_from_template'] == $masterTskId && $existingtaskProjectUnit['project_unit'] == $unit['id']){
-                            // return $this->response->setJSON([
-                            //     'success' => false,
-                            //     'message' => 'Task already exists'
-                            // ]);
+                            return $this->response->setJSON([
+                                'success' => false,
+                                'message' => 'Task already exists'
+                            ]);
                             continue;
                         }
 
