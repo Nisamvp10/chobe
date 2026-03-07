@@ -166,7 +166,6 @@ class ReportController extends controller
         $today = date('Y-m-d');
         if(empty($startDate)){
             if ($range == 'today') {
-
                 $startDate = $reportModel->getNearestDate();
                 $endDate   = $startDate;
 
@@ -493,8 +492,4 @@ class ReportController extends controller
         $writer->save('php://output');
         exit;
     }
-
- 
-    
-
 }

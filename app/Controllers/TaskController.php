@@ -894,16 +894,23 @@ class TaskController extends Controller {
         $filter = $this->request->getGet('filter');
         $notifiytask = $this->request->getGet('notifiytask');
         $alltasks = $this->taskModel->getMytask('','',$notifiytask,$filter); 
-       
+        $pendingTasks = 0;
+        $completedTasks = 0;
         
         $groupData = [];
         foreach ($alltasks as &$task) {
             $taskId = $task['id'];
+            if($task['status'] == 'Pending'){
+                $pendingTasks++;
+            }
+            if($task['status'] == 'Completed'){
+                $completedTasks++;
+            }
 
             if (!isset($groupData[$taskId])) {
                   $activityTasksAssignModel->where(['activity_id'=> $task['id'],'staff_id'=>session('user_data')['id']])->countAllResults();
                   $this->taskActivityModel->getMytaskCount($task['id']);
-      //  echo $this->taskActivityModel->getLastQuery();
+                
                 $groupData[$taskId] = [
 
                     'id'        => encryptor($task['id']),
@@ -956,7 +963,7 @@ class TaskController extends Controller {
         }
 
         $tasks = array_values($groupData);
-        return $this->response->setJSON([ 'success'=>true,'task' => $tasks]);
+        return $this->response->setJSON([ 'success'=>true,'task' => $tasks,'completedTasks'=>$completedTasks,'pendingTasks' =>$pendingTasks]);
     }
 
     function view($id= false) {

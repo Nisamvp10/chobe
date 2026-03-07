@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 class TaskModel extends Model {
     protected $table = 'tasks';
     protected $primaryKey ='id';
-    protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','task_gen_date','task_gen_date','status','taskmode','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
+    protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','task_gen_date','task_gen_date','status','taskmode','ui','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
 
     protected $useSoftDeletes = false; // IMPORTANT
 
@@ -90,12 +90,13 @@ class TaskModel extends Model {
             ->join('task_images as ti',  'ti.task_id = t.id', 'left')
             //->whereIn('t.id', $myTaskIds)
             ->where('a.staff_id',session('user_data')['id'])
+            ->where('t.ui',1)
             ->orderBy('t.id', 'DESC');
-            $builder->groupStart()
-            ->where('t.status !=', 'Completed')
-            ->where('t.tasktype',1)
-            ->orWhere('t.created_at >=', 'DATE_SUB(NOW(), INTERVAL 1 DAY)', false)
-            ->groupEnd();
+            // $builder->groupStart()
+            // ->where('t.status !=', 'Completed')
+            // ->where('t.tasktype',1)
+            // ->orWhere('t.created_at >=', 'DATE_SUB(NOW(), INTERVAL 1 DAY)', false)
+            // ->groupEnd();
 
                     if ($orderBy) {
                         $builder->orderBy($orderBy);

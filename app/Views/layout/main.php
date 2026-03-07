@@ -922,6 +922,18 @@ a{
                      <!-- close nav -->
              
                 <?php endif;?>
+                <?php
+                if(haspermission('','user_ui')) {
+                    ?>
+                       <li class="nav-item">
+                            <a class="nav-link <?= strpos(uri_string(), 'user-ui') === 0 ? 'active' : '' ?>" href="<?= base_url('user-ui') ?>">
+                                <i class="bi bi-file-earmark-medical"></i>
+                                <span>User UI</span>
+                                <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
+                            </a>
+                        </li>
+                    <?php
+                } ?>
             </ul>
         </div>
     </div>

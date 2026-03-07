@@ -57,7 +57,7 @@
                     <div class="flex flex-col h-full bg-gray-50 rounded-lg p-4 min-w-[300px]">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="font-semibold text-gray-700">Pending</h2>
-                            <span class="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-xs">1</span>
+                            <span class="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-xs" id="pendingTaskcount">1</span>
                         </div>
                         <div class="flex-1 overflow-y-auto space-y-3">
                              <div id="taskPending" class="flex-1 task-list overflow-y-auto space-y-4 min-h-[80px]"></div>
@@ -76,7 +76,7 @@
                     <div class="flex flex-col h-full bg-gray-50 rounded-lg p-4 min-w-[300px]">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="font-semibold text-gray-700">Completed</h2>
-                            <span class="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-xs">1</span>
+                            <span class="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-xs" id="completedTaskcount">1</span>
                         </div>
                         <div class="flex-1 overflow-y-auto space-y-3">
                              <div id="completed" class="flex-1 task-list overflow-y-auto space-y-4 min-h-[80px]"></div>

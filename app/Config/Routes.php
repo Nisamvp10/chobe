@@ -162,6 +162,9 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     //group_activity_task_complete 
     $routes->get('task/group_activity_task_complete','TaskController::groupActivityTaskComplete');
     $routes->post('comment-group-activities/save','TaskController::saveCommentGroupActivities');
+    $routes->get('user-ui','UseruiController::index');
+    $routes->get('user-ui/list','UseruiController::list');
+    $routes->post('user-ui/unlock','UseruiController::lock');
 
 });
 

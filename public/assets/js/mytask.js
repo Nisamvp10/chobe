@@ -16,6 +16,8 @@ function loadTask(search = '') {
         success: function (response) {
 
             if (response.success) {
+                $('#pendingTaskcount').text(response.pendingTasks);
+                $('#completedTaskcount').text(response.completedTasks);
                 renderTable(response.task);
             }
         }
