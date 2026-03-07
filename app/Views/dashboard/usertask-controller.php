@@ -79,10 +79,17 @@
                     }
                 });
             }
-
+let rowperpage = 50;
+let currentpage = 1;
+let allUidata = [];
             function renderTable(projects){
+                allUidata = projects;
                 let html = '';
                 let count = 1;
+
+                start = (currentpage - 1) * rowperpage;
+                end = start + rowperpage;
+                projects = allUidata.slice(start, end);
 
                 if (projects.length === 0) {
                     html += `
@@ -128,6 +135,25 @@
                     
 
                     html += `</tbody></table>`;
+                    let totalPages = Math.ceil(allUidata.length / rowperpage);
+                    html += `
+                        <div class="flex justify-between items-center mt-4">
+                            <div>
+                                <label class="mr-2">Rows per page:</label>
+                                <select onchange="changeRowsPerPage(this.value)" class="px-2 py-1 border rounded">
+                            
+                                    <option value="50"  ${rowperpage == 50 ? 'selected' : ''}>50</option>
+                                    <option value="100"  ${rowperpage == 100 ? 'selected' : ''}>100</option>
+                                    <option value="150"  ${rowperpage == 150 ? 'selected' : ''}>150</option>
+                                    <option value="200" ${rowperpage == 200 ? 'selected' : ''}>200</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button onclick="prevPage()" ${currentpage === 1 ? 'disabled' : ''} class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Prev</button>
+                                <span class="mx-2">Page ${currentpage} of ${totalPages}</span>
+                                <button onclick="nextPage(${totalPages})" ${currentpage === totalPages ? 'disabled' : ''} class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Next</button>
+                            </div>
+                        </div>`;
                 }
                 $('#projectTable').html(html);
             }
@@ -187,6 +213,30 @@
             })
     
 //})
+
+
+
+// Change rows per page
+function changeRowsPerPage(value) {
+    rowperpage = parseInt(value);
+    currentpage = 1;
+    renderTable(allUidata);
+}
+
+// Pagination functions
+function prevPage() {
+    if (currentpage > 1) {
+        currentpage--;
+        renderTable(allUidata);
+    }
+}
+function nextPage(totalPages) {
+    if (currentpage < totalPages) {
+        currentpage++;
+        renderTable(allUidata);
+    }
+}
+
 function locktask(e){
         if(confirm('are you sure !'))
         {
