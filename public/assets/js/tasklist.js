@@ -19,6 +19,8 @@ function loadTask(search = '', startDate = '', endDate = '') {
         dataType: "json",
         success: function (response) {
             if (response.success === true) {
+                $('#pendingTaskcount').text(response.pendingTasks);
+                $('#completedTaskcount').text(response.completedTasks);
                 renderTable(response.task);
             }
         }

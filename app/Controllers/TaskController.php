@@ -793,6 +793,8 @@ class TaskController extends Controller {
             $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate,$taskProject); // or ->findAll()
             
             $groupData = [];
+            $pendingTasks = 0;
+            $completedTasks = 0;
 
             foreach ($alltask as &$task) {
 
@@ -808,7 +810,13 @@ class TaskController extends Controller {
                         ->findAll();
 
                 if (!isset($groupData[$taskId])) {
-                       
+                       //count pending and completed task
+                       if($task['status'] == 'Pending'){
+                           $pendingTasks++;
+                       }
+                       if($task['status'] == 'Completed'){
+                           $completedTasks++;
+                       }
 
                     $groupData[$taskId] = [
 
@@ -864,7 +872,7 @@ class TaskController extends Controller {
             }
 
             $tasks = array_values($groupData);
-            return $this->response->setJSON([ 'success'=>true,'task' => $tasks]);
+            return $this->response->setJSON([ 'success'=>true,'task' => $tasks,'pendingTasks' => $pendingTasks,'completedTasks' => $completedTasks]);
         }
 
     // Mt Task
