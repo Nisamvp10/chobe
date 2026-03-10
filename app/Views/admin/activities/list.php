@@ -106,9 +106,10 @@ function allactivities(search = '') {
             filterDate: filterDate
         },
         dataType: 'json',
-        success: function(response) {
-            if(response.success) {
-                renderTable(response.task);
+        success: function(res) {
+            if(res.success) {
+                allDataactivity = res.task;
+                renderTableactivity();
             }
         },
         error: function(xhr, status, error) {
@@ -118,13 +119,12 @@ function allactivities(search = '') {
 }
 let currentPage = 1;
 let rowsPerPage = 20;
-let allData = [];
-    function renderTable(tasks = []) {
-        allData = Array.isArray(tasks) ? tasks : [];
+let allDataactivity = [];
+    function renderTableactivity() {
         let start = (currentPage - 1) * rowsPerPage;
         let end = start + rowsPerPage;
 
-        let pagination = allData.slice(start, end);
+        let pageData = allDataactivity.slice(start, end);
 
         let tableHtml = `
             <table class="min-w-full divide-y divide-gray-200">
@@ -140,12 +140,12 @@ let allData = [];
                 <tbody class="bg-white divide-y divide-gray-200">
         `;
 
-        pagination.forEach(function(task ,indx) {
+        pageData.forEach(function(task ,indx) {
             
             tableHtml += `
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">${start + indx+1} <input type="checkbox" name="activity_id[]" class="task-checkbox" value="${task.id}"></td>
-                    <td class="px-6 py-4 whitespace-nowrap">${task.activity_title}</td>
+                    <td class="px-6 py-4 whitespace-nowrap flex items-center gap-2"><div onclick="copyid(${task.id})" class=" w-[40px] h-[40px] bg-primary p-2 rounded-full flex items-center justify-center text-white">${task.id}</div> ${task.activity_title}</td>
                     <td class="px-6 py-4 ">${task.activity_description}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${task.task_title}</td>
                      <td class="px-6 py-4 whitespace-nowrap flex items-center gap-1"><a onclick="openModal(${task.id})"  class="text-blue-600 hover:text-blue-800 mr-3"><i class="bi bi-pencil text-blue-600 hover:text-blue-800 mr-3 border rounded-2 px-2 py-1 hover:cursor-pointer hover:bg-blue-100"></i></a><a  data-id="${task.id}" class="text-red-600 hover:text-red-800 mr-3" onclick="openDeleteModal(this,'deleteAlertModal')" data-message="Are you sure you want to delete ?"><i class="bi bi-trash text-red-600 hover:text-red-800 mr-3 border rounded-2 px-2 py-1 hover:cursor-pointer hover:bg-red-100"></i></a></td>
@@ -156,7 +156,7 @@ let allData = [];
         tableHtml +=`</tbody>
         </table></div>`;
 
-        let totalPages = Math.ceil( allData.length / rowsPerPage);
+        let totalPages = Math.ceil( allDataactivity.length / rowsPerPage);
         tableHtml += `
             <div class="flex justify-between items-center mt-4">
                 <div>
@@ -184,20 +184,20 @@ let allData = [];
 function changeRowsPerPage(value) {
     rowsPerPage = parseInt(value);
     currentPage = 1;
-    renderTable(allData);
+    renderTableactivity(allDataactivity);
 }
 
 // Pagination functions
 function prevPage() {
     if (currentPage > 1) {
         currentPage--;
-        renderTable(allData);
+        renderTableactivity(allDataactivity);
     }
 }
 function nextPage(totalPages) {
     if (currentPage < totalPages) {
         currentPage++;
-        renderTable(allData);
+        renderTableactivity(allDataactivity);
     }
 }
 document.addEventListener('click',function(e){
@@ -317,6 +317,18 @@ function multipleDelete(){
             });
         }
     }
+}
+function copyid(id) {
+   navigator.clipboard.writeText(id).then(function () {
+
+        toastr.success("Copied!");
+
+    }).catch(function () {
+
+        alert("Copy failed");
+
+    });
+        
 }
 </script>
 

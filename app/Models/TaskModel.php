@@ -48,6 +48,9 @@ class TaskModel extends Model {
                 $endDate   = date('Y-m-d 23:59:59', strtotime($endDate));
                 $builder->where('t.task_gen_date >=', $startDate);
                 $builder->where('t.task_gen_date <=', $endDate);
+            }else{
+                //show last 3 days data only  today yesterday day before yesterday
+                $builder->where('t.task_gen_date >=', date('Y-m-d 00:00:00', strtotime('-5 days')));
             }
             
             if(session('user_data')['role'] != 1 ) {
