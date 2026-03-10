@@ -60,7 +60,13 @@ class UseruiController extends Controller{
                 ->orLike('tasks.task_gen_date', $search)
             ->groupEnd();
         }
+        $builder->orderBy('tasks.id', 'desc');
         $tasks = $builder->findAll();
+        if($tasks) {
+            foreach($tasks as &$task) {
+                $task['task_gen_date'] = date('d M Y', strtotime($task['task_gen_date']));
+            }
+        }
         return $this->response->setJSON([
             'success' => true,
             'tasks'   => $tasks
