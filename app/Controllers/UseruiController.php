@@ -64,7 +64,7 @@ class UseruiController extends Controller{
         $tasks = $builder->findAll();
         if($tasks) {
             foreach($tasks as &$task) {
-                $task['task_gen_date'] = date('d M Y', strtotime($task['task_gen_date']));
+                $task['task_gen_date'] = date('d-m-Y', strtotime($task['task_gen_date']));
             }
         }
         return $this->response->setJSON([
