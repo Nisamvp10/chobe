@@ -130,7 +130,7 @@ class ProjectUnitController extends Controller
             if($this->projectUnitModel->insert($data)){
 
                 $validStatus = true;
-                $validMsg = 'New Branch Adedd';
+                $validMsg = 'New Project unit Added';
 
             }else{
                 

@@ -46,6 +46,9 @@
             </div>
             <!-- table -->
              <div class="overflow-x-auto">
+                <div class="flex items-center justify-end  m-1 pb-1 ">
+                    <div><span class="px-2 py-2 hover:bg-gray-100 hover:cursor-pointer border border-gray-300 rounded-2 " onclick="multipleDelete()"><i class="bi bi-trash"></i></span></div>
+                </div>
                 <div id="projectTable"></div>
             </div>
             <!-- close table -->
@@ -103,7 +106,7 @@ let allUidata = [];
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S.NO</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><input type="checkbox" class=" selectAll w-[20px] h-[20px]"> S.NO</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
                                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -117,7 +120,7 @@ let allUidata = [];
                                 <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="flex items-center">
                                        
-                                        <div class="text-sm font-medium text-gray-900">${count}</div>
+                                        <div class="text-sm font-medium text-gray-900"> <input type="checkbox" value="${task.id}" class="activity-checkbox"> ${count}</div>
                                     </div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
@@ -265,6 +268,70 @@ function locktask(e){
             })
         }
     }
+let selectedTaskId = null;
+document.addEventListener('click',function(e){
+    // select all checkbox and unselect all checkbox
+    if(e.target.classList.contains('selectAll')){
+        let checked = e.target.checked;
+        if(checked){
+            $('.activity-checkbox').prop('checked',true);
+        }else{
+            $('.activity-checkbox').prop('checked',false);
+        }
+    }
+    // select individual checkbox
+    if(e.target.classList.contains('task-checkbox')){
+        let checked = e.target.checked;
+        if(checked){
+            
+        }else{
+            $('.task-checkbox').prop('checked',false);
+        }
+    }
+})
+function multipleDelete(){
+    if(confirm('Are you sure you want to delete?')){
+        
+        if($('.activity-checkbox:checked').length == 0){
+            toastr.error('Please select at least one task to delete');
+            return;
+        }
+        let selectedTaskIds = [];
+        $('.activity-checkbox:checked').each(function() {
+            selectedTaskIds.push($(this).val());
+        });
+        if (selectedTaskIds.length > 0) {
+            $('#confirmDelete').prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...'
+            );
+            $.ajax({
+                url: App.getSiteurl()+'user-ui/multiple-delete', 
+                method: 'POST',
+                dataType:'json',
+                data: { _method: 'DELETE',activityIds: selectedTaskIds }, // if using method spoofing in CI4
+                success: function (response) {
+                if(response.success) {
+                    setTimeout(function () {
+                        $('#confirmDelete').prop('disabled', false).html('Delete');
+                         projects();
+                        selectedTaskId = null;
+                        toggleCustomModal('deleteAlertModal',false);
+                    }, 2000);
+                    
+                    toastr.success(response.message);
+                }else{
+                    $('#confirmDelete').prop('disabled', false).html('Yes');
+                    toastr.error(response.message);
+                }
+                
+                },
+                error: function () {
+                    toastr.error('Error deleting task');
+                }
+            });
+        }
+    }
+}
     </script>
 <?= $this->endSection() ?>
 

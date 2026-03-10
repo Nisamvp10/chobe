@@ -44,12 +44,23 @@ class UseruiController extends Controller{
     // ->where('tasktype', 1)
     // ->groupBy('created_from_template')
     // ->findAll();
-    $builder = $this->taskModel->select('tasks.id,tasks.title,tasks.task_gen_date,tasks.status, pu.store as store,pu.polaris_code')->where(['tasktype'=>1,'ui' => 1])
+        $builder = $this->taskModel->select('tasks.id,tasks.title,tasks.task_gen_date,tasks.status, pu.store as store,pu.polaris_code')
     ->join('project_unit as pu','tasks.project_unit = pu.id');
-    if(!empty($search)) {
-        $builder->like('tasks.title',$search)->orLike('pu.store',$search)->orLike('pu.polaris_code',$search)->orLike('tasks.task_gen_date',$search);
-    }
-    $tasks = $builder->findAll();
+
+        $builder->where([
+            'tasks.tasktype' => 1,
+            'tasks.ui' => 1
+        ]);
+
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('tasks.title', $search)
+                ->orLike('pu.store', $search)
+                ->orLike('pu.polaris_code', $search)
+                ->orLike('tasks.task_gen_date', $search)
+            ->groupEnd();
+        }
+        $tasks = $builder->findAll();
         return $this->response->setJSON([
             'success' => true,
             'tasks'   => $tasks
@@ -90,5 +101,37 @@ class UseruiController extends Controller{
             ]);
         }
     }
-
+    public function multipleDelete() {
+        if(!haspermission('','user_ui')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => lang('Custom.invalidRequest')
+                
+            ]);
+        }
+        if(!$this->request->isAjax()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => lang('Custom.invalidRequest')
+            ]);
+        }
+        $activityIds = $this->request->getPost('activityIds');
+        if($activityIds) {
+            foreach($activityIds as $activityId) {
+                 $tasks = $this->taskModel->where(['tasktype'=>1,'id'=>$activityId])->first();
+                if($tasks) {
+                   $this->taskModel->update($tasks['id'],['ui'=>2]);
+                }
+            }
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Done'
+            ]);
+        }else{
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'activity not found'
+            ]);
+        }
+    }
 }

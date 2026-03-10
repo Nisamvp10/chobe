@@ -165,6 +165,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('user-ui','UseruiController::index');
     $routes->get('user-ui/list','UseruiController::list');
     $routes->post('user-ui/unlock','UseruiController::lock');
+    $routes->delete('user-ui/multiple-delete','UseruiController::multipleDelete');
 
 });
 
