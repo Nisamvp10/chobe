@@ -80,14 +80,13 @@ class ReportModel extends Model
         $builder->where('DATE(t.task_gen_date) >=', $startDate);
         $builder->where('DATE(t.task_gen_date) <=', $endDate);
     }
-
+    $builder->where('t.tasktype',1);
     /* =================== GROUP & ORDER =================== */
     $builder->groupBy(['t.id', 'a.id']);
     
-    // 🔥 VERY IMPORTANT: You must order for pagination to work correctly
     $builder->orderBy('t.id', 'DESC'); 
 
-    /* =================== LIMIT & OFFSET =================== */
+
     
 
     return $builder->get()->getResultArray();

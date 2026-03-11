@@ -52,7 +52,7 @@ class TaskModel extends Model {
                 //show last 3 days data only  today yesterday day before yesterday
                 $builder->where('t.task_gen_date >=', date('Y-m-d 00:00:00', strtotime('-3 days')));
             }
-            
+            $builder->where('t.ui ', 1);
             if(session('user_data')['role'] != 1 ) {
                 $builder->where('a.staff_id',session('user_data')['id']);
             }
