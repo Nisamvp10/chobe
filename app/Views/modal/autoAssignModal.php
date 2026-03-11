@@ -52,6 +52,7 @@
        data-close="assignModalverify">
         Cancel
       </button>
+      
 
       <button
         class="flex autoAssign items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-2 text-sm font-medium">
@@ -63,6 +64,14 @@
         Confirm Assignment
       </button>
     </div>
+         <div class="progress mt-3" style="height:25px; display:none;" id="assignProgressWrapper">
+    <div id="assignProgressBar"
+        class="progress-bar progress-bar-striped progress-bar-animated"
+        role="progressbar"
+        style="width:0%">
+        0%
+    </div>
+</div>
 
   </div>
 </div>

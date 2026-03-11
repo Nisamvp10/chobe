@@ -24,7 +24,7 @@ if (!empty($userData)){
 
     <link href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= base_url('public/assets/css/style.css') ?>">
-    <link rel="stylesheet" href="<?=base_url('public/assets/css/daterangepicker.css');?>" />
+    <!-- <link rel="stylesheet" href="<?=base_url('public/assets/css/daterangepicker.css');?>" /> -->
     <link rel="stylesheet" href="<?= base_url('public/assets/src/output.css') ?>">
 
 

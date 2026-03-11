@@ -10,7 +10,7 @@ class TaskModel extends Model {
 
     protected $useSoftDeletes = false; // IMPORTANT
 
-    function getTasks($limit=false,$orderBy=false,$filter = false,$searchInput=false,$startDate=false,$endDate=false,$taskProject=false) {
+    function getTasks($limit=false,$orderBy=false,$filter = false,$searchInput=false,$startDate=false,$endDate=false,$taskProject=false,$taskLimit=false,$offset=false) {
 
 
         $builder = $this->db->table('tasks as t')
@@ -50,7 +50,7 @@ class TaskModel extends Model {
                 $builder->where('t.task_gen_date <=', $endDate);
             }else{
                 //show last 3 days data only  today yesterday day before yesterday
-                $builder->where('t.task_gen_date >=', date('Y-m-d 00:00:00', strtotime('-5 days')));
+                $builder->where('t.task_gen_date >=', date('Y-m-d 00:00:00', strtotime('-3 days')));
             }
             
             if(session('user_data')['role'] != 1 ) {
@@ -59,7 +59,7 @@ class TaskModel extends Model {
             if ($orderBy) {
                 $builder->orderBy($orderBy);
             }
-            if ($limit) {
+            if ($taskLimit) {
                 $builder->limit($limit);
             }
 

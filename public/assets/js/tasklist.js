@@ -1,5 +1,8 @@
 
 //$(document).ready(function() {
+let loadLimit = 50;
+let loadOffset = 0;
+
 loadTask();
 $('#taskFilterStatus ,#taskProject,#taskProject').on('change', function () {
     loadTask();
@@ -15,20 +18,24 @@ function loadTask(search = '', startDate = '', endDate = '') {
 
         url: App.getSiteurl() + 'task/tasklist',
         type: "GET",
-        data: { search: search, filter: filter, startDate: startDate, endDate: endDate, taskProject: taskProject },
+        data: { search: search, filter: filter, startDate: startDate, endDate: endDate, taskProject: taskProject, list: loadLimit, offset: loadOffset },
         dataType: "json",
         success: function (response) {
             if (response.success === true) {
                 $('#pendingTaskcount').text(response.pendingTasks);
                 $('#completedTaskcount').text(response.completedTasks);
-                renderTable(response.task);
+                //renderTaskTable(response.task);
+                setTimeout(() => {
+                    renderTaskTable(response.task);
+
+                }, 10);
             }
         }
     });
 
 }
 
-function renderTable(tasks) {
+function renderTaskTable(tasks) {
     let html = '';
     let pending = '';
     let inProgress = '';
