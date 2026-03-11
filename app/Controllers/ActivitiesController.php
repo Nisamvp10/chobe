@@ -356,7 +356,8 @@ protected $masterTaskModel;
                 
             if(!isset($groupData[$taskId])) {
                  //if($staffId) {
-                    $lastComment = $this->commentModel->select('comment')->where(['task_id' => $task['id'],'activity_id' => $task['task_activity_id'],'user_id'=> session('user_data')['id']])->orderBy('id DESC')->get()->getRow();
+                    $lastComment = $this->commentModel->select('comment')->where(['task_id' => $task['id'],'activity_id' => $task['task_activity_id']])->orderBy('id DESC')->get()->getRow();
+                    //'user_id'=> session('user_data')['id']
                 // }else{
                 //     $lastComment = [];
                 // }
