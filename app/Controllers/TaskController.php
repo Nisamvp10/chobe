@@ -780,8 +780,8 @@ class TaskController extends Controller {
             $startDate = $this->request->getGet('startDate');
             $endDate = $this->request->getGet('endDate');
             $taskProject = $this->request->getGet('taskProject');
-            $limit =$this->request->getGet('taskProject') ?? 50;
-            $offset = $this->request->getGet('offset') ?? 0;
+            // $limit =$this->request->getGet('taskProject') ?? 50;
+            // $offset = $this->request->getGet('offset') ?? 0;
             $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate,$taskProject,'',$limit,$offset); // or ->findAll()
             
             $groupData = [];
