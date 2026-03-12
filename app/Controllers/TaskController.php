@@ -574,7 +574,7 @@ class TaskController extends Controller {
                         'project_unit' => $unit['id'],
                         'task_gen_date' => $taskGenDate,
                         'taskmode' => $taskType
-                    ])
+                    ])->groupBy('project_unit')
                     ->first();
 
                 if ($exists) {
@@ -652,15 +652,15 @@ class TaskController extends Controller {
                     }
 
                     // Notification
-                    $this->notificationModel->insert([
-                        'user_id' => $staffId,
-                        'task_id' => $newTaskId,
-                        'type' => 'new_task',
-                        'title' => 'New Task',
-                        'created_by' => session('user_data')['id'],
-                        'message' => 'A daily task has been assigned to you',
-                        'created_at' => date('Y-m-d H:i:s')
-                    ]);
+                    // $this->notificationModel->insert([
+                    //     'user_id' => $staffId,
+                    //     'task_id' => $newTaskId,
+                    //     'type' => 'new_task',
+                    //     'title' => 'New Task',
+                    //     'created_by' => session('user_data')['id'],
+                    //     'message' => 'A daily task has been assigned to you',
+                    //     'created_at' => date('Y-m-d H:i:s')
+                    // ]);
                 }
             }
         }
@@ -783,7 +783,7 @@ class TaskController extends Controller {
             $limit =$this->request->getGet('taskProject') ?? 50;
             $offset = $this->request->getGet('offset') ?? 0;
             $alltask = $this->taskModel->getTasks('','',$filter,$searchInput,$startDate,$endDate,$taskProject,'',$limit,$offset); // or ->findAll()
-            
+            //echo $this->taskModel->getLastQuery();
             $groupData = [];
             $pendingTasks = 0;
             $completedTasks = 0;
@@ -862,8 +862,8 @@ class TaskController extends Controller {
                     }
                 }
             }
-
             $tasks = array_values($groupData);
+
             return $this->response->setJSON([ 'success'=>true,'task' => $tasks,'pendingTasks' => $pendingTasks,'completedTasks' => $completedTasks]);
         }
 
