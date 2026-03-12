@@ -36,6 +36,8 @@ function loadTask(search = '', startDate = '', endDate = '') {
 }
 
 function renderTaskTable(tasks) {
+    //console task count
+    console.log(tasks.length);
     let html = '';
     let pending = '';
     let inProgress = '';
