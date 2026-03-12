@@ -25,10 +25,10 @@ function loadTask(search = '', startDate = '', endDate = '') {
                 $('#pendingTaskcount').text(response.pendingTasks);
                 $('#completedTaskcount').text(response.completedTasks);
                 //renderTaskTable(response.task);
-                setTimeout(() => {
-                    renderTaskTable(response.task);
+                // setTimeout(() => {
+                renderTaskTable(response.task);
 
-                }, 10);
+                //}, 10);
             }
         }
     });
