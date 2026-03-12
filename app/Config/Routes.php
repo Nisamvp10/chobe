@@ -168,7 +168,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->delete('user-ui/multiple-delete','UseruiController::multipleDelete');
 
 });
-//$routes->get('autoCron', 'CronController::clonejob');
+$routes->get('autoCron', 'CronController::clonejob');
 $routes->cli('CronController/clonejob', 'CronController::clonejob');
 
 $routes->group('api',['filter' => 'auth'], function ($routes) {
