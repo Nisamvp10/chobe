@@ -82,7 +82,7 @@
                     }
                 });
             }
-let rowperpage = 50;
+let rowperpage = 150;
 let currentpage = 1;
 let allUidata = [];
             function renderTable(projects){
