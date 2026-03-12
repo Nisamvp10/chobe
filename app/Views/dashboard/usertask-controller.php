@@ -47,7 +47,7 @@
             <!-- table -->
              <div class="overflow-x-auto">
                 <div class="flex items-center justify-end  m-1 pb-1 ">
-                    <div><span class="px-2 py-2 hover:bg-gray-100 hover:cursor-pointer border border-gray-300 rounded-2 " onclick="multipleDelete()"><i class="bi bi-trash"></i></span></div>
+                    <div><span class="px-2 py-2 hover:bg-gray-100 hover:cursor-pointer border border-gray-300 rounded-2 " onclick="multipleDelete()"><i class="bi bi-eye-slash"></i></span></div>
                 </div>
                 <div id="projectTable"></div>
             </div>
@@ -127,7 +127,7 @@ let allUidata = [];
                                     <div class="text-sm text-gray-900">${task.title} [${task.task_gen_date}] <br> ${task.store} [${task.polaris_code}]</div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
-                                   <span data-id="${task.id}" onclick="locktask(this)" class="text-white -600 hover:text-fff-800 mr-3 !w-[25px] !h-[25px] rounded-2 bg-blue-500 cursor-pointer font-[15px] block text-center   "><i class="bi bi-check"></i></span>
+                                   <span data-id="${task.id}" onclick="locktask(this)" class="text-white -600 hover:text-fff-800 mr-3 !w-[25px] !h-[25px] rounded-2 bg-blue-500 cursor-pointer font-[15px] block text-center   "><i class="bi bi-eye-slash"></i></span>
                                 </td>
                               
                                
