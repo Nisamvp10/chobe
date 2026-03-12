@@ -25,10 +25,10 @@ function loadTask(search = '', startDate = '', endDate = '') {
                 $('#pendingTaskcount').text(response.pendingTasks);
                 $('#completedTaskcount').text(response.completedTasks);
                 //renderTaskTable(response.task);
-                // setTimeout(() => {
-                renderTaskTable(response.task);
+                setTimeout(() => {
+                    renderTaskTable(response.task);
 
-                //}, 10);
+                }, 10);
             }
         }
     });
@@ -36,8 +36,6 @@ function loadTask(search = '', startDate = '', endDate = '') {
 }
 
 function renderTaskTable(tasks) {
-    //console task count
-    console.log(tasks.length);
     let html = '';
     let pending = '';
     let inProgress = '';
@@ -89,7 +87,7 @@ function renderTaskTable(tasks) {
             // progressBar.textContent = percent + "%";
 
             const taskHTML = `
-        <div class="bg-white draggable-task rounded-lg mb-3 shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" draggable="true"
+        <div class="bg-white draggable-task rounded-lg mb-3 shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" draggable="false"
              data-id="${task.id}" 
            
             >

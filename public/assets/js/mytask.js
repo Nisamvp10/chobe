@@ -70,7 +70,7 @@ function renderTable(tasks) {
             console.log(task)
             const taskHTML = `
         <div class="bg-white draggable-task rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" 
-            draggable="true"
+            draggable="false"
             data-id="${task.id}">
             
             <div class="flex justify-between items-start mb-2">
