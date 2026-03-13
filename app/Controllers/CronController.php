@@ -64,8 +64,6 @@ class CronController extends Controller {
             ->where('next_run_date <=', $today)
             ->groupBy('project_unit')
             ->findAll();
-            // echo $this->taskModel->getLastQuery();
-            // exit();
 
         if (!$templates) {
             return $this->response->setJSON([
@@ -112,9 +110,8 @@ class CronController extends Controller {
 
         foreach($existingTasks as $t){
 
-        $key = $t['created_from_template'].'_'.$t['project_id'].'_'.$t['project_unit'];
-
-        $taskMap[$key] = true;
+            $key = $t['created_from_template'].'_'.$t['project_id'].'_'.$t['project_unit'];
+            $taskMap[$key] = true;
 
         }
 
@@ -126,16 +123,16 @@ class CronController extends Controller {
 
         foreach ($templates as $template) {
 
-        if(empty($template['created_from_template'])) continue;
+            if(empty($template['created_from_template'])) continue;
 
-        $unitId = $template['project_unit'];
+            $unitId = $template['project_unit'];
 
-        $key = $template['created_from_template'].'_'.$template['project_id'].'_'.$unitId;
+            $key = $template['created_from_template'].'_'.$template['project_id'].'_'.$unitId;
 
-        if(isset($taskMap[$key])){
+            if(isset($taskMap[$key])){
 
-        $skipCount++;
-        continue;
+            $skipCount++;
+            continue;
 
         }
 
@@ -147,21 +144,21 @@ class CronController extends Controller {
 
         $newTaskId = $this->taskModel->insert([
 
-        'project_id'=>$template['project_id'],
-        'project_unit'=>$unitId,
-        'title'=>$template['title'],
-        'description'=>$template['description'],
-        'branch'=>$template['branch'],
-        'overdue_date'=>$template['overdue_date'],
-        'priority'=>$template['priority'],
-        'status'=>'Pending',
-        'task_gen_date'=>$taskGenDate,
-        'progress'=>0,
-        'taskmode'=>$taskType,
-        'recurrence'=>'daily',
-        'next_run_date'=>$nextRunDate,
-        'created_from_template'=>$template['created_from_template'],
-        'created_at'=>date('Y-m-d H:i:s')
+            'project_id'=>$template['project_id'],
+            'project_unit'=>$unitId,
+            'title'=>$template['title'],
+            'description'=>$template['description'],
+            'branch'=>$template['branch'],
+            'overdue_date'=>$template['overdue_date'],
+            'priority'=>$template['priority'],
+            'status'=>'Pending',
+            'task_gen_date'=>$taskGenDate,
+            'progress'=>0,
+            'taskmode'=>$taskType,
+            'recurrence'=>'daily',
+            'next_run_date'=>$nextRunDate,
+            'created_from_template'=>$template['created_from_template'],
+            'created_at'=>date('Y-m-d H:i:s')
 
         ]);
 
@@ -252,15 +249,15 @@ class CronController extends Controller {
         -----------------------------------
         */
 
-        $this->notificationModel->insert([
-        'user_id'=>$staffId,
-        'task_id'=>$newTaskId,
-        'type'=>'new_task',
-        'title'=>'New Task',
-        'created_by'=>session('user_data')['id'],
-        'message'=>'A daily task has been assigned to you',
-        'created_at'=>date('Y-m-d H:i:s')
-        ]);
+        // $this->notificationModel->insert([
+        // 'user_id'=>$staffId,
+        // 'task_id'=>$newTaskId,
+        // 'type'=>'new_task',
+        // 'title'=>'New Task',
+        // 'created_by'=>session('user_data')['id'],
+        // 'message'=>'A daily task has been assigned to you',
+        // 'created_at'=>date('Y-m-d H:i:s')
+        // ]);
 
         }
 
