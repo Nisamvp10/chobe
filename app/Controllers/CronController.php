@@ -287,7 +287,8 @@ class CronController extends Controller {
                 'created_at' => date('Y-m-d H:i:s')
             ]);
         }
-        print_r($data);
+        echo $data['success'];
+        exit();
     }
     
 
