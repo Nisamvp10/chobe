@@ -777,8 +777,8 @@ class TaskController extends Controller {
             }
             $filter = $this->request->getGet('filter');
             $searchInput = $this->request->getGet('search');
-            $startDate = $this->request->getGet('startDate');
-            $endDate = $this->request->getGet('endDate');
+            $startDate = $this->request->getGet('startDate') ?? date('Y-m-d',strtotime('-3 day'));
+            $endDate = $this->request->getGet('endDate') ?? date('Y-m-d');
             $taskProject = $this->request->getGet('taskProject');
             $limit =$this->request->getGet('taskProject') ?? 50;
             $offset = $this->request->getGet('offset') ?? 0;
