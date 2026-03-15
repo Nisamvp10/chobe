@@ -89,7 +89,7 @@ class MasterTaskController extends BaseController
         $data = [
             'title' => $this->request->getPost('title'),
             'description' => $this->request->getPost('description'),
-            'taskmode' => $this->request->getPost('taskmode'),
+            'tasktype' => $this->request->getPost('taskmode'),
             'status'  => 1,
             'project_unit_id' => $this->request->getPost('project'),
         ];
