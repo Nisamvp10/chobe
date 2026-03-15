@@ -58,7 +58,7 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                <i class="bi bi-calendar"></i>
                 </div>
-                <input type="text" id="filterDate" placeholder="Filter by date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                <input type="text" id="filterDate" placeholder="Filter by date"  value="<?=date('Y-m-d' ,strtotime('-1 days'))?> to <?=date('Y-m-d' ,strtotime('-1 days'))?>" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
             </div>
             <div class="w-full md:w-48">
                 <select class="w-full border px-3 py-2 rounded" id="taskProject">
@@ -93,8 +93,8 @@
             </div>
             <!-- table -->
              <div class="overflow-x-auto" id="tasktbl" >
-                <div class="flex h-full gap-6 p-0">
-                    <div class="flex flex-col h-full bg-gray-50 rounded-lg p-4 min-w-[300px]">
+                <div class="flex h-full gap-6 p-0 w-full">
+                    <div class="flex flex-col h-full bg-gray-50 rounded-lg p-4 w-full">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="font-semibold text-gray-700">Pending</h2>
                             <span class="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-xs" id="pendingTaskcount">1</span>
@@ -103,7 +103,7 @@
                              <div id="taskPending" class="flex-1 task-list overflow-y-auto space-y-4 min-h-[80px]"></div>
                         </div>
                     </div>
-                    <div class="flex flex-col h-full bg-gray-50 rounded-lg p-4 min-w-[300px] hidden">
+                    <div class="flex flex-col h-full bg-gray-50 rounded-lg p-4 w-[100%] hidden">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="font-semibold text-gray-700">In Progress</h2>
                             <span class="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-xs">1</span>
@@ -113,7 +113,7 @@
                         </div>
                     </div>
 
-                    <div class="flex flex-col h-full bg-gray-50 rounded-lg p-4 min-w-[300px]">
+                    <div class="flex flex-col h-full bg-gray-50 rounded-lg p-4 w-full">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="font-semibold text-gray-700">Completed</h2>
                             <span class="bg-gray-200 text-gray-600 rounded-full px-2 py-0.5 text-xs" id="completedTaskcount">1</span>
