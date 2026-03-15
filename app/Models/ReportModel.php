@@ -14,19 +14,25 @@ public function getReports($search='', $filter='', $startDate='', $endDate='', $
 
     $builder->select("
         t.id as taskId,
+        t.task_gen_date,
         mt.title as task_title,
         pu.store as store_name,
         pu.oldstore_name,
         pu.oracle_code,
+        t.created_at,
         t.task_gen_date,
         t.status as taskStatus,
         alw.name as allocated_to,
+        alw.id as allocated_to_id,
         assi.name as assigned_to,
+        assi.id as assigned_to_id,
         a.id as activity_id,
         a.activity_title,
         tsa.id as tsaactivityId,
+        tsa.status as activityStatus,
         COALESCE(ac.comment,'Nill') as last_comment
     ");
+    
 
     $builder->join('mastertasks mt','mt.id=t.created_from_template','left');
     $builder->join('project_unit pu','pu.id=t.project_unit','left');
@@ -79,7 +85,7 @@ public function getReports($search='', $filter='', $startDate='', $endDate='', $
 
     $builder->orderBy('t.id','DESC');
 
-  //  $builder->limit($limit,$offset);
+   // $builder->limit($limit,$offset);
 
     return $builder->get()->getResultArray();
 }

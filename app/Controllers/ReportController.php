@@ -169,42 +169,8 @@ class ReportController extends controller
             $endDate   = $today;
 
 
-            // if ($range == 'today') {
-            //     $startDate = $reportModel->getNearestDate();
-            //     $endDate   = $startDate;
-
-            // } elseif ($range == '3days') {
-
-            //     $startDate = date('Y-m-d', strtotime('-3 days'));
-            //     $endDate   = $today;
-
-            // } elseif ($range == 'week') {
-
-            //     $startDate = date('Y-m-d', strtotime('-7 days'));
-            //     $endDate   = $today;
-
-            // } elseif ($range == 'month') {
-
-            //     $startDate = date('Y-m-d', strtotime('-1 month'));
-            //     $endDate   = $today;
-
-            // } elseif ($range == '3month') {
-
-            //     $startDate = date('Y-m-d', strtotime('-3 month'));
-            //     $endDate   = $today;
-
-            // } elseif ($range == '6month') {
-
-            //     $startDate = date('Y-m-d', strtotime('-6 month'));
-            //     $endDate   = $today;
-
-            // } elseif ($range == '365days') {
-
-            //     $startDate = date('Y-m-d', strtotime('-365 days'));
-            //     $endDate   = $today;
-
-            // }
         }
+
 
         $reportResult = $reportModel->getReports(
             $search,
@@ -216,7 +182,7 @@ class ReportController extends controller
         );
         
         // $reportResult = $reportModel->getReports($search, $filter, $startDate, $endDate, $prounit, $project, false,);
-       // echo $reportModel->getLastQuery();
+        //echo $reportModel->getLastQuery();
 
         $groupedTasks = [];
         $activityHeaders = [];
@@ -382,8 +348,9 @@ class ReportController extends controller
                     'taskId'       => $taskId,
                     'oracleCode'   => $repo['oracle_code'],
                     'storeName'    => $repo['store_name'],
+                    'taskgendate'  => $repo['task_gen_date'],
                     'oldStoreName' => $repo['oldstore_name'],
-                    'date'         =>  date('Y-m-d', strtotime($repo['created_at'])),
+                    'date'         =>  date('Y-m-d', strtotime($repo['task_gen_date'])),
                     'task'         => $repo['task_title'],
                     'allocated_to' => $repo['allocated_to'],
                     'assigned_to'  => ($repo['allocated_to_id'] == $repo['assigned_to_id'] ? NULL : $repo['assigned_to']),
@@ -450,14 +417,14 @@ class ReportController extends controller
                     $act = $task['activities'][$activityId];
 
                     // Update comment status if completed
-                    if ($act['taskStatus'] == 'Completed' && $act['activityStatus'] == 'completed') {
-                        $taskStaffActivityModel
-                            ->where([
-                                'task_activity_id' => $activityId,
-                                'task_id'          => $task['taskId']
-                            ])
-                            ->set(['commet_status' => 2])
-                            ->update();
+                    if ($act['taskStatus'] == 'Completed' && $act['activityStatus'] == 'completed' ) {
+                           if($task['taskgendate'] < date('Y-m-d',strtotime('-1 day')))
+                            {
+                                  $taskStaffActivityModel->where([
+                                    'task_activity_id' => $activityId,
+                                    'task_id'          => $task['taskId']
+                                ])->set(['commet_status' => 2])->update();
+                            }
                     }
 
                     $row[] = $act['comment'];

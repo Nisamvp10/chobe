@@ -170,6 +170,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
 });
 $routes->get('autoCron', 'CronController::clonejob');
 $routes->cli('CronController/clonejob', 'CronController::clonejob');
+$routes->get('close-activity','CronController::closeCompletedtask');
+$routes->cli('closeCompletedtask', 'CronController::closeCompletedtask');
 
 $routes->group('api',['filter' => 'auth'], function ($routes) {
     $routes->get('clients/(:num)/projects', 'Clients::clientBystaff/$1');
