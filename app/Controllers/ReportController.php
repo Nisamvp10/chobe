@@ -165,41 +165,45 @@ class ReportController extends controller
 
         $today = date('Y-m-d');
         if(empty($startDate)){
-            if ($range == 'today') {
-                $startDate = $reportModel->getNearestDate();
-                $endDate   = $startDate;
+            $startDate = date('Y-m-d', strtotime('-1 days'));
+            $endDate   = $today;
 
-            } elseif ($range == '3days') {
 
-                $startDate = date('Y-m-d', strtotime('-3 days'));
-                $endDate   = $today;
+            // if ($range == 'today') {
+            //     $startDate = $reportModel->getNearestDate();
+            //     $endDate   = $startDate;
 
-            } elseif ($range == 'week') {
+            // } elseif ($range == '3days') {
 
-                $startDate = date('Y-m-d', strtotime('-7 days'));
-                $endDate   = $today;
+            //     $startDate = date('Y-m-d', strtotime('-3 days'));
+            //     $endDate   = $today;
 
-            } elseif ($range == 'month') {
+            // } elseif ($range == 'week') {
 
-                $startDate = date('Y-m-d', strtotime('-1 month'));
-                $endDate   = $today;
+            //     $startDate = date('Y-m-d', strtotime('-7 days'));
+            //     $endDate   = $today;
 
-            } elseif ($range == '3month') {
+            // } elseif ($range == 'month') {
 
-                $startDate = date('Y-m-d', strtotime('-3 month'));
-                $endDate   = $today;
+            //     $startDate = date('Y-m-d', strtotime('-1 month'));
+            //     $endDate   = $today;
 
-            } elseif ($range == '6month') {
+            // } elseif ($range == '3month') {
 
-                $startDate = date('Y-m-d', strtotime('-6 month'));
-                $endDate   = $today;
+            //     $startDate = date('Y-m-d', strtotime('-3 month'));
+            //     $endDate   = $today;
 
-            } elseif ($range == '365days') {
+            // } elseif ($range == '6month') {
 
-                $startDate = date('Y-m-d', strtotime('-365 days'));
-                $endDate   = $today;
+            //     $startDate = date('Y-m-d', strtotime('-6 month'));
+            //     $endDate   = $today;
 
-            }
+            // } elseif ($range == '365days') {
+
+            //     $startDate = date('Y-m-d', strtotime('-365 days'));
+            //     $endDate   = $today;
+
+            // }
         }
 
         $reportResult = $reportModel->getReports(
@@ -233,7 +237,7 @@ class ReportController extends controller
                     'storeName'    => $repo['store_name'],
                     'oldStoreName' => $repo['oldstore_name'],
                     'task'         => $repo['task_title'],
-                    'date'         => date('Y-m-d', strtotime($repo['task_gen_date'])),
+                    'date'         => date('d-m-Y', strtotime($repo['task_gen_date'])),
                     'assignAllocatedTo' => $repo['allocated_to'],
                     'assignAssignedTo'  => $repo['assigned_to'],
                     'activities'   => []
