@@ -56,6 +56,10 @@
 <?= $this->endSection(); ?>
 <?= $this->section('scripts') ?>
     <script>
+        let rowperpage = 3;
+        let currentpage = 1;
+        let allUidata = [];
+
          projects();
           // modal
         function openModal() {
@@ -77,16 +81,14 @@
                     success: function(response) {
                         
                         if (response.success) {
-                            renderTable(response.tasks);
+                            allUidata = response.tasks;
+                            renderTable();
                         }
                     }
                 });
             }
-let rowperpage = 150;
-let currentpage = 1;
-let allUidata = [];
-            function renderTable(projects){
-                allUidata = projects;
+
+            function renderTable(){
                 let html = '';
                 let count = 1;
 
