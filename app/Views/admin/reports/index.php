@@ -267,12 +267,12 @@ $('#clientsTable').on('scroll', function () {
 
         stage++;
 
-        if (stage == 1) loadReports('', '', '', '3days');
-        if (stage == 2) loadReports('', '', '', 'week');
-        if (stage == 3) loadReports('', '', '', 'month');
-        if (stage == 4) loadReports('', '', '', '3month');
-        if (stage == 5) loadReports('', '', '', '6month');
-        if (stage == 6) loadReports('', '', '', '365days');
+        // if (stage == 1) loadReports('', '', '', '3days');
+        // if (stage == 2) loadReports('', '', '', 'week');
+        // if (stage == 3) loadReports('', '', '', 'month');
+        // if (stage == 4) loadReports('', '', '', '3month');
+        // if (stage == 5) loadReports('', '', '', '6month');
+        // if (stage == 6) loadReports('', '', '', '365days');
 
     }
 
