@@ -79,7 +79,7 @@ public function getReports($search='', $filter='', $startDate='', $endDate='', $
 
     $builder->orderBy('t.id','DESC');
 
-    $builder->limit($limit,$offset);
+  //  $builder->limit($limit,$offset);
 
     return $builder->get()->getResultArray();
 }
