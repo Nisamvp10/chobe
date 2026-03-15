@@ -8,86 +8,78 @@ class ReportModel extends Model
     protected $table = 'tasks';   // <-- important
     protected $primaryKey = 'id';
 
- public function getReports($search = '', $filter = '', $startDate = '', $endDate = '', $prounit = '', $project = '', $user = false)
+public function getReports($search='', $filter='', $startDate='', $endDate='', $prounit='', $project='', $user=false, $limit=200, $offset=0)
 {
     $builder = $this->db->table('tasks t');
 
-    $builder->select([
-        't.id as taskId',
-        'mt.title as task_title',
-        'pu.store as store_name',
-        'pu.oldstore_name',
-        'pu.oracle_code',
-        't.created_at',
-        't.task_gen_date',
-        't.status as taskStatus',
-        'tsa.status as activityStatus',
-        'alw.name as allocated_to',
-        'alw.id as allocated_to_id',
-        'assi.name as assigned_to',
-        'assi.id as assigned_to_id',
-        'a.id as activity_id',
-        'a.activity_title',
-        'tsa.id as tsaactivityId',
-        "CASE 
-            WHEN SUM(tsa.status = 'completed') > 0 
-            THEN 'completed' 
-            ELSE 'pending' 
-        END as activity_status",
-        'COALESCE(ac.comment, "Nill") as last_comment',
-        'ac.created_at as comment_time',
-        'ac.id as comment_id'
-    ]);
+    $builder->select("
+        t.id as taskId,
+        mt.title as task_title,
+        pu.store as store_name,
+        pu.oldstore_name,
+        pu.oracle_code,
+        t.task_gen_date,
+        t.status as taskStatus,
+        alw.name as allocated_to,
+        assi.name as assigned_to,
+        a.id as activity_id,
+        a.activity_title,
+        tsa.id as tsaactivityId,
+        COALESCE(ac.comment,'Nill') as last_comment
+    ");
 
-    /* =================== JOINS =================== */
-    $builder->join('mastertasks mt', 'mt.id = t.created_from_template', 'left');
-    $builder->join('project_unit pu', 'pu.id = t.project_unit', 'left');
-    $builder->join('task_staff_activities tsa', 'tsa.task_id = t.id', 'left');
-    $builder->join('users alw', 'alw.id = pu.allocated_to', 'left');
-    $builder->join('users assi', 'assi.id = pu.assigned_to', 'left');
-    $builder->join('activities a', 'a.id = tsa.task_activity_id', 'left');
+    $builder->join('mastertasks mt','mt.id=t.created_from_template','left');
+    $builder->join('project_unit pu','pu.id=t.project_unit','left');
+    $builder->join('task_staff_activities tsa','tsa.task_id=t.id','left');
+    $builder->join('activities a','a.id=tsa.task_activity_id','left');
 
-    if ($user) {
-        $builder->join('task_assignees as ta', 'ta.task_id = t.id');
-        $builder->where('ta.staff_id', session('user_data')['id']);
-    }
+    $builder->join('users alw','alw.id=pu.allocated_to','left');
+    $builder->join('users assi','assi.id=pu.assigned_to','left');
+
+    /* FAST COMMENT JOIN */
 
     $builder->join(
-        '(SELECT ac1.* FROM activities_comments ac1
-          INNER JOIN (
-              SELECT task_id, activity_id, MAX(id) AS last_id
-              FROM activities_comments
-              GROUP BY task_id, activity_id
-          ) ac2 ON ac1.id = ac2.last_id
-        ) ac',
-        'ac.task_id = t.id AND ac.activity_id = a.id',
-        'left'
+        "(SELECT task_id,activity_id,MAX(id) last_id
+        FROM activities_comments
+        GROUP BY task_id,activity_id) ac2",
+        "ac2.task_id=t.id AND ac2.activity_id=a.id",
+        "left"
     );
 
-    /* =================== FILTERS =================== */
-    if (!empty($search) && $search != 'all') {
+    $builder->join(
+        "activities_comments ac",
+        "ac.id=ac2.last_id",
+        "left"
+    );
+
+    if($search){
         $builder->groupStart()
-            ->like('t.title', $search)
-            ->orLike('ac.comment', $search)
-            ->groupEnd();
+        ->like('mt.title',$search)
+        ->orLike('ac.comment',$search)
+        ->groupEnd();
     }
 
-    if (!empty($prounit) && $prounit != 'all') $builder->where('t.project_unit', $prounit);
-    if (!empty($filter) && $filter != 'all')   $builder->where('t.status', $filter);
-    if (!empty($project) && $project != 'all') $builder->where('t.project_id', $project);
+    if($prounit && $prounit!='all')
+        $builder->where('t.project_unit',$prounit);
 
-    if (!empty($startDate) && !empty($endDate)) {
-        $builder->where('DATE(t.task_gen_date) >=', $startDate);
-        $builder->where('DATE(t.task_gen_date) <=', $endDate);
+    if($filter && $filter!='all')
+        $builder->where('t.status',$filter);
+
+    if($project && $project!='all')
+        $builder->where('t.project_id',$project);
+
+    if($startDate && $endDate){
+        $builder->where('t.task_gen_date >=',$startDate.' 00:00:00');
+        $builder->where('t.task_gen_date <=',$endDate.' 23:59:59');
     }
+
     $builder->where('t.tasktype',1);
-    /* =================== GROUP & ORDER =================== */
-    $builder->groupBy(['t.id', 'a.id']);
-    
-    $builder->orderBy('t.id', 'DESC'); 
 
+    $builder->groupBy(['t.id','a.id']);
 
-    
+    $builder->orderBy('t.id','DESC');
+
+    $builder->limit($limit,$offset);
 
     return $builder->get()->getResultArray();
 }
