@@ -56,7 +56,7 @@
 <?= $this->endSection(); ?>
 <?= $this->section('scripts') ?>
     <script>
-        let rowperpage = 3;
+        let rowperpage = 100;
         let currentpage = 1;
         let allUidata = [];
 
