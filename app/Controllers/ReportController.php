@@ -232,8 +232,9 @@ class ReportController extends controller
             $endDate,
             $prounit,
             $project,
-            $taskId,
-            $getTask->task_gen_date
+            $getTask->created_from_template,
+            $getTask->task_gen_date,
+            
         );
         
         // $reportResult = $reportModel->getReports($search, $filter, $startDate, $endDate, $prounit, $project, false,);
