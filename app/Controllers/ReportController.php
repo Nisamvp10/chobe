@@ -223,7 +223,6 @@ class ReportController extends controller
         }
 
         $getTask = $reportModel->where('id',$taskId)->get()->getRow();
-        print_r($getTask); exit();
 
 
         $reportResult = $reportModel->getReports(
