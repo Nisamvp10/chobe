@@ -129,7 +129,6 @@
          $(document).ready(function() {
 
             window.loadReports = function (search = '',startDate = '',endDate = '',range = 'today') {
-
             let filer = $('#filerStatus').val();
             let projectUnitFilter = $('#projectUnitFilter').val();
             let projectFilter = $('#projectFilter').val();
@@ -144,7 +143,8 @@
                     endDate: endDate,
                     prounit: projectUnitFilter,
                     project: projectFilter,
-                    range: range
+                    range: range,
+                    taskId: '<?=$id ?? ''?>'
                 },
                 dataType: "json",
                 beforeSend: function() {

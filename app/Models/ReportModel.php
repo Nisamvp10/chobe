@@ -8,7 +8,7 @@ class ReportModel extends Model
     protected $table = 'tasks';   // <-- important
     protected $primaryKey = 'id';
 
-public function getReports($search='', $filter='', $startDate='', $endDate='', $prounit='', $project='', $user=false, $limit=200, $offset=0)
+public function getReports($search='', $filter='', $startDate='', $endDate='', $prounit='', $project='', $user=false, $limit=200, $offset=0,$taskId=false,$taskGenDate=false)
 {
     $builder = $this->db->table('tasks t');
 
@@ -57,6 +57,13 @@ public function getReports($search='', $filter='', $startDate='', $endDate='', $
         "ac.id=ac2.last_id",
         "left"
     );
+
+    if($taskId){
+        $builder->where('t.created_from_template',$taskId);
+    }
+    if($taskGenDate){
+        $builder->where('t.task_gen_date',$taskGenDate);
+    }
 
     if($search){
         $builder->groupStart()
