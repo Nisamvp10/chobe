@@ -134,7 +134,9 @@
                 $.ajax({
                     url: "<?= site_url('user-report/userReportList') ?>",
                     type: "GET",
-                    data: { search: search,filter:filer ,startDate:startDate,endDate:endDate,prounit:projectUnitFilter,project:projectFilter},
+                    data: { search: search,filter:filer ,startDate:startDate,endDate:endDate,prounit:projectUnitFilter,project:projectFilter,
+                        taskId: '<?=encryptor($id ?? '')?>'
+                    },
                     dataType: "json",
                     success: function(response) {
                         if (response.success) {

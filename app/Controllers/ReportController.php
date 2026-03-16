@@ -29,21 +29,64 @@ class ReportController extends controller
     }
     public function userReport()
     {   
-        $page = (!haspermission('','user_report_view') ? lang('Custom.accessDenied') : 'User Report' );
+        $page = (!haspermission('','user_report_view') ? lang('Custom.accessDenied') : 'Select the task you want to report' );
         $rojectUnitModel = new ProjectunitModel();
         $projectModel = new ProjectsModel();
 
         $projectUnits = $rojectUnitModel->where('status',1)->findAll();
         $projectsList = $projectModel->where('is_active',1)->findAll();
-        return view('admin/reports/userReport',compact('page','projectUnits','projectsList'));
+        return view('admin/reports/userReportList',compact('page','projectUnits','projectsList'));
     }
-    public function reportTaskList() {
-        if(!haspermission('','report')) {
+
+    //only assigned users
+    public function taskReportList() {
+        if(!haspermission('','user_report_view')) {
            return $this->response->setJSON([
                 'success' => false,
-                'message' => lang('Custom.ermissionDenied')
+                'message' => lang('Custom.accessDenied')
             ]);
         }
+        if(!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => lang('Custom.invalidRequest')
+            ]);
+        }
+        $search = $this->request->getGet('search');
+        $startDate = $this->request->getPost('startDate');
+        $endDate = $this->request->getPost('endDate');
+        if(empty($startDate)) {
+            $startDate = date('Y-m-d', strtotime('-3 days'));
+        }
+        if(empty($endDate)) {
+            $endDate = date('Y-m-d', strtotime('-1 days'));
+        }
+
+        $taskModel = new TaskModel();
+        //firstlist last 3 days 
+        $tasks = $taskModel->select('tasks.title,tasks.task_gen_date,tasks.id')->where('tasktype', 1)
+        ->join('task_staff_activities as tsa','tasks.id = tsa.task_id')
+        ->where('tsa.staff_id', session('user_data')['id'])
+        ->where('task_gen_date >=', $startDate)->where('task_gen_date <=', $endDate)
+        ->groupBy(['task_gen_date', 'created_from_template'])->orderBy('task_gen_date', 'DESC')->get()->getResultArray();
+        if(!empty($tasks)){
+            foreach($tasks as &$task){
+                $task['url'] = 'tasklist/'.encryptor($task['id']);
+            }
+        }
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $tasks
+        ]);
+    }
+    //admin
+    public function reportTaskList() {
+        // if(!haspermission('','report')) {
+        //    return $this->response->setJSON([
+        //         'success' => false,
+        //         'message' => lang('Custom.accessDenied')
+        //     ]);
+        // }
         if(!$this->request->isAJAX()) {
             return $this->response->setJSON([
                 'success' => false,
@@ -65,7 +108,7 @@ class ReportController extends controller
         $tasks = $taskModel->where('tasktype', 1)->where('task_gen_date >=', $startDate)->where('task_gen_date <=', $endDate)->groupBy(['task_gen_date', 'created_from_template'])->orderBy('task_gen_date', 'DESC')->get()->getResultArray();
         if(!empty($tasks)){
             foreach($tasks as &$task){
-                $task['url'] = base_url('reports/tasklist').'/'.encryptor($task['id']);
+                 $task['url'] = 'tasklist/'.encryptor($task['id']);
             }
         }
         return $this->response->setJSON([
@@ -88,6 +131,20 @@ class ReportController extends controller
         $projectsList = $projectModel->where('is_active',1)->findAll();
         
         return view('admin/reports/index',compact('id','page','projectUnits','projectsList'));
+    }
+    public function myReportList($id)
+    {
+        $id = decryptor($id); 
+        $taskModel = new TaskModel();
+        $task = $taskModel->where('id', $id)->get()->getRow();
+        $page = ($task) ? $task->title.' '.date('d-m-Y',strtotime($task->task_gen_date)) : 'No Task Found';
+        $rojectUnitModel = new ProjectunitModel();
+        $projectModel = new ProjectsModel();
+
+        $projectUnits = $rojectUnitModel->where('status',1)->findAll();
+        $projectsList = $projectModel->where('is_active',1)->findAll();
+        
+        return view('admin/reports/userReport',compact('id','page','projectUnits','projectsList'));
     }
     // function list()
     // {   
@@ -192,7 +249,10 @@ class ReportController extends controller
     // }
     public function userReportList()
     {
-        $repo =  $this->reportUi($this->request->getGet(),true);
+        $data = $this->request->getGet();
+        $data['user'] = 1;
+        $repo =  $this->reportUi($data,true);
+    
        return $this->response->setJSON($repo);
     }
 
@@ -217,12 +277,15 @@ class ReportController extends controller
         $taskId    = decryptor($this->request->getGet('taskId')); // for task 
 
         $today = date('Y-m-d');
-        if(empty($startDate)){
-            $startDate = date('Y-m-d', strtotime('-1 days'));
-            $endDate   = $today;
-        }
+      
 
         $getTask = $reportModel->where('id',$taskId)->get()->getRow();
+          if(empty($startDate)){
+            $startDate = date('Y-m-d', strtotime($getTask->task_gen_date));
+            $endDate   = date('Y-m-d', strtotime($getTask->task_gen_date));
+        }
+
+        $userId = $get['user'] ?? false; 
 
 
         $reportResult = $reportModel->getReports(
@@ -235,7 +298,7 @@ class ReportController extends controller
             '','','',
             $getTask->created_from_template,
             $getTask->task_gen_date,
-            
+            $userId
         );
         
         // $reportResult = $reportModel->getReports($search, $filter, $startDate, $endDate, $prounit, $project, false,);

@@ -8,7 +8,7 @@ class ReportModel extends Model
     protected $table = 'tasks';   // <-- important
     protected $primaryKey = 'id';
 
-public function getReports($search='', $filter='', $startDate='', $endDate='', $prounit='', $project='', $user=false, $limit=200, $offset=0,$taskId=false,$taskGenDate=false)
+public function getReports($search='', $filter='', $startDate='', $endDate='', $prounit='', $project='', $user=false, $limit=200, $offset=0,$templateId=false,$taskGenDate=false,$userId = false)
 {
     $builder = $this->db->table('tasks t');
 
@@ -58,10 +58,8 @@ public function getReports($search='', $filter='', $startDate='', $endDate='', $
         "left"
     );
 
-    if($taskId){
-        $builder->where('t.created_from_template',$taskId);
-    }
-    if($taskGenDate){
+    if($templateId && $taskGenDate){
+        $builder->where('t.created_from_template',$templateId);
         $builder->where('t.task_gen_date',$taskGenDate);
     }
 
@@ -84,6 +82,9 @@ public function getReports($search='', $filter='', $startDate='', $endDate='', $
     if($startDate && $endDate){
         $builder->where('t.task_gen_date >=',$startDate.' 00:00:00');
         $builder->where('t.task_gen_date <=',$endDate.' 23:59:59');
+    }
+    if($userId){
+        $builder->where('tsa.staff_id',session('user_data')['id']);
     }
 
     $builder->where('t.tasktype',1);

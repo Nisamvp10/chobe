@@ -75,7 +75,7 @@
             let projectFilter = $('#projectFilter').val();
 
             $.ajax({
-                url: "<?= site_url('reports/tasklist') ?>",
+                 url: "<?= site_url('user-reports/task-report-list') ?>",
                 type: "POST",
                 data: {
                     search: search,
@@ -138,7 +138,6 @@ function renderTaskListTable(){
         `;
 
         paginatedData.forEach((row, rowIndex) => {
-            console.log(row.url)
 
             html += `<tr class="hover:bg-gray-50 m-2">`;
 
@@ -153,7 +152,7 @@ function renderTaskListTable(){
                     ${row.task_gen_date}
                 </td>
                 <td class="px-2 py-2 whitespace-nowrap">
-                    <a href="<?=base_url('reports/') ?>${row.url}" class="text-blue-600 hover:text-blue-800 cursor-pointer p-2 rounded text-center bg-blue-100 m-2" ><i class="bi bi-eye"></i></a>
+                    <a href="<?=base_url('my-report/')?>${row.url}" class="text-blue-600 hover:text-blue-800 cursor-pointer p-2 rounded text-center bg-blue-100 m-2" ><i class="bi bi-eye"></i></a>
                 </td>
             `;
 
