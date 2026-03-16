@@ -232,6 +232,7 @@ class ReportController extends controller
             $endDate,
             $prounit,
             $project,
+            '','','',
             $getTask->created_from_template,
             $getTask->task_gen_date,
             
