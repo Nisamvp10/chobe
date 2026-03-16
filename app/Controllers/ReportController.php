@@ -77,7 +77,7 @@ class ReportController extends controller
 
     public function reportList($id)
     {
-        $id = $id;
+        $id = decryptor($id);
         $taskModel = new TaskModel();
         $task = $taskModel->where('id', $id)->get()->getRow();
         $page = ($task) ? $task->title.' '.date('d-m-Y',strtotime($task->task_gen_date)) : 'No Task Found';
@@ -223,6 +223,7 @@ class ReportController extends controller
         }
 
         $getTask = $reportModel->where('id',$taskId)->get()->getRow();
+        print_r($getTask); exit();
 
 
         $reportResult = $reportModel->getReports(

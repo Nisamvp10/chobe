@@ -144,7 +144,7 @@
                     prounit: projectUnitFilter,
                     project: projectFilter,
                     range: range,
-                    taskId: '<?=$id ?? ''?>'
+                    taskId: '<?=encryptor($id ?? '')?>'
                 },
                 dataType: "json",
                 beforeSend: function() {
