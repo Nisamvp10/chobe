@@ -117,10 +117,13 @@ class ActivityModel extends Model
             mt.title as task_title');
             $builder->join('mastertasks as mt','mt.id = a.task_id','left');
             if($searchInput) {
+                $builder->groupStart();
                  $builder->like('a.activity_title',$searchInput);
+                 $builder->orLike('mt.title',$searchInput);
+                 $builder->groupEnd();
             }
             if($filter && $filter != 'all')  {
-                $builder->where('a.status',$filter);
+                $builder->where('a.status',$filter); 
             }
             if(!empty($startDate) && !empty($endDate)) {
                 $startDate = date('Y-m-d 00:00:00', strtotime($startDate));

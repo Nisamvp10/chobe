@@ -30,7 +30,7 @@
                     <path d="m21 21-4.3-4.3"></path>
                 </svg>
                 </div>
-                <input type="text" id="searchInput" placeholder="Search Task title..." class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                <input type="text" id="searchInput" placeholder="Search Activity title..." class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
             </div>
              <div class="flex-1 relative d-none">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -92,7 +92,7 @@ $('#searchInput').on('input',function(){
 function allactivities(search = '') {
 
     let activityId = $('#tasktbl').data('task');
-    let searchInput = search;
+    let searchInput = $('#searchInput').val();
     let filterStatus = $('#taskactivityFilterStatus').val();
     let filterDate = $('#filterDate').val();
 

@@ -299,7 +299,7 @@ protected $masterTaskModel;
         $startDate = $this->request->getPost('startDate');
         $endDate   = $this->request->getPost('endDate');
 
-        $getAlltaskwithActivity = $this->activityModel->getActivity($filter,$taskId,$search,$startDate,$endDate);
+        $getAlltaskwithActivity = $this->activityModel->getActivity($taskId,$search,$filter,$startDate,$endDate);
         //set task result type array 
         return $this->response->setJSON(['success' => true, 'task' => $getAlltaskwithActivity]);
     }
