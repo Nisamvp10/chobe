@@ -12,6 +12,8 @@ use App\Models\TaskactivityModel;
 use App\Models\TaskStaffActivityModel;
 use App\Models\ActivitycommentsModel;
 use App\Models\MastertaskModel;
+use App\Services\Common;
+
 use DateTime;
 
 class ActivitiesController extends Controller {
@@ -24,6 +26,7 @@ protected $taskStaffActivityModel;
 protected $taskassignModel;
 protected $commentModel;
 protected $masterTaskModel;
+protected $common;
 
     function __construct(){
         $this->taskModel = new TaskModel();
@@ -35,16 +38,17 @@ protected $masterTaskModel;
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
         $this->commentModel = new ActivitycommentsModel();
         $this->masterTaskModel = new MastertaskModel();
+        $this->common = new Common();
     }
 
     function activities($id=false) {
        
         $id = decryptor($id);
-        $task = $this->taskModel->where('id',$id)->first();
+        $task = $this->common->getBranchNameBytaskId($id);
         if(!empty($task)) {
             $staff =  $this->taskassignModel->getMasterTaskStaff($id);
             //echo $this->taskassignModel->getLastQuery();
-            $page = "Task : " .$task['title'].' - '.date('d-m-Y',strtotime($task['task_gen_date']));;
+            $page = "Task : " .$task->title.' - '.date('d-m-Y',strtotime($task->task_gen_date)).' ['.$task->store.' /'.' '.$task->oldstore_name.' / '.$task->oracle_code.']';
         }else{
             $page = '';
             $staff = '';
@@ -58,10 +62,10 @@ protected $masterTaskModel;
     function mYactivities($id=false) {
         
         $id = decryptor($id);
-        $task = $this->taskModel->where('id',$id)->first();
+        $task = $this->common->getBranchNameBytaskId($id);
         if(!empty($task)) {
             $staff =  $this->staffModal->where('role !=',1)->findAll();
-            $page = "Task : " .$task['title'].' - '.date('d-m-Y',strtotime($task['task_gen_date']));
+            $page = "Task : " .$task->title.' - '.date('d-m-Y',strtotime($task->task_gen_date)).' ['.$task->store.' /'.' '.$task->oldstore_name.' / '.$task->oracle_code.']';
         }else{
             $page = '';
             $staff = '';

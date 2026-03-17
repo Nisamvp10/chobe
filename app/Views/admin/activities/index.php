@@ -7,7 +7,7 @@
     <div class="flex items-center justify-between">
         <div class="col-lg-12">
             <div class="d-flex justify-content-between align-items-center mb-0">
-                <h1 class="h3 mb-0"><?= $page ?? '' ?></h1>
+                <h5 class="h5 mb-0"><?= $page ?? '' ?></h1>
                 <?php
                 if(haspermission(session('user_data')['role'],'create_task')) { ?>
                 <div>

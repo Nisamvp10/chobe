@@ -87,7 +87,7 @@ function renderTaskTable(tasks) {
             // progressBar.textContent = percent + "%";
 
             const taskHTML = `
-        <div class="bg-white draggable-task rounded-lg mb-3 shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task" draggable="false"
+        <div class="bg-white draggable-task__ rounded-lg mb-3 shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task__" draggable="false"
              data-id="${task.id}" 
            
             >
@@ -239,8 +239,8 @@ function renderTaskTable(tasks) {
 
 // drag
 $(document).on('dragstart', '.draggable-task', function (e) {
-    e.originalEvent.dataTransfer.setData('text/plain', $(this).data('id'));
-    e.originalEvent.dataTransfer.setData('source-status', $(this).data('status'));
+    // e.originalEvent.dataTransfer.setData('text/plain', $(this).data('id'));
+    // e.originalEvent.dataTransfer.setData('source-status', $(this).data('status'));
 });
 
 
