@@ -110,6 +110,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->delete('task/delete/(:any)', 'TaskController::delete/$1');
     $routes->post('task/start','TaskController::start');
     $routes->post('master-task/get-activities','TaskController::getActivities');
+    $routes->post('master-task/get-projectunits','TaskController::getProjectunits');
     //master tasks 
     $routes->get('master-task','MasterTaskController::index');
     $routes->post('master-tasks/list','MasterTaskController::list');

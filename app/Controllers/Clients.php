@@ -310,15 +310,12 @@ class Clients extends controller {
     }
 
     public function clientBystaff($id) {
+        if(!$this->request->isAJAX()) {
+            return $this->response->setJSON(['status' => false,'msg' => 'Invalid Request']);
+        }
         if($id) {
-           $users = $this->userModel
-                ->select('users.id, users.name, up.level')
-                ->join('user_position as up', 'up.id = users.position_id', 'left')
-                ->where('users.store_id', $id)
-                ->whereNotIn('up.id', [3, 4])
-                ->orderBy('up.level', 'ASC')
-                ->get()
-                ->getResult();
+            $users = $this->userModel->where('status', 'approved')->where('booking_status', 1)->where('position_id !=', 4)->where('position_id !=', 3)->findAll();
+
 
             $rm = $this->userModel
                 ->select('users.id, users.name, up.level')
@@ -342,6 +339,25 @@ class Clients extends controller {
                 'status' => true,
                 'rms'    => $rm,
                 'store_managers'  => $managers,
+                'users' => $users,
+            ]);
+
+        }
+        return $this->response->setJSON(['status' => false,'msg' => 'No Data Found']);
+    }
+
+    public function clientBystaff_new($id) {
+        if($id) {
+
+        $rm = $this->userModel->where(['position_id'=>4,'status'=>'approved','booking_status'=>1])->find();
+        $storeManager = $this->userModel->where(['position_id'=>3,'status'=>'approved','booking_status'=>1])->find();
+        //dosnot select allocated_to and assigned_to if status is 0
+        $users = $this->userModel->where('status', 'approved')->where('booking_status', 1)->where('position_id !=', 4)->where('position_id !=', 3)->findAll();
+
+            return $this->response->setJSON([
+                'status' => true,
+                'rms'    => $rm,
+                'store_managers'  => $storeManager,
                 'users' => $users,
             ]);
 

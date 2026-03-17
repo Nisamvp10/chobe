@@ -16,7 +16,9 @@ if (!empty($userData)){
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@3.40.0/dist/apexcharts.css">
     <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"> -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- select 2 -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
@@ -739,13 +741,13 @@ a{
                         if( $userRole == 1) {
                  ?>
                   <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'master-task') === 0 && strpos(uri_string(), 'master-task') === false ? 'active' : '' ?>" href="<?= base_url('master-task') ?>">
+                    <a class="nav-link <?= strpos(uri_string(), 'master-task') === 0 ? 'active' : '' ?>" href="<?= base_url('master-task') ?>">
                         <i class="bi bi-list-check"></i>
                         <span> Task Master</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= strpos(uri_string(), 'tasks') === 0 && strpos(uri_string(), 'tasks') === false ? 'active' : '' ?>" href="<?= base_url('tasks') ?>">
+                    <a class="nav-link <?= strpos(uri_string(), 'tasks') === 0 ? 'active' : '' ?> <?= strpos(uri_string(), 'task/create') === 0 ? 'active' : '' ?>" href="<?= base_url('tasks') ?>">
                         <i class="bi bi-list-check"></i>
                         <span> Tasks</span>
                     </a>
@@ -763,7 +765,7 @@ a{
              <?php
                  if(haspermission('','view_activity_task')) { ?>
                 <li class="nav-item">
-                    <a class="nav-link "  href="<?=base_url('task-activity-task');?>">
+                    <a class="nav-link <?= strpos(uri_string(), 'task-activity-task') === 0 ? 'active' : '' ?>"  href="<?=base_url('task-activity-task');?>">
                     <span class="flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles "><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg></span>
                         <span>Activities</span> 
                     </a>
@@ -793,7 +795,7 @@ a{
                 <?php  if(hasPermission('','view_project_unit') || hasPermission('','create_project_unit') ) { ?>
 
                  <li class="nav-item">
-                    <a class="nav-link " href="<?= base_url('project-unit') ?>">
+                    <a class="nav-link <?= strpos(uri_string(), 'project-unit') === 0 ? 'active' : '' ?>" href="<?= base_url('project-unit') ?>">
                         <i class="bi bi-shop"></i>
                         <span>Project Unit</span>
                     </a>

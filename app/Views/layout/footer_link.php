@@ -3,6 +3,9 @@
 <script src="<?= base_url('public/assets/js/bootstrap.bundle.min.js') ;?>"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.40.0/dist/apexcharts.min.js"></script>
 <script src="<?= base_url('public/assets/js/toastr.min.js') ;?>"></script>
+<!-- select2 -->
+<script src="<?=base_url('public/assets/js/select2.min.js');?>"></script>
+ <!-- close2 -->
 <script src="https://unpkg.com/alpinejs"></script>
 <script src="<?=base_url('public/assets/js/app.js');?>" ></script>
 <script src="<?=base_url('public/assets/js/script.js');?>" ></script>

@@ -219,9 +219,7 @@ class TaskController extends Controller {
                 $allTaskActivityIds = array_column($allTaskActivities, 'id');
 
                 // 4️⃣ Existing staff
-                $existingAssignments = $this->taskassignModel
-                    ->where('task_id', $taskId)
-                    ->findAll();
+                $existingAssignments = $this->taskassignModel->where('task_id', $taskId)->findAll();
 
                 $existingStaffIds = array_column($existingAssignments, 'staff_id');
 
@@ -324,12 +322,8 @@ class TaskController extends Controller {
 
         } else {
                $db->transStart();
-
                     // Get project
-                    $projectId = $this->projects
-                        ->where('id', $masterTask->project_unit_id)
-                        ->first();
-
+                    $projectId = $this->projects->where('id', $masterTask->project_unit_id)->first();
 
                     if (!$projectId) {
                         return $this->response->setJSON([
@@ -339,12 +333,8 @@ class TaskController extends Controller {
                     }
 
                     // Get active project units
-                    $projectUnits = $this->projectUnitModel
-                        ->where('client_id', $projectId['client_id'])
-                        ->where('status', 1)
-                        ->findAll(); //120
+                    $projectUnits = $this->projectUnitModel->where('project_id', $projectId['id'])->where('status', 1)->findAll(); //120
                         
-
                     if (empty($projectUnits)) {
                         return $this->response->setJSON([
                             'success' => false,
@@ -365,9 +355,7 @@ class TaskController extends Controller {
                     $masterTskId = $masterTaskId;
 
                     // Generate date once
-                    $taskGenDate = ($masterTask->tasktype == 1)
-                        ? date('Y-m-d', strtotime('-1 day'))
-                        : date('Y-m-d');
+                    $taskGenDate = ($masterTask->tasktype == 1) ? date('Y-m-d', strtotime('-1 day')) : date('Y-m-d');
                     //count total project units
                     $totalProjectUnits = count($projectUnits); // project units is 119 
                     foreach ($projectUnits as $unit) {
@@ -390,6 +378,7 @@ class TaskController extends Controller {
                         if (empty($staffs)) {
                             continue;
                         }
+                        
                         /* 🔴 DUPLICATE CHECK (IMPORTANT) */
                         $existingTask = $this->taskModel
                             ->where('created_from_template', $masterTskId)
@@ -1235,6 +1224,16 @@ class TaskController extends Controller {
         return $this->response->setJSON([
             'success' => true,
             'activities' => $activities
+        ]);
+    }
+
+    public function getProjectunits() {
+        $taskId = $this->request->getPost('id');
+        $project = $this->mastertaskModel->where('id', $taskId)->first();
+        $projectunits = $this->projectUnitModel->where('project_id', $project['project_unit_id'])->where('status',1)->get()->getResult();
+        return $this->response->setJSON([
+            'success' => true,
+            'projectunits' => $projectunits
         ]);
     }
 

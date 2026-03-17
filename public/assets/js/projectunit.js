@@ -1,3 +1,38 @@
+$('.rmSelect').select2({
+    width: '100%',
+    placeholder: 'Select RM',
+    allowClear: true,
+    selectionCssClass: "pl-3 pr-3 py-2 w-full border border-gray-300 h-auto rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+
+});
+
+$('.smSelect').select2({
+    width: '100%',
+    placeholder: 'Select Store Manager',
+    allowClear: true,
+    selectionCssClass: "pl-3 pr-3 py-2 w-full border border-gray-300 h-auto rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+});
+
+$('.allocatedToSelect').select2({
+    width: '100%',
+    placeholder: 'Select Allocated User',
+    allowClear: true,
+    selectionCssClass: "pl-3 pr-3 py-2 w-full border border-gray-300 h-auto rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+});
+
+$('.assignedToSelect').select2({
+    width: '100%',
+    placeholder: 'Select Assigned User',
+    allowClear: true,
+    selectionCssClass: "pl-3 pr-3 py-2 w-full border border-gray-300 h-auto rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+});
+
+$('.projectSelect').select2({
+    width: '100%',
+    placeholder: 'Select Project',
+    allowClear: true,
+    selectionCssClass: "pl-3 pr-3 py-2 w-full border border-gray-300 h-auto rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+});
 
 function openModal(id = false) {
     toggleModal('projectUnitModal', true);
@@ -5,7 +40,7 @@ function openModal(id = false) {
     let modal = $('#projectUnitModal');
     modal.find('.head').text(id ? 'Edit Project Unit' : 'Add Project Unit');
     let webForm = document.getElementById('projectUnitForm');
-    webForm.querySelector('#store').value = '';
+    webForm.querySelector('#name').value = '';
     webForm.querySelector('#projectId').value = '';
     webForm.querySelector('#old_name').value = '';
     webForm.querySelector('#oracle_code').value = '';
@@ -14,7 +49,7 @@ function openModal(id = false) {
     webForm.querySelector('#contact_number').value = '';
     webForm.querySelector('#client').value = '';
     webForm.querySelector('#start_date').value = '';
-    webForm.querySelector('#rm').value = '';
+    // webForm.querySelector('#rm').value = '';
     webForm.querySelector('#store_manager').value = '';
     webForm.querySelector('#allocated_date').value = '';
     webForm.querySelector('#assigned_to').value = '';
@@ -28,7 +63,7 @@ function openModal(id = false) {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    webForm.querySelector('#store').value = data.result.store;
+                    webForm.querySelector('#name').value = data.result.store;
                     webForm.querySelector('#old_name').value = data.result.oldstore_name;
                     webForm.querySelector('#oracle_code').value = data.result.oracle_code;
                     webForm.querySelector('#polaris_code').value = data.result.polaris_code;
@@ -45,10 +80,13 @@ function openModal(id = false) {
                     loadClientUsers(data.result.client_id, {
                         rm: data.result.regional_manager_id,
                         store_manager: data.result.manager_id,
-                        allocated_to: data.result.allocated_to,
-                        assigned_to: data.result.assigned_to
+
                     });
-                    $('#rm').val(data.result.regional_manager_id).trigger('change');
+                    // $('#rm').val(data.result.regional_manager_id).trigger('change');
+                    //$('#store_manager').val(data.result.manager_id).trigger('change');
+                    $('#allocated_to').val(data.result.allocated_to).trigger('change');
+                    $('#assigned_to').val(data.result.assigned_to).trigger('change');
+                    $('#project').val(data.result.project_id).trigger('change');
 
 
                     let assignType = (data.result.assigned_type == 'permanently') ? 1 : 2;
@@ -69,53 +107,55 @@ $('#client').on('change', function () {
 
 });
 
-
 function loadClientUsers(clientId, selected = {}) {
 
-    $('#rm').html('<option>Loading...</option>');
-    $('#assigned_to').html('<option>Loading...</option>');
-    $('#allocated_to').html('<option>Loading...</option>');
     $('#store_manager').html('<option>Loading...</option>');
 
     if (!clientId) return;
 
-    fetch(App.getSiteurl() + `api/clients/${clientId}/projects`)
+    fetch(App.getSiteurl() + `api/clients/${clientId}/projects`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
         .then(res => res.json())
         .then(data => {
 
-            // Reset dropdowns
-            $('#rm').html('<option value="">Select RM</option>');
-            $('#store_manager').html('<option value="">Select Store Manager</option>');
-            $('#assigned_to').html('<option value="">Select Assigned User</option>');
-            $('#allocated_to').html('<option value="">Select Allocated User</option>');
+            let rmOptions = '<option value="">Select RM</option>';
+            let managerOptions = '<option value="">Select Store Manager</option>';
 
-            // 🔹 RMs
+            /* ------------------------
+               Build RM Options
+            ------------------------ */
+
             if (data.rms?.length) {
                 data.rms.forEach(rm => {
-                    $('#rm').append(
-                        `<option value="${rm.id}">${rm.name}</option>`
-                    );
+                    rmOptions += `<option value="${rm.id}">${rm.name}</option>`;
                 });
             }
 
-            // 🔹 Store Managers
+            /* ------------------------
+               Build Store Manager Options
+            ------------------------ */
+
             if (data.store_managers?.length) {
                 data.store_managers.forEach(manager => {
-                    $('#store_manager').append(
-                        `<option value="${manager.id}">${manager.name}</option>`
-                    );
+                    managerOptions += `<option value="${manager.id}">${manager.name}</option>`;
                 });
             }
 
-            // 🔹 Users
-            if (data.users?.length) {
-                data.users.forEach(user => {
-                    $('#assigned_to, #allocated_to').append(
-                        `<option value="${user.id}">${user.name}</option>`
-                    );
-                });
-            }
+            /* ------------------------
+               Update DOM once
+            ------------------------ */
 
+            $('#rm').html(rmOptions);
+            $('#store_manager').html(managerOptions);
+
+            /* ------------------------
+               Set selected values
+            ------------------------ */
 
             if (selected.rm) {
                 $('#rm').val(selected.rm);
@@ -125,13 +165,12 @@ function loadClientUsers(clientId, selected = {}) {
                 $('#store_manager').val(selected.store_manager);
             }
 
-            if (selected.assigned_to) {
-                $('#assigned_to').val(selected.assigned_to);
-            }
+            /* ------------------------
+               Refresh Select2
+            ------------------------ */
 
-            if (selected.allocated_to) {
-                $('#allocated_to').val(selected.allocated_to);
-            }
+            $('#rm').trigger('change');
+            $('#store_manager').trigger('change');
 
         })
         .catch(err => {
@@ -189,6 +228,7 @@ projects();
 
 function projects(search = '') {
     let filter = $('#filerStatus').val();
+    search = $('#searchInput').val();
     $.ajax({
         url: App.getSiteurl() + "project-unit/list",
         type: "post",
@@ -250,7 +290,7 @@ function renderunitTable(projects) {
                                     </div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">${project.store}</div>
+                                    <div class="text-sm text-gray-900">${project.store} - [${project.clientName}]</div>
                                 </td>
                                  <td class="px-2 py-2 whitespace-nowrap">
                                     <div class="text-sm text-gray-900">${project.oldstore_name}</div>

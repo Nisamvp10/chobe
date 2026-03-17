@@ -6,6 +6,9 @@ use CodeIgniter\Controller;
 use App\Models\ProjectunitModel;
 use App\Models\BranchesModel;
 use App\Models\ClientsModel;
+use App\Models\UserModel;
+use App\Models\ProjectsModel;
+use App\Models\ProjectunitlogModel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ProjectUnitController extends Controller
@@ -13,18 +16,29 @@ class ProjectUnitController extends Controller
     protected $projectUnitModel;
     protected $branchModel;
     protected $clientsModel;
+    protected $projectsModel;
+    protected $projectunitlogmodel;
 
     function __construct() {
         $this->projectUnitModel = new ProjectunitModel();
         $this->branchModel = new BranchesModel();
         $this->clientsModel = new ClientsModel();
+        $this->userModel = new UserModel();
+        $this->projectsModel = new ProjectsModel();
+        $this->projectunitlogmodel = new ProjectunitlogModel();
     }
     public function index()
     {
         $page = (!hasPermission('','view_project_unit')) ?  lang('Custom.accessDenied') : 'Project Unit';
         $stores = $this->clientsModel->where('status',1)->find();
-        return view('admin/project_unit/index',compact('page','stores'));
+        $rm = $this->userModel->where(['position_id'=>4,'status'=>'approved','booking_status'=>1])->find();
+        $storeManager = $this->userModel->where(['position_id'=>3,'status'=>'approved','booking_status'=>1])->find();
+        //dosnot select allocated_to and assigned_to if status is 0
+        $projects = $this->projectsModel->where('is_active',1)->find();
+        $allocatedToAndAssignedTo = $this->userModel->where('status', 'approved')->where('booking_status', 1)->where('position_id !=', 4)->where('position_id !=', 3)->findAll();
+        return view('admin/project_unit/index',compact('page','stores','rm','storeManager','allocatedToAndAssignedTo','projects'));
     }
+
 
     function getdataFromId($id=false) {
         if(!haspermission(session('user_data')['role'],'create_project_unit')) {
@@ -50,7 +64,7 @@ class ProjectUnitController extends Controller
         }
 
         $rules = [
-            'store'    => 'required|min_length[3]|max_length[100]',
+            'name'    => 'required|min_length[3]|max_length[100]',
             'old_name'  => 'required|min_length[2]',
             //'oracle_code'   => 'required',
             //'polaris_code'   => 'required',
@@ -74,7 +88,7 @@ class ProjectUnitController extends Controller
             ]);
         }
 
-        $store   = $this->request->getVar('store');
+        $store   = $this->request->getVar('name');
         $rm_mail = $this->request->getVar('rm_mail');
         $rm = $this->request->getVar(index: 'rm');
         $oldstore = $this->request->getVar('old_name');
@@ -84,6 +98,7 @@ class ProjectUnitController extends Controller
         $startDate = $this->request->getVar('start_date');
         $polaris_code = $this->request->getVar('polaris_code');
         $oracle_code = $this->request->getVar('oracle_code');
+        $project_id = $this->request->getVar('project');
 
         $id       = $this->request->getVar('projectId');
 
@@ -103,21 +118,40 @@ class ProjectUnitController extends Controller
             'contact_number'  => $contactNumber,
             'rm_mail'       => $rm_mail,
             'client_id'     => $client,
+            'project_id'    =>  $project_id,
             'manager_id'    => $storeManager,
             'regional_manager_id'   => $rm,
             'start_date'    => $startDate,
             'status'        => 1,
             'project_unit_type' =>1, 
             'allocated_to'  =>  $allocated_to,
-            'allocated_date'    =>  $allocated_date,
-            'allocated_type'    =>  $allocated_type,
+            'allocated_date'=>  $allocated_date,
+            'allocated_type'=>  $allocated_type,
             'assigned_to'   =>  $assigned_to,
             'assigned_date' =>  $assigned_date,
             'assigned_type',    $assigned_type,
         ];
 
+        $logData = [
+            'regional_manager_id' => $rm,
+            'manager_id' => $storeManager,
+            'allocated_to' => $allocated_to,
+            'assigned_to' => $assigned_to,
+        ];
+
+        //create a project unit log .text file 
+        $logMessage = date('Y-m-d H:i:s') .json_encode($data);
+
+        file_put_contents(
+            WRITEPATH . 'logs/changes_log.txt',
+            $logMessage,
+            FILE_APPEND
+        );
+
         if($id){
             if($this->projectUnitModel->update($id, $data)){
+                $logData['id'] = $id;
+                $this->projectunitlog($logData);
                 
                 $validStatus = true;
                 $validMsg = 'Updated successfully!';
@@ -128,6 +162,10 @@ class ProjectUnitController extends Controller
             }
         }else{
             if($this->projectUnitModel->insert($data)){
+                $lastId = $this->projectUnitModel->getInsertID();
+                $logData['id'] = $lastId;
+                $this->projectunitlog($logData);
+                
 
                 $validStatus = true;
                 $validMsg = 'New Project unit Added';
@@ -289,6 +327,16 @@ public function bulkUpload()
     //     'inserted'    => count($insertData),
     //     'failed_rows' => $failedRows
     // ]);
+}
+private function projectunitlog($data) {
+    $log = [
+        'project_unit_id' => $data['id'],
+        'rm_id' => $data['regional_manager_id'],
+        'sm_id' => $data['manager_id'],
+        'allocate_to_id' => $data['allocated_to'],
+        'assign_to_id' => $data['assigned_to'],
+    ];
+    $this->projectunitlogmodel->insert($log);
 }
 
 }

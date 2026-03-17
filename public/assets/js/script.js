@@ -5,6 +5,16 @@ toastr.options = {
   timeOut: 3000
 };
 
+//$(document).ready(function () {
+$('.common-select').select2({
+  width: '100%',
+  placeholder: 'Select',
+  allowClear: true,
+  selectionCssClass: "pl-3 pr-3 py-2 w-full border border-gray-300 h-auto rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+
+});
+//})
+
 
 
 function openDeleteModal(e, modalId = false) {

@@ -13,7 +13,8 @@ class ClientsModel extends Model {
         $builder = $this->db->table('clients as c')
         ->select('c.id, c.name, c.email, c.note, c.join_date, c.profile,cc.authorized_personnel,cc.email,cc.phone,cc.designation,cc.id as infoId' )
         ->join('client_contacts as cc', 'c.id = cc.client_id', 'left')
-        ->where('c.status',1);
+        ->where('c.status',1)
+        ->where('store_type !=',2);
         
 
         if (!empty($search)) {

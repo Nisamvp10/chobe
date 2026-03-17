@@ -17,12 +17,12 @@
                 <div class="grid grid-cols-2 gap-4 pb-4">
 
                   <div >
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Store Name</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
                     <div class="relative">
                         <input type="hidden" id="projectId" name="projectId" value="" />
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-shop-window text-xl text-gray-400"></i></div>
-                        <input type="text" name="store" value=""  id="store" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Your Store Name">
-                        <div class="invalid-feedback" id="store_error"></div>
+                        <input type="text" name="name" value=""  id="name" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Your Store Name">
+                        <div class="invalid-feedback" id="name_error"></div>
                     </div>
                 </div>
 
@@ -95,7 +95,9 @@
                  <div class="w-full">
                         <label class="block text-sm font-medium text-gray-700 mb-1">RM Name</label>
                           <div class="responseive">
-                              <select id="rm" name="rm" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                              <select id="rm" name="rm" class="pl-3 rmSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  <option  value="">Select Regional Manager</option>
+                               
                               </select>
                           <div class="invalid-feedback" id="rm_error"></div>
                           </div>
@@ -104,24 +106,51 @@
                  <div class="w-full">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Store Manager</label>
                         <div class="responseive">
-                        <select id="store_manager" name="store_manager" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                          
+                        <select id="store_manager" name="store_manager" class="pl-3 smSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                          <option value="">Select Store Manager</option>
+                          <?php
+                          if($storeManager) {
+                              foreach($storeManager as $storeManager) { ?>
+                              <option value="<?= $storeManager['id'] ?>"><?= $storeManager['name'] ?></option> 
+                              <?php
+                              }
+                          }?>
                         </select>
                         <div class="invalid-feedback" id="store_manager_error"></div>
                     </div>
                 </div>
-                 
-
-                 
               </div> 
+              <div class="w-full mb-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Projects</label>
+                        <div class="responseive">
+                        <select id="project" name="project" class="pl-3 projectSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                          <option value="">Projects</option>
+                          <?php
+                          if($projects) {
+                              foreach($projects as $project) { ?>
+                              <option value="<?= $project['id'] ?>"><?= $project['project'] ?></option> 
+                              <?php
+                              }
+                          }?>
+                        </select>
+                        <div class="invalid-feedback" id="project_error"></div>
+                    </div>
+                </div>
                 
                 <!-- out of row -->
                  <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Allocated To</label>
                          <div class="responseive">
-                                <select id="allocated_to" name="allocated_to" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                
+                                <select id="allocated_to" name="allocated_to" class="pl-3 allocatedToSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  <option value="">Select Allocated To</option>
+                                  <?php
+                                  if($allocatedToAndAssignedTo) {
+                                      foreach($allocatedToAndAssignedTo as $user) { ?>
+                                      <option value="<?= $user['id'] ?>"><?= $user['name'] ?></option> 
+                                      <?php
+                                      }
+                                  }?>
                                 </select>
                                 <div class="invalid-feedback" id="allocated_to_error"></div>
                             </div>
@@ -149,8 +178,15 @@
                          <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
                          <div class="responseive">
-                                <select id="assigned_to" name="assigned_to" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                               
+                                <select id="assigned_to" name="assigned_to" class="pl-3 assignedToSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  <option value="">Select Assigned To</option>
+                                  <?php
+                                  if($allocatedToAndAssignedTo) {
+                                      foreach($allocatedToAndAssignedTo as $user) { ?>
+                                      <option value="<?= $user['id'] ?>"><?= $user['name'] ?></option> 
+                                      <?php
+                                      }
+                                  }?>
                                 </select>
                                 <div class="invalid-feedback" id="assigned_to_error"></div>
                             </div>
