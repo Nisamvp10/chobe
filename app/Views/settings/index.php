@@ -73,9 +73,15 @@
                                 <div class="invalid-feedback" id="phone_error"></div>
                             </div>
                             <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email"   value="<?= getappdata('email') ?>"class="border rounded px-3 py-2 w-full" name="email" id="email" placeholder="Enter email">
-                            <div class="invalid-feedback" id="email_error"></div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email"   value="<?= getappdata('email') ?>"class="border rounded px-3 py-2 w-full" name="email" id="email" placeholder="Enter email">
+                                <div class="invalid-feedback" id="email_error"></div>
+                            </div>
+
+                             <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Screen Title</label>
+                                <input type="text"   value="<?= getappdata('screen_title') ?>"class="border rounded px-3 py-2 w-full" name="screen_title" id="screen_title" placeholder="Enter screen title">
+                                <div class="invalid-feedback" id="screen_title_error"></div>
                             </div>
                             <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Change Logo</label>
