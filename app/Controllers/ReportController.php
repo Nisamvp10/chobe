@@ -593,10 +593,10 @@ class ReportController extends controller
                     if ($act['taskStatus'] == 'Completed' && $act['activityStatus'] == 'completed' ) {
                            if($task['taskgendate'] < date('Y-m-d',strtotime('-1 day')))
                             {
-                                  $taskStaffActivityModel->where([
-                                    'task_activity_id' => $activityId,
-                                    'task_id'          => $task['taskId']
-                                ])->set(['commet_status' => 2])->update();
+                                //   $taskStaffActivityModel->where([
+                                //     'task_activity_id' => $activityId,
+                                //     'task_id'          => $task['taskId']
+                                // ])->set(['commet_status' => 2])->update();
                             }
                     }
 

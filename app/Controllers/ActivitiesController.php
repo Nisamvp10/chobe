@@ -500,7 +500,7 @@ protected $common;
                 'complated_by' => $loggedIn,
                 'status'    => 'completed',
                 'progress'  => 'completed',
-                'commet_status' => 2
+                //'commet_status' => 2
             ])->update();
 
             $total_activities = $this->taskStaffActivityModel->where('task_id',$taskId)->groupBy('task_activity_id')->countAllResults();
