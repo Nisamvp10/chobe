@@ -15,4 +15,31 @@ class Common {
         $result = $builder->get()->getRow();
         return $result;
     }
+
+    public function updateTaskActivitiesUI($template,$taskGenDate) {
+      $db = \Config\Database::connect();
+
+      
+        $sql1 = "
+            UPDATE task_staff_activities tsa
+            INNER JOIN tasks t ON t.id = tsa.task_id
+            SET tsa.commet_status = 2
+            WHERE t.created_from_template = ?
+            AND t.task_gen_date = ?
+        ";
+
+        $db->query($sql1, [$template, $taskGenDate]);
+
+      
+        $sql2 = "
+            UPDATE tasks t
+            SET t.ui = 2
+            WHERE t.created_from_template = ?
+            AND t.task_gen_date = ?
+        ";
+
+        $db->query($sql2, [$template, $taskGenDate]);
+
+        return true;
+    }
 }

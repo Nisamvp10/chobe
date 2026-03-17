@@ -69,7 +69,6 @@
         function closeModal() {
             document.getElementById('categoryModal').classList.add('hidden');
         }
-        //$(document).ready(function() {
 
             function projects(search = '') {
                 let filter = $('#filerStatus').val();
@@ -94,9 +93,9 @@
 
                 start = (currentpage - 1) * rowperpage;
                 end = start + rowperpage;
-                projects = allUidata.slice(start, end);
+                paginationData = allUidata.slice(start, end);
 
-                if (projects.length === 0) {
+                if (paginationData.length === 0) {
                     html += `
                         <div class="text-center py-8">
                             <h3 class="text-lg font-medium text-gray-700">No Tasks found</h3>
@@ -110,12 +109,13 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><input type="checkbox" class=" selectAll w-[20px] h-[20px]"> S.NO</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                                     <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                     `;
-                    projects.forEach(task => {
+                    paginationData.forEach(task => {
               
                         html += `
                             <tr class="hover:bg-gray-50 "  >
@@ -126,7 +126,10 @@
                                     </div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">${task.title} [${task.task_gen_date}] <br> ${task.store} [${task.polaris_code}]</div>
+                                    <div class="text-sm text-gray-900">${task.title} </div>
+                                </td>
+                                 <td class="px-2 py-2 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">${task.task_gen_date}</div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">
                                    <span data-id="${task.id}" onclick="locktask(this)" class="text-white -600 hover:text-fff-800 mr-3 !w-[25px] !h-[25px] rounded-2 bg-blue-500 cursor-pointer font-[15px] block text-center   "><i class="bi bi-eye-slash"></i></span>
@@ -217,9 +220,6 @@
                 })
             })
     
-//})
-
-
 
 // Change rows per page
 function changeRowsPerPage(value) {
@@ -270,6 +270,7 @@ function locktask(e){
             })
         }
     }
+
 let selectedTaskId = null;
 document.addEventListener('click',function(e){
     // select all checkbox and unselect all checkbox

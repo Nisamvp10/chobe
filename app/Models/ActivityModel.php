@@ -44,6 +44,7 @@ class ActivityModel extends Model
         ->join('users as cm', 'cm.id = tsa.complated_by','left')
         ->join('project_unit as p', 'p.id = t.project_unit', 'left')
         ->where('tsa.task_id', $taskId)
+        ->where('t.ui', 1)
         ->groupBy('tsa.task_activity_id');
            if($staffId) { 
             $builder->where('tsa.staff_id',$staffId);
