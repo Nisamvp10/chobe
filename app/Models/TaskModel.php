@@ -16,7 +16,7 @@ class TaskModel extends Model {
         $builder = $this->db->table('tasks as t')
             ->select('
                 t.id, t.title, t.description, t.status, t.completed_at, t.project_id,t.project_unit,t.next_run_date,
-                b.polaris_code,
+                b.polaris_code,b.oracle_code,b.oldstore_name,
                 t.priority, t.overdue_date, b.store as branch_name, b.id as store, 
                 t.created_at, u.profileimg, u.name, u.id as userId, 
                 t.progress, a.role, a.priority as userPriority,ti.image_url,
@@ -83,7 +83,7 @@ class TaskModel extends Model {
 
          $builder = $this->db->table('tasks as t')
             ->select('t.id, t.title, t.description, t.status, t.completed_at, t.project_id,t.next_run_date,
-                b.polaris_code,
+                b.polaris_code,b.oracle_code,b.oldstore_name,
                 t.priority, t.overdue_date, b.store as branch_name, b.id as store, 
                 t.created_at, u.profileimg, u.name, u.id as userId, t.taskmode,t.task_gen_date,
                 t.progress, a.role, a.priority as userPriority,ti.image_url')
