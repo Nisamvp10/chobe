@@ -16,7 +16,7 @@ class UseruiController extends Controller{
     public function index() {
         
         $route = (!haspermission('','user_ui') ? 'admin/pages-error-404':'dashboard/usertask-controller');
-        $page = (haspermission('','user_ui') ? "User UI" :lang('Custom.accessDenied') );
+        $page = (haspermission('','user_ui') ? getappdata('screen_title') :lang('Custom.accessDenied') );
         //total tasks by group
         return view($route,compact('page'));
 
