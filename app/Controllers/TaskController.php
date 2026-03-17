@@ -891,7 +891,6 @@ class TaskController extends Controller {
                         'overdue_date' => $task['next_run_date'],
                         'polarisCode'   => $task['polaris_code'],
                         'oracleCode'   => $task['oracle_code'],
-                        'oldstoreName'   => $task['oldstore_name'],
                         'ducument'  => $task['image_url'],
                         'users'     => [],
                     ];
@@ -983,7 +982,6 @@ class TaskController extends Controller {
                     'duedate'   => $task['next_run_date'],
                     'polarisCode'   => $task['polaris_code'],
                     'oracleCode'   => $task['oracle_code'],
-                    'oldstoreName'   => $task['oldstore_name'],
                     'ducument'  => $task['image_url'],
                     'created'   => date('d-m-Y',strtotime($task['task_gen_date'])),
                     'users'     => [],

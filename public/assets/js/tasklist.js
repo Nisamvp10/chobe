@@ -93,7 +93,7 @@ function renderTaskTable(tasks) {
             >
             
             <div class="flex justify-between items-start mb-2">
-                <h6 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.branch_name} / ${task.oldstoreName} [${task.oracleCode}]</h6>
+                <h6 class="font-medium text-gray-800 truncate flex-1 text-capitalize">${task.branch_name} [${task.oracleCode}]</h6>
                 <span class="px-2 py-1 rounded-full text-xs font-medium text-orange-800 ml-2 flex-shrink-0 ${priority}">${task.priority}</span>
             </div>
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${task.description}</p>
