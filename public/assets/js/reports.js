@@ -51,7 +51,8 @@ $('#downloadReport').on('click', function () {
     let project = $('#projectFilter').val();
     let startDate = ($('#filterDate').val() || '').split('to')[0]?.trim() || '';
     let endDate = ($('#filterDate').val() || '').split('to')[1]?.trim() || '';
+    let taskId = $(this).data('id');
 
-    window.location.href = App.getSiteurl() + 'report/generate?search=' + encodeURIComponent(search) + '&filter=' + encodeURIComponent(filter) + '&startDate=' + encodeURIComponent(startDate) + '&endDate=' + encodeURIComponent(endDate) + '&projectUnit=' + encodeURIComponent(projectUnit) + '&project=' + encodeURIComponent(project);
+    window.location.href = App.getSiteurl() + 'report/generate?search=' + encodeURIComponent(search) + '&filter=' + encodeURIComponent(filter) + '&startDate=' + encodeURIComponent(startDate) + '&endDate=' + encodeURIComponent(endDate) + '&projectUnit=' + encodeURIComponent(projectUnit) + '&project=' + encodeURIComponent(project) + '&taskId=' + encodeURIComponent(taskId);
 })
 // <?=base_url('report/generate');?>

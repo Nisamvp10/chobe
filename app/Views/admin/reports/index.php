@@ -8,7 +8,7 @@
                 <?php
                 if(haspermission('','report_download')) { ?>
                 <div>
-                    <a id="downloadReport"  class="btn btn-primary">
+                    <a id="downloadReport"  class="btn btn-primary" data-id="<?=encryptor($id ?? '')?>">
                         <i class="bi bi-plus-circle me-1"></i> Download Report
                     </a>
                 </div>

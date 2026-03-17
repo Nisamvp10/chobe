@@ -29,7 +29,7 @@ class ReportController extends controller
     }
     public function userReport()
     {   
-        $page = (!haspermission('','user_report_view') ? lang('Custom.accessDenied') : 'Select the task you want to report 123' );
+        $page = (!haspermission('','user_report_view') ? lang('Custom.accessDenied') : 'Select the task you want to report' );
         $rojectUnitModel = new ProjectunitModel();
         $projectModel = new ProjectsModel();
 
@@ -442,6 +442,16 @@ class ReportController extends controller
         $endDate   = $this->request->getGet('endDate');
         $prounit   = $this->request->getGet('projectUnit');
         $project   = $this->request->getGet('project');
+        $taskId    = decryptor($this->request->getGet('taskId'));
+
+        $getTask = $reportModel->where('id',$taskId)->get()->getRow();
+        if(empty($startDate)){
+            $startDate = date('Y-m-d', strtotime($getTask->task_gen_date));
+            $endDate   = date('Y-m-d', strtotime($getTask->task_gen_date));
+        }
+
+        $userId = $get['user'] ?? false; 
+
 
         $reportResult = $reportModel->getReports(
             $search,
@@ -449,8 +459,15 @@ class ReportController extends controller
             $startDate,
             $endDate,
             $prounit,
-            $project
+            $project,
+            '','','',
+            $getTask->created_from_template,
+            $getTask->task_gen_date,
+            $userId
         );
+
+        //$reportResult = $reportModel->getReports($search, $filter, $startDate, $endDate, $prounit, $project, $taskId);
+
         $groupedTasks = [];
         $activityHeaders = []; // activity_id => title
 
