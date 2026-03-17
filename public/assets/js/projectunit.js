@@ -59,6 +59,7 @@ function openModal(id = false) {
     webForm.querySelector('#allocated_to').value = '';
 
     if (id) {
+
         fetch(App.getSiteurl() + `api/project-units/${id}`)
             .then(res => res.json())
             .then(data => {
