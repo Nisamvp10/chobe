@@ -67,12 +67,12 @@
             let currentPage = 1;
 
          function loadReports(search = '',startDate = '',endDate = '',range = 'today') {
-            console.log(startDate,endDate);
 
 
             let filer = $('#filerStatus').val();
             let projectUnitFilter = $('#projectUnitFilter').val();
             let projectFilter = $('#projectFilter').val();
+            search = $('#searchInput').val();
 
             $.ajax({
                  url: "<?= site_url('user-reports/task-report-list') ?>",

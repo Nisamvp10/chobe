@@ -66,9 +66,8 @@
             let rowsPerPage = 15;
             let currentPage = 1;
 
-         function loadReports(search = '',startDate = '',endDate = '',range = 'today') {
-            console.log(startDate,endDate);
-
+         function loadReports(searchIn = '',startDate = '',endDate = '',range = 'today') {
+            search =  $('#searchInput').val();
 
             let filer = $('#filerStatus').val();
             let projectUnitFilter = $('#projectUnitFilter').val();
@@ -138,8 +137,6 @@ function renderTaskListTable(){
         `;
 
         paginatedData.forEach((row, rowIndex) => {
-            console.log(row.url)
-
             html += `<tr class="hover:bg-gray-50 m-2">`;
 
             html += `
@@ -154,8 +151,7 @@ function renderTaskListTable(){
                 </td>
                 <td class="px-2 py-2 whitespace-nowrap">
                     <a href="<?=base_url('reports/') ?>${row.url}" class="text-blue-600 hover:text-blue-800 cursor-pointer p-2 rounded text-center bg-blue-100 m-2" ><i class="bi bi-eye"></i></a>
-                </td>
-            `;
+                </td>`;
 
             html += `</tr>`;
         });

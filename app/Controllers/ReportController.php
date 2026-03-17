@@ -62,18 +62,34 @@ class ReportController extends controller
             $endDate = date('Y-m-d', strtotime('-1 days'));
         }
 
-        $taskModel = new TaskModel();
-        //firstlist last 3 days 
-        $tasks = $taskModel->select('tasks.title,tasks.task_gen_date,tasks.id')->where('tasktype', 1)
-        ->join('task_staff_activities as tsa','tasks.id = tsa.task_id')
-        ->where('tsa.staff_id', session('user_data')['id'])
-        ->where('task_gen_date >=', $startDate)->where('task_gen_date <=', $endDate)
-        ->groupBy(['task_gen_date', 'created_from_template'])->orderBy('task_gen_date', 'DESC')->get()->getResultArray();
-        if(!empty($tasks)){
-            foreach($tasks as &$task){
-                $task['url'] = 'tasklist/'.encryptor($task['id']);
+       $taskModel = new TaskModel();
+
+        $builder = $taskModel
+            ->select('tasks.title, tasks.task_gen_date, tasks.id')
+            ->join('task_staff_activities as tsa', 'tasks.id = tsa.task_id')
+            ->where('tasks.tasktype', 1)
+            ->where('tsa.staff_id', session('user_data')['id'])
+            ->where('tasks.task_gen_date >=', $startDate)
+            ->where('tasks.task_gen_date <=', $endDate);
+
+        if (!empty($search)) {
+            $builder->groupStart()
+                ->like('tasks.title', $search)
+            ->groupEnd();
+        }
+
+        $tasks = $builder
+            ->groupBy(['DATE(tasks.task_gen_date)', 'tasks.created_from_template'])
+            ->orderBy('tasks.task_gen_date', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        if (!empty($tasks)) {
+            foreach ($tasks as &$task) {
+                $task['url'] = 'tasklist/' . encryptor($task['id']);
             }
         }
+
         return $this->response->setJSON([
             'success' => true,
             'data' => $tasks
@@ -93,7 +109,7 @@ class ReportController extends controller
                 'message' => lang('Custom.invalidRequest')
             ]);
         }
-        $search = $this->request->getGet('search');
+        $search = $this->request->getPost('search');
         $startDate = $this->request->getPost('startDate');
         $endDate = $this->request->getPost('endDate');
         if(empty($startDate)) {
@@ -104,13 +120,33 @@ class ReportController extends controller
         }
 
         $taskModel = new TaskModel();
-        //firstlist last 3 days 
-        $tasks = $taskModel->where('tasktype', 1)->where('task_gen_date >=', $startDate)->where('task_gen_date <=', $endDate)->groupBy(['task_gen_date', 'created_from_template'])->orderBy('task_gen_date', 'DESC')->get()->getResultArray();
-        if(!empty($tasks)){
-            foreach($tasks as &$task){
-                 $task['url'] = 'tasklist/'.encryptor($task['id']);
+
+        // Build query
+        $builder = $taskModel
+            ->select('tasks.title, tasks.task_gen_date, tasks.id')
+            ->where('tasktype', 1)
+            ->where('task_gen_date >=', $startDate)
+            ->where('task_gen_date <=', $endDate)
+            ->groupBy(['DATE(task_gen_date)', 'created_from_template']); // safer
+
+        // Search
+        if (!empty($search)) {
+            $builder->like('tasks.title', $search);
+        }
+
+        $tasks = $builder
+            ->orderBy('task_gen_date', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        // Add URL
+        if (!empty($tasks)) {
+            foreach ($tasks as &$task) {
+                $task['url'] = 'tasklist/' . encryptor($task['id']);
             }
         }
+
+        // Response
         return $this->response->setJSON([
             'success' => true,
             'data' => $tasks
