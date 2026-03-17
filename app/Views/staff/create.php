@@ -264,7 +264,7 @@
                 },
                 complete: function() {
                     // Re-enable submit button
-                    $('#submitBtn').prop('disabled', false).text('Save Branch');
+                    $('#submitBtn').prop('disabled', false).text('Save');
                 }
             })
         })
