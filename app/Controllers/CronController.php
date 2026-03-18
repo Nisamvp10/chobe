@@ -14,7 +14,7 @@ use App\Models\ProjectunitModel;
 use App\Models\TaskactivityModel;
 use App\Models\TaskStaffActivityModel;
 use App\Models\CronejobrequestModel;
-use App\Models\MasterTaskModel;
+use App\Models\MastertaskModel;
 
 class CronController extends Controller {
 
@@ -40,7 +40,7 @@ class CronController extends Controller {
         $this->taskActivityModel = new TaskactivityModel();
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
         $this->cronejobrequestModel = new CronejobrequestModel();
-        $this->mastertaskModel = new MasterTaskModel();
+        $this->mastertaskModel = new MastertaskModel();
     }
     public function clonejob() {
         
