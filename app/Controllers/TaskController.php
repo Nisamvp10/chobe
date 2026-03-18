@@ -1167,7 +1167,7 @@ class TaskController extends Controller {
             if($totalProgress > 1 ) {
                 $taskUpdate = [
                     'progress' => $totalProgress,
-                    'status' => 'In_Progress'
+                    'status' => 'Pending'//'In_Progress'
                 ];
                  $this->taskModel->where('id', $taskId)->set($taskUpdate)->update();
             }
