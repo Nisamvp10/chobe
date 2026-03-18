@@ -14,7 +14,7 @@ use App\Models\ProjectunitModel;
 use App\Models\TaskactivityModel;
 use App\Models\TaskStaffActivityModel;
 use App\Models\CronejobrequestModel;
-use App\Models\MastertaskModel;
+use App\Models\MasterTaskModel;
 
 class CronController extends Controller {
 
@@ -31,20 +31,20 @@ class CronController extends Controller {
     protected $mastertaskModel;
     function __construct() {
         $this->branchModel = new BranchesModel();
-        $this->taskModel = new TaskModel();//
-        $this->taskassignModel = new AssigntaskModel();//
-        $this->notificationModel = new NotificationModel();//
-        $this->projects = new ProjectsModel();//
-        $this->activityModel = new ActivityModel();//
-        $this->projectUnitModel = new ProjectunitModel();//
-        $this->taskActivityModel = new TaskactivityModel();//
-        $this->taskStaffActivityModel = new TaskStaffActivityModel();//
-        $this->cronejobrequestModel = new CronejobrequestModel();//
-        $this->mastertaskModel = new MastertaskModel();//
+        $this->taskModel = new TaskModel();
+        $this->taskassignModel = new AssigntaskModel();
+        $this->notificationModel = new NotificationModel();
+        $this->projects = new ProjectsModel();
+        $this->activityModel = new ActivityModel();
+        $this->projectUnitModel = new ProjectunitModel();
+        $this->taskActivityModel = new TaskactivityModel();
+        $this->taskStaffActivityModel = new TaskStaffActivityModel();
+        $this->cronejobrequestModel = new CronejobrequestModel();
+        $this->mastertaskModel = new MasterTaskModel();
     }
     public function clonejob() {
         
-        $mode = 'permanent';
+      $mode = 'permanent';
         $taskType = ($mode === 'permanent') ? 1 : 2;
 
         $taskGenDate = date('Y-m-d', strtotime('-1 day'));
@@ -61,8 +61,7 @@ class CronController extends Controller {
         -----------------------------------
         */
 
-      //  $templates = $this->taskModel->where('recurrence', 'daily')->where('taskmode', $taskType)->where('next_run_date <=', $today)->groupBy('project_unit')->findAll();
-       $templates = $this->taskModel
+        $templates = $this->taskModel
             ->join('mastertasks', 'mastertasks.id = tasks.created_from_template')
             ->where('recurrence', 'daily')
             ->where('tasks.tasktype', 1)
@@ -71,22 +70,28 @@ class CronController extends Controller {
             ->where('next_run_date <=', $today)
             ->groupBy('project_unit')
             ->findAll();
-      
+
         if (!$templates) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'No templates found'
             ]);
         }
+
         /*
         -----------------------------------
         LOAD ACTIVITIES FOR ALL TEMPLATES
         -----------------------------------
         */
         
+
         $templateIds = array_column($templates,'created_from_template');
 
-        $activities = $this->activityModel->whereIn('task_id',$templateIds)->where('status','active')->where('activity_type',1)->findAll();
+        $activities = $this->activityModel
+            ->whereIn('task_id',$templateIds)
+            ->where('status','active')
+            ->where('activity_type',1)
+            ->findAll();
 
         $activityMap = [];
 
@@ -100,8 +105,13 @@ class CronController extends Controller {
         -----------------------------------
         */
 
-        $existingTasks = $this->taskModel->select('created_from_template,project_id,project_unit')->where('task_gen_date',$taskGenDate)->where('taskmode',$taskType)->findAll();
+        $existingTasks = $this->taskModel
+        ->select('created_from_template,project_id,project_unit')
+        ->where('task_gen_date',$taskGenDate)
+        ->where('taskmode',$taskType)
+        ->findAll();
 
+     
         $taskMap = [];
 
         foreach($existingTasks as $t){
@@ -125,10 +135,10 @@ class CronController extends Controller {
 
             if(isset($taskMap[$key])){
 
-                $skipCount++;
-                continue;
+            $skipCount++;
+            continue;
 
-            }
+        }
 
         /*
         -----------------------------------
@@ -141,7 +151,8 @@ class CronController extends Controller {
             continue;
         }
 
-        $newTaskId = $this->taskModel->insert([
+
+         $newTaskId = $this->taskModel->insert([
 
             'project_id'=>$template['project_id'],
             'project_unit'=>$unitId,
@@ -179,13 +190,11 @@ class CronController extends Controller {
         foreach($masterActivities as $act){
 
             $activityBatch[] = [
-            'task_id'=>$newTaskId,
-            'activity_id'=>$act['id'],
-            'created_at'=>date('Y-m-d H:i:s')
+                'task_id'=>$newTaskId,
+                'activity_id'=>$act['id'],
+                'created_at'=>date('Y-m-d H:i:s')
             ];
-
         }
-
         if($activityBatch){
             $this->taskActivityModel->insertBatch($activityBatch);
         }
@@ -216,7 +225,7 @@ class CronController extends Controller {
         -----------------------------------
         */
 
-            foreach($staffIds as $staffId){
+         foreach($staffIds as $staffId){
 
                 $this->taskassignModel->insert(['task_id'=>$newTaskId,'staff_id'=>$staffId,'status'=>'assigned','created_at'=>date('Y-m-d H:i:s')]);
 
@@ -244,12 +253,10 @@ class CronController extends Controller {
 
         $data = [
 
-        'success'=>true,
-        'message'=>'Task process completed',
-
-        'created_tasks'=>$createdCount,
-
-        'skipped_tasks'=>$skipCount
+            'success'=>true,
+            'message'=>'Task process completed',
+            'created_tasks'=>$createdCount,
+            'skipped_tasks'=>$skipCount
 
         ];
 
@@ -259,8 +266,10 @@ class CronController extends Controller {
                 'message' => $data['message'],
                 'created_at' => date('Y-m-d H:i:s')
             ]);
+
+            echo "Task process completed";
         }
-        print_r($data);
+       // print_r($data);
     }
     
 
@@ -512,6 +521,7 @@ class CronController extends Controller {
             'skipped_tasks' => $skipCount
         ]);
     }
+
 
     public function closeCompletedtask() {
         $completedTasks = $this->taskModel->select('id,task_gen_date')->where(['status'=>'Completed','progress' => 100,'tasktype' => 1])
