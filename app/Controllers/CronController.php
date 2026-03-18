@@ -267,7 +267,7 @@ class CronController extends Controller {
                 'created_at' => date('Y-m-d H:i:s')
             ]);
 
-            echo "Task process completed";
+            echo "Task process completed - created tasks: " . $data['created_tasks'] . " - skipped tasks: " . $data['skipped_tasks'];
         }
        // print_r($data);
     }
