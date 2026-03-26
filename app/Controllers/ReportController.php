@@ -356,6 +356,7 @@ class ReportController extends controller
             if (!isset($groupedTasks[$taskId])) {
                 $groupedTasks[$taskId] = [
                     'oracleCode'   => $repo['oracle_code'],
+                    'polarisCode'   => $repo['polaris_code'],
                     'storeName'    => $repo['store_name'],
                     'oldStoreName' => $repo['oldstore_name'],
                     'task'         => $repo['task_title'],
@@ -396,7 +397,8 @@ class ReportController extends controller
 
         $headers = [
             'SL NO',
-            'CODE',
+            'ORACLE CODE',
+            'POLARIS CODE',
             'STORE NAME',
             'OLD NAME',
             'DATE',
@@ -421,6 +423,7 @@ class ReportController extends controller
             $row = [
                 $sl++,
                 $task['oracleCode'],
+                $task['polarisCode'],
                 $task['storeName'],
                 $task['oldStoreName'],
                 $task['date'],
@@ -520,6 +523,7 @@ class ReportController extends controller
                 $groupedTasks[$taskId] = [
                     'taskId'       => $taskId,
                     'oracleCode'   => $repo['oracle_code'],
+                    'polarisCode'   => $repo['polaris_code'],
                     'storeName'    => $repo['store_name'],
                     'taskgendate'  => $repo['task_gen_date'],
                     'oldStoreName' => $repo['oldstore_name'],
@@ -553,7 +557,7 @@ class ReportController extends controller
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
-        $header = ['SL NO', 'CODE', 'STORE NAME', 'OLD NAME', 'DATE','TASK','ALLOCATED TO', 'ASSIGNED TO'];
+        $header = ['SL NO', 'ORACLE CODE', 'POLARIS CODE', 'STORE NAME', 'OLD NAME', 'DATE','TASK','ALLOCATED TO', 'ASSIGNED TO'];
 
         foreach ($activityHeaders as $activityId => $title) {
             $header[] = $title;
@@ -575,6 +579,7 @@ class ReportController extends controller
             $row = [
                 $sl++,
                 $task['oracleCode'],
+                $task['polarisCode'],
                 $task['storeName'],
                 $task['oldStoreName'],
                 $task['date'],

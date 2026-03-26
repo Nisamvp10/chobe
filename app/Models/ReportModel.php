@@ -19,6 +19,7 @@ public function getReports($search='', $filter='', $startDate='', $endDate='', $
         pu.store as store_name,
         pu.oldstore_name,
         pu.oracle_code,
+        pu.polaris_code,
         t.created_at,
         t.task_gen_date,
         t.status as taskStatus,
