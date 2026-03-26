@@ -19,7 +19,7 @@
             <path d="M19 12H5"></path>
             </svg>
         </a> 
-        <h1 class="h3 mb-0"><?= $page ?? '' ?></h1>
+        <h1 class="h3 mb-0"><?= $page ?? '' ?></h1> 
     </div>
 </div><!-- closee titilebar -->
 
@@ -30,7 +30,7 @@
        <div class="grid grid-cols-1 gap-4 pb-4">
 
             <div class="w-full">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Task Title <span class="text-sm text-gray-500" id="projectunitCount"></span></label> 
                 <div class="relative">
                 <input type="hidden" name="id" value="<?= $id ?>" />
                 <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">

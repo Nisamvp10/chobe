@@ -1232,8 +1232,12 @@ class TaskController extends Controller {
 
     public function getProjectunits() {
         $taskId = $this->request->getPost('id');
-        $project = $this->mastertaskModel->where('id', $taskId)->first();
-        $projectunits = $this->projectUnitModel->where('project_id', $project['project_unit_id'])->where('status',1)->get()->getResult();
+        $projectunits = [];
+        if($taskId) {
+             $project = $this->mastertaskModel->where('id', $taskId)->first();
+            $projectunits = $this->projectUnitModel->where('project_id', $project['project_unit_id'])->where('status',1)->get()->getResult();
+        }
+       
         return $this->response->setJSON([
             'success' => true,
             'projectunits' => $projectunits

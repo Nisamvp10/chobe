@@ -101,17 +101,21 @@ document.addEventListener('click', async (e) => {
             data: { id: id },
             success: function (response) {
                 if (response.success) {
+                    $('#projectunitCount').text('(' + response.projectunits.length + ')');
                     response.projectunits.forEach(projectunit => {
                         html += `
                         <div class="activity-wrapper border rounded-md p-3 flex items-center justify-between">
                             <div class="flex items-center space-x-2">
                                 <input type="checkbox" name="activity[]" class="activity-checkbox hidden" data-id="${projectunit.id}" value="${projectunit.id}" id="activity-${projectunit.id}">
-                                <div class="w-[40px] h-[40px] bg-primary p-2 rounded-full flex items-center justify-center text-white">${projectunit.id}</div>
+                                <div class="w-[40px] h-[40px] bg-primary-light p-2 rounded-full flex items-center justify-center text-white"><input type="checkbox" name="projectunit[]" class="activity-checkbox w-[20px] h-[20px]" value="${projectunit.id}" id="projectunit-${projectunit.id}"></div>
                                 <label for="activity-${projectunit.id}">${projectunit.store}</label>
                             </div>
                         </div>`;
                     });
                     $('#activities').html(html);
+                }
+                else {
+                    $('#projectunitCount').text('(0)');
                 }
             }
         })
