@@ -161,7 +161,7 @@ function renderTable(result){
 
         html += `
         <table class="min-w-full divide-y divide-gray-200 border border-collapse">
-            <thead class="bg-gray-100">
+            <thead class="bg-gray-100 sticky top-0 z-10">
                 <tr>`;
 
         result.headers.forEach(header => {

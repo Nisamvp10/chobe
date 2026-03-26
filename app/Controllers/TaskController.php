@@ -946,7 +946,8 @@ class TaskController extends Controller {
         $activityTasksAssignModel = new ActivityStaffModel();
         $filter = $this->request->getGet('filter');
         $notifiytask = $this->request->getGet('notifiytask');
-        $alltasks = $this->taskModel->getMytask('','',$notifiytask,$filter); 
+        $search = $this->request->getGet('search');
+        $alltasks = $this->taskModel->getMytask('','',$notifiytask,$filter,$search); 
         $pendingTasks = 0;
         $completedTasks = 0;
         

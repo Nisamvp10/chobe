@@ -7,6 +7,7 @@ $('#filerStatus').on('change', function () {
 function loadTask(search = '') {
     let notifytask = document.getElementById('taskTable').dataset.tskId;
     let filter = $('#filerStatus').val();
+    search = $('#searchInput').val();
     $.ajax({
 
         url: App.getSiteurl() + 'task/my-task',
@@ -24,7 +25,9 @@ function loadTask(search = '') {
     });
 
 }
-
+document.getElementById('searchInput').addEventListener('keyup', function () {
+    loadTask();
+})
 function renderTable(tasks) {
 
     let html = '';
@@ -39,36 +42,38 @@ function renderTable(tasks) {
                     <p class="text-gray-500 mt-1"> <?=(!haspermission('','view_clients') ? :'Try adjusting your search');?></p>
                 </div>`;
     } else {
-
-
-        tasks.forEach(task => {
-
-            const dueDate = new Date(task.duedate);
-            const today = new Date();
-            dueDate.setHours(0, 0, 0, 0);
-            today.setHours(0, 0, 0, 0);
-
-            let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-            //let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900'; 
-            let dueClass = dueDate < today ? "text-red-600" : "text-gray-900"; // task.status === "Pending" && 
-
-            const totalTasks = task.total_activities ? task.total_activities : 0;;
-            const completedTasks = task.completed_activities ? task.completed_activities : 0;
-
-            // Calculate percentage
-            const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+        if (tasks.length > 0) {
 
 
 
-            var priority = (task.priority == 'High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
-            var status = (task.status == 'Pending' ? 'bg-task-medium text-white' : (task.priority == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.priority == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800')));
-            const progress = task.progress;
+
+            tasks.forEach(task => {
+
+                const dueDate = new Date(task.duedate);
+                const today = new Date();
+                dueDate.setHours(0, 0, 0, 0);
+                today.setHours(0, 0, 0, 0);
+
+                let duedateText = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                //let dueClass = dueDate < today ? 'text-red-600' : 'text-gray-900'; 
+                let dueClass = dueDate < today ? "text-red-600" : "text-gray-900"; // task.status === "Pending" && 
+
+                const totalTasks = task.total_activities ? task.total_activities : 0;;
+                const completedTasks = task.completed_activities ? task.completed_activities : 0;
+
+                // Calculate percentage
+                const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
 
-            // 
-            let ectivitUrl = App.getSiteurl() + `task/mytask/activities/${task.id}`;
-            console.log(task)
-            const taskHTML = `
+
+                var priority = (task.priority == 'High' ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-danger' : (task.priority == "Low" ? 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-blue-500' : 'px-2 py-1 rounded-full text-xs font-medium text-white flex-shrink-0 bg-yellow-500'));
+                var status = (task.status == 'Pending' ? 'bg-task-medium text-white' : (task.priority == "In_Progress" ? 'bg-blue-500 text-yellow-800' : (task.priority == "Completed" ? 'bg-green-500' : 'bg-green-500 text-green-800')));
+                const progress = task.progress;
+
+
+                // 
+                let ectivitUrl = App.getSiteurl() + `task/mytask/activities/${task.id}`;
+                const taskHTML = `
         <div class="bg-white draggable-task___ rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow duration-200 border-l-4 border-orange-500 draggable-task___" 
             draggable="false"
             data-id="${task.id}">
@@ -142,8 +147,8 @@ function renderTable(tasks) {
     `;
 
 
-            // 
-            progressBar = `<div class="flex items-center gap-2">
+                // 
+                progressBar = `<div class="flex items-center gap-2">
                             <div
                                 role="progressbar"
                                 aria-valuemin=${0}
@@ -158,7 +163,7 @@ function renderTable(tasks) {
                             <span class="text-xs">${progress}%</span>
                             </div>
                             `;
-            html += `
+                html += `
                     <tr class="hover:bg-gray-50">
                         <td class="px-2 py-1 whitespace-nowrap">
                             <div class="flex items-center">
@@ -193,15 +198,16 @@ function renderTable(tasks) {
                     </tr>
                 `;
 
-            if (task.status === 'Pending') {
-                pending += taskHTML;
-            } else if (task.status === 'In_Progress') {
-                inProgress += taskHTML;
-            } else {
-                completed += taskHTML;
-            }
+                if (task.status === 'Pending') {
+                    pending += taskHTML;
+                } else if (task.status === 'In_Progress') {
+                    inProgress += taskHTML;
+                } else {
+                    completed += taskHTML;
+                }
 
-        });
+            });
+        }
 
     }
     //$('#taskTable').html(html);

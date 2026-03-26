@@ -71,7 +71,7 @@ class TaskModel extends Model {
                     
     }
 
-     function getMytask($limit=false,$orderBy=false,$notificationTask=false,$filter=false) {
+     function getMytask($limit=false,$orderBy=false,$notificationTask=false,$filter=false,$search=false) {
         $userId = session('user_data')['id'];
 
         $taskIds = $this->db->table('task_assignees')
@@ -110,6 +110,12 @@ class TaskModel extends Model {
                      if($filter && $filter != 'all')  {
                     // $filter = ($filter == 'pending' ? 'Pending' : ($filter == "progress" ? 'In_Progres' :'Completed'));
                         $builder->where('t.status',$filter);
+                    }
+                    if($search) {
+                        $builder->groupStart();
+                        $builder->like('t.title',$search);
+                        $builder->orLike('b.store',$search);
+                        $builder->groupEnd();
                     }
                     if($notificationTask) {
                         $builder->where('t.id',$notificationTask);
