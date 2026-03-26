@@ -18,8 +18,8 @@ class ProjectsController extends Controller{
     function index() {
         $page = "Projects";
         $clients = $this->clientsModel->where('status',1)->orderBy('id','DESC')->findAll();
-        $projects = $this->projectModel->where('status',1)->get()->getResult();
-        return view('admin/projects/index',compact('page','clients','projects'));
+       // $projects = $this->projectModel->where('status',1)->get()->getResult();
+        return view('admin/projects/index',compact('page','clients'));
     }
 
     function create($id =false)
