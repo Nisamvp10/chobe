@@ -96,6 +96,7 @@ class TaskController extends Controller {
 
         $db = \Config\Database::connect();
         $taskId = decryptor($this->request->getPost('taskId'));
+        $projectunitsids = $this->request->getPost('projectunit');
 
         // Validation rules
         $rules = [
@@ -106,18 +107,20 @@ class TaskController extends Controller {
             'masetrTask'    => 'required',
         ];
 
-        //taskCreate
-        // if (empty($taskId)) {
-        //     $rules['taskmode'] = 'required';
-        //     $rules['project'] = 'required';
-        // }
+        if(empty($projectunitsids)){
+            //required with mesage 
+            $rules['projectUnit'] = 'required';
+           
+        }
 
         if (!$this->validate($rules)) {
+          
             return $this->response->setJSON([
                 'success' => false,
                 'errors'  => $this->validator->getErrors()
             ]);
         }
+       
         $mastertaskId = $this->request->getPost('masetrTask');
         $masterTask = $this->mastertaskModel->where('id',$mastertaskId)->get()->getRow();
         // Prepare task data
@@ -332,8 +335,11 @@ class TaskController extends Controller {
                         ]);
                     }
 
-                    // Get active project units
-                    $projectUnits = $this->projectUnitModel->where('project_id', $projectId['id'])->where('status', 1)->findAll(); //120
+                    // Get active project units // only select project unit which are selected in task creation
+                   // $projectUnits = $this->projectUnitModel->where('project_id', $projectId['id'])->where('status', 1)->findAll(); //120
+                   //i have 120 acprojectunits  now i am only selected 2 projectunits and store in projectunitsids ids 10,120
+                   $projectUnits = $this->projectUnitModel->whereIn('id', $projectunitsids)->where('status', 1)->findAll(); //120
+                   //echo $this->projectUnitModel->getLastQuery(); exit();
                         
                     if (empty($projectUnits)) {
                         return $this->response->setJSON([

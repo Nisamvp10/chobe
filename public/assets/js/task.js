@@ -61,6 +61,11 @@ $('#taskCreate').on('submit', function (e) {
     $('#submitBtn').prop('disabled', true).html(
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...'
     );
+    let projectunits = [];
+    $('.activity-checkbox:checked').each(function () {
+        projectunits.push($(this).val());
+    });
+    formData.append('projectUnit', projectunits);
     $.ajax({
         url: App.getSiteurl() + 'task/save',
         method: 'POST',
@@ -73,6 +78,9 @@ $('#taskCreate').on('submit', function (e) {
                 webForm[0].reset();
             } else {
                 if (response.errors) {
+                    if (response.errors.projectUnit) {
+                        toastr.error(response.errors.projectUnit + 'Please select at least one project unit');
+                    }
                     $.each(response.errors, function (field, message) {
                         $('#' + field).addClass('is-invalid');
                         $('#' + field + '_error').text(message);
@@ -103,6 +111,7 @@ document.addEventListener('click', async (e) => {
                 if (response.success) {
                     $('#projectunitCount').text('(' + response.projectunits.length + ')');
                     response.projectunits.forEach(projectunit => {
+                        //this data appends in task/create page form submit this tadat note get 
                         html += `
                         <div class="activity-wrapper border rounded-md p-3 flex items-center justify-between">
                             <div class="flex items-center space-x-2">
