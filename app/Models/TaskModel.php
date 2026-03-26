@@ -8,7 +8,7 @@ class TaskModel extends Model {
     protected $primaryKey ='id';
     protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','task_gen_date','task_gen_date','status','taskmode','ui','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
 
-    protected $useSoftDeletes = false; // IMPORTANT
+    protected $useSoftDeletes = false; // IMPORTANT 
 
     function getTasks($limit=false,$orderBy=false,$filter = false,$searchInput=false,$startDate=false,$endDate=false,$taskProject=false,$taskLimit=false,$offset=false) {
 
@@ -41,7 +41,10 @@ class TaskModel extends Model {
                 $builder->where('t.project_id',$taskProject);
             }
             if($searchInput) {
+                $builder->groupStart();
                  $builder->like('t.title',$searchInput);
+                 $builder->orLike('b.store',$searchInput);
+                 $builder->groupEnd();
             }
             if(!empty($startDate) && !empty($endDate)) {
                 $startDate = date('Y-m-d 00:00:00', strtotime($startDate));
