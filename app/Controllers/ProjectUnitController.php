@@ -190,6 +190,7 @@ class ProjectUnitController extends Controller
         }
         $search = $this->request->getVar('search');
         $filter = $this->request->getVar('filter');
+        $project = $this->request->getVar('project');
 
         $builder = $this->projectUnitModel->select('project_unit.id,
         project_unit.store,project_unit.oldstore_name,project_unit.oracle_code,c.name as clientName,project_unit.status as is_active,
@@ -220,6 +221,9 @@ class ProjectUnitController extends Controller
                 ->orlike('project_unit.manager_id',$search)
                 ->orlike('project_unit.regional_manager_id',$search)
                 ->groupEnd();
+        }
+        if($project !=='all'){ 
+            $builder->where('project_unit.project_id',$project);
         }
 
         $projects = $builder->findAll();

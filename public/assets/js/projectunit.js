@@ -230,10 +230,11 @@ projects();
 function projects(search = '') {
     let filter = $('#filerStatus').val();
     search = $('#searchInput').val();
+    let project = $('#filerProject').val();
     $.ajax({
         url: App.getSiteurl() + "project-unit/list",
         type: "post",
-        data: { search: search, filter: filter },
+        data: { search: search, filter: filter, project: project },
         dataType: "json",
         success: function (response) {
 
@@ -331,7 +332,6 @@ function renderunitTable(projects) {
                 <div>
                     <label class="mr-2">Rows per page:</label>
                     <select onchange="changeRowsPerPage(this.value)" class="px-2 py-1 border rounded">
-                
                         <option value="15"  ${rowsPerPage == 15 ? 'selected' : ''}>15</option>
                         <option value="25"  ${rowsPerPage == 25 ? 'selected' : ''}>25</option>
                         <option value="50"  ${rowsPerPage == 50 ? 'selected' : ''}>50</option>
@@ -347,8 +347,6 @@ function renderunitTable(projects) {
     }
     $('#projectTable').html(html);
 }
-
-
 
 // Change rows per page
 function changeRowsPerPage(value) {
@@ -377,7 +375,7 @@ $('#searchInput').on('input', function () {
     let value = $(this).val();
     projects(value);
 })
-$('#filerStatus').on('change', function () {
+$('#filerStatus,#filerProject').on('change', function () {
     let value = $('#searchInput').val();
     projects(value);
 })

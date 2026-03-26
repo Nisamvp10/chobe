@@ -18,7 +18,8 @@ class ProjectsController extends Controller{
     function index() {
         $page = "Projects";
         $clients = $this->clientsModel->where('status',1)->orderBy('id','DESC')->findAll();
-        return view('admin/projects/index',compact('page','clients'));
+        $projects = $this->projectModel->where('status',1)->get()->getResult();
+        return view('admin/projects/index',compact('page','clients','projects'));
     }
 
     function create($id =false)
@@ -101,7 +102,7 @@ class ProjectsController extends Controller{
 
         $builder = $this->projectModel->select('projects.id,projects.project,projects.is_active,clients.name as client_name')->orderBy('projects.id DESC')->join('clients', 'clients.id = projects.client_id');
 
-        if($filter !=='all'){
+        if($filter !=='all'){ 
             $builder->where('projects.is_active',$filter);
         }
 
