@@ -68,6 +68,13 @@ public function getReports($search='', $filter='', $startDate='', $endDate='', $
         $builder->groupStart()
         ->like('mt.title',$search)
         ->orLike('ac.comment',$search)
+        ->orLike('pu.store',$search)
+        ->orLike('pu.oldstore_name',$search)
+        ->orLike('pu.oracle_code',$search)
+        ->orLike('pu.polaris_code',$search)
+        ->orLike('alw.name',$search)
+        ->orLike('assi.name',$search)
+        ->orLike('a.activity_title',$search)
         ->groupEnd();
     }
 
