@@ -190,7 +190,7 @@ class ProjectUnitController extends Controller
         }
         $search = $this->request->getVar('search');
         $filter = $this->request->getVar('filter');
-        $project = $this->request->getVar('project');
+        $project = $this->request->getPost('project');
 
         $builder = $this->projectUnitModel->select('project_unit.id,
         project_unit.store,project_unit.oldstore_name,project_unit.oracle_code,c.name as clientName,project_unit.status as is_active,
