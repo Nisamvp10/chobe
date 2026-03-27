@@ -150,9 +150,13 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('reports','ReportController::index');
     $routes->get('reports/list','ReportController::list');
     $routes->post('reports/tasklist','ReportController::reportTaskList');
-
     $routes->get('report/generate','ReportController::generateReport');
     $routes->get('reports/tasklist/(:any)','ReportController::reportList/$1');
+    //history-report
+    $routes->get('history-report','ReportController::historyReport');
+    $routes->post('history-report/list','ReportController::historycommentsReportList');
+    $routes->get('history-report/download/(:any)','ReportController::historyReportDownload/$1');
+    $routes->get('history-report-tasklist/(:any)','ReportController::historyReportList/$1');
     //user report
     $routes->get('user-report','ReportController::userReport');
     $routes->get('user-report/userReportList','ReportController::userReportList');

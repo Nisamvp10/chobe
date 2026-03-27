@@ -914,10 +914,16 @@ a{
                         </div>
 
                          <li class="nav-item">
-                            <a class="nav-link <?= strpos(uri_string(), 'dashboard/reports') === 0 ? 'active' : '' ?>" href="<?= base_url('reports') ?>">
+                            <a class="nav-link <?= strpos(uri_string(), 'reports') === 0 ? 'active' : '' ?>" href="<?= base_url('reports') ?>">
                                 <i class="bi bi-file-earmark-medical"></i>
                                 <span>Reports</span>
                                 <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?= strpos(uri_string(), 'history-report') === 0 ? 'active' : '' ?>" href="<?= base_url('history-report') ?>">
+                                <i class="bi bi-bar-chart"></i>
+                                <span>History Report</span>
                             </a>
                         </li>
 

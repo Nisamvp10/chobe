@@ -84,3 +84,17 @@
     top: 50%;
     z-index: 9999;
   }
+
+  .comment-box {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .comment-box.show {
+    max-height: 500px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }

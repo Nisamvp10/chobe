@@ -16,7 +16,11 @@ use App\Models\ProjectsModel;
 use App\Models\TaskModel;
 
 class ReportController extends controller
-{
+{   
+    protected $reportModel;
+    public function __construct() {
+        $this->reportModel = new ReportModel();
+    }
     public function index()
     {   
         $page = (!haspermission('','report') ? lang('Custom.accessDenied') : 'Select the task you want to report' );
@@ -640,5 +644,200 @@ class ReportController extends controller
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save('php://output');
         exit;
+    }
+
+    public function historyReport() {
+        $page = (!haspermission('','report') ? lang('Custom.accessDenied') : 'Select the task you want to report' );
+        $rutes = (haspermission('','report') ? 'admin/reports/history-report' : '404page' );
+        $rojectUnitModel = new ProjectunitModel();
+        $projectModel = new ProjectsModel();
+
+        $projectUnits = $rojectUnitModel->where('status',1)->findAll();
+        $projectsList = $projectModel->where('is_active',1)->findAll();
+        
+        return view($rutes,compact('projectUnits','projectsList','page'));
+    }
+    public function historyReportList($id) {
+        if(!haspermission('','report')){
+            return lang('Custom.accessDenied');
+        }
+        $rutes = (haspermission('','report') ? 'admin/reports/history-report-tasklist' : '404page' );
+         $id = decryptor($id);
+        $taskModel = new TaskModel();
+        $task = $taskModel->where('id', $id)->get()->getRow();
+        $page = ($task) ? $task->title.' '.date('d-m-Y',strtotime($task->task_gen_date)) : 'No Task Found';
+        $rojectUnitModel = new ProjectunitModel();
+        $projectModel = new ProjectsModel();
+
+        $projectUnits = $rojectUnitModel->where('status',1)->findAll();
+        $projectsList = $projectModel->where('is_active',1)->findAll();
+        
+        return view($rutes,compact('id','page','projectUnits','projectsList'));
+    }
+
+    public function historycommentsReportList() {
+        if(!haspermission('','report')){
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => lang('Custom.accessDenied')
+            ]);
+        }
+        if(!$this->request->isAJAX()){
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => lang('Custom.invalidRequest')
+            ]);
+        }
+
+        $search = $this->request->getPost('search');
+        $projectUnitFilter = $this->request->getPost('projectUnitFilter');
+        $projectFilter = $this->request->getPost('projectFilter');
+        $filerStatus = $this->request->getPost('filerStatus');
+        $filterDate = $this->request->getPost('filterDate');
+        //taskId 
+        $taskId = decryptor($this->request->getPost('taskId'));
+        //generate history report 
+        $historyReport = $this->reportModel->generateHistoryReport($taskId);
+       
+        $result = [];
+        if(!empty($historyReport)){
+           foreach($historyReport as $key => $value){
+            if(!isset($result[$value['activity_id']])){
+                $result[$value['activity_id']] = [
+                    'taskTitle' => $value['title'],
+                    'taskDate' => date('M d, Y',strtotime($value['task_gen_date'])),
+                    
+                    'activity_id' => $value['activity_id'],
+                    'activity_title' => $value['activity_title'],
+                    'activity_status' => $value['activityStatus'],
+                    'activity_description' => $value['activity_description'],
+                    'activity_comments' => []
+                ];
+            }
+            $result[$value['activity_id']]['activity_comments'][] = [
+                'comment' => $value['comment'],
+                'comment_by' => $value['user_name'],
+                'comment_date' => date('M-d-Y H:i:s',strtotime($value['comment_date']))
+            ];
+           }
+        }
+        $result = array_values($result);
+       return $this->response->setJSON([
+        'status' => true,
+        'result' => $result
+       ]);
+
+    }
+
+    function historyReportDownload($id){
+       $id = decryptor($id);
+
+        $taskModel = new TaskModel();
+        $task = $taskModel->where('id', $id)->get()->getRow();
+
+        if (!$task) {
+            return "No Task Found";
+        }
+
+        // 🔹 Get report data
+        $historyReport = $this->reportModel->generateHistoryReport($id);
+
+        // 🔹 Format result (group by activity)
+        $result = [];
+
+        if (!empty($historyReport)) {
+            foreach ($historyReport as $value) {
+
+                if (!isset($result[$value['activity_id']])) {
+                    $result[$value['activity_id']] = [
+                        'taskTitle' => $value['title'],
+                        'taskDate' => date('M d, Y', strtotime($value['task_gen_date'])),
+
+                        'activity_id' => $value['activity_id'],
+                        'activity_title' => $value['activity_title'],
+                        'activity_status' => $value['activityStatus'],
+                        'activity_description' => $value['activity_description'],
+                        'activity_comments' => []
+                    ];
+                }
+
+                $result[$value['activity_id']]['activity_comments'][] = [
+                    'comment' => $value['comment'],
+                    'comment_by' => $value['user_name'],
+                    'comment_date' => date('M d, Y H:i:s', strtotime($value['comment_date']))
+                ];
+            }
+        }
+
+        $result = array_values($result);
+
+        // 🔹 Create Excel
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $row = 1;
+
+        // 🔹 TASK TITLE
+        $sheet->setCellValue('A' . $row, 'TASK TITLE : ' . $task->title . ' ' . date('d-m-Y', strtotime($task->task_gen_date)));
+        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
+        $row += 2;
+
+        // 🔹 Loop Activities
+        foreach ($result as $activity) {
+
+            // Activity Title
+            $sheet->setCellValue('A' . $row, 'Activity : ' . $activity['activity_title']);
+            $sheet->getStyle('A' . $row)->getFont()->setBold(true);
+            $row++;
+
+            // Description
+            $sheet->setCellValue('A' . $row, 'Description : ' . $activity['activity_description']);
+            $row++;
+
+            // Created Date
+            $sheet->setCellValue('A' . $row, 'Created date : ' . $activity['taskDate']);
+            $row += 2;
+
+            // Table Header
+            $sheet->setCellValue('B' . $row, 'Comments');
+            $sheet->setCellValue('C' . $row, 'Commented By');
+
+            $sheet->getStyle('B' . $row . ':C' . $row)->getFont()->setBold(true);
+            $row++;
+
+            // Comments
+            if (!empty($activity['activity_comments'])) {
+                foreach ($activity['activity_comments'] as $comment) {
+
+                    $sheet->setCellValue('B' . $row, $comment['comment']);
+                    $sheet->setCellValue('C' . $row, $comment['comment_by']);
+                    $row++;
+                }
+            } else {
+                $sheet->setCellValue('B' . $row, 'No Comments');
+                $row++;
+            }
+
+            // Space between activities
+            $row += 2;
+        }
+
+        // 🔹 Auto column width
+        foreach (range('A', 'C') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // 🔹 Download file
+       
+        $filename = 'task_report_'.date('Y-m-d_H-i-s').'.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        header('Cache-Control: max-age=0');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        exit;
+
     }
 }
