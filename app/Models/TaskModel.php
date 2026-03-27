@@ -97,6 +97,7 @@ class TaskModel extends Model {
             //->whereIn('t.id', $myTaskIds)
             ->where('a.staff_id',session('user_data')['id'])
             ->where('t.ui',1)
+            ->where('t.tasktype',1)
             ->orderBy('t.id', 'DESC');
             // $builder->groupStart()
             // ->where('t.status !=', 'Completed')
