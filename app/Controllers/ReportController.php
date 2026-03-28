@@ -659,26 +659,101 @@ class ReportController extends controller
 
         $projectUnits = $rojectUnitModel->where('status',1)->findAll();
         $projectsList = $projectModel->where('is_active',1)->findAll();
+        $tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
         
-        return view($rutes,compact('projectUnits','projectsList','page'));
+        return view($rutes,compact('projectUnits','projectsList','page','tasksByprojectUnits'));
     }
-    public function historyReportList($id) {
+    public function historyReportList($id=false) {
         if(!haspermission('','report')){
             return lang('Custom.accessDenied');
         }
         $rutes = (haspermission('','report') ? 'admin/reports/history-report-tasklist' : '404page' );
+        $template = $this->request->getGet('task');
+        //date date=2026-03-22+to+2026-03-28 splt to satrt date and end date 
+        $date = $this->request->getGet('date');
+        $startDate = date('Y-m-d',strtotime('-1 day'));
+        $endDate = date('Y-m-d',strtotime('-1 day'));
+        if($date){
+            $date = explode('to', $date);
+            $startDate = $date[0];
+            $endDate = $date[1];
+        }
         $id = decryptor($id);
+        //projectunit
+        $projectunit = $this->request->getGet('projectunit');
         $taskModel = new TaskModel();
-        $task = $taskModel->where('id', $id)->get()->getRow();
-        $page = ($task) ? $task->title.' '.date('d-m-Y',strtotime($task->task_gen_date)) : 'No Task Found';
+        //select taskks from task table where created_from_template = $template and task_gen_date = $date
+        $builder = $taskModel->where('created_from_template', $template)->where('task_gen_date >=', $startDate)->where('task_gen_date <=', $endDate);
+        if($projectunit != 'all'){
+            $builder->where('project_unit', $projectunit);
+        }
+        $task = $builder->get()->getResult();
+        //i have get 11 tasks i want to list each activities send ids to report model ,121,55,22,81,58,66,67,68,69,70,71, how to send this ids to report model
+        $taskId = [];
+        if(!empty($task)){
+            foreach($task as $key => $value){
+                $taskId[] = $value->id;
+            }
+            $taskId = implode(',', $taskId);
+        }
+        if(!empty($taskId)){
+            $historyReport = $this->reportModel->generateHistoryReport($taskId);
+        }else{
+            $historyReport = [];
+        }
+           
+        $page = '';//($task) ? $task->title.' '.date('d-m-Y',strtotime($task->task_gen_date)) : 'No Task Found';
         $rojectUnitModel = new ProjectunitModel();
         $projectModel = new ProjectsModel();
 
         $projectUnits = $rojectUnitModel->where('status',1)->findAll();
         $projectsList = $projectModel->where('is_active',1)->findAll();
+        $result = [];
+
+        foreach ($historyReport as $row) {
+
+            $taskId = $row['id']; // task id
+            $activityId = $row['tsaactivityId']; // activity id
+
+            //  TASK LEVEL
+            if (!isset($result[$taskId])) {
+                $result[$taskId] = [
+                    'task_id' => $taskId,
+                    'task_title' => $row['title'],
+                    'projectUnit' => $row['store'],
+                    'task_date' => date('M d, Y',strtotime($row['task_gen_date'])),
+                    'activities' => []
+                ];
+            }
+
+            //  ACTIVITY LEVEL
+            if (!isset($result[$taskId]['activities'][$activityId])) {
+                $result[$taskId]['activities'][$activityId] = [
+                    'activity_id' => $activityId,
+                    'activity_title' => $row['activity_title'],
+                    'activity_status' => $row['activityStatus'],
+                    'activity_description' => $row['activity_description'],
+                    'comments' => []
+                ];
+            }
+
+            //  COMMENTS LEVEL
+            $result[$taskId]['activities'][$activityId]['comments'][] = [
+                'comment' => $row['comment'],
+                'user_name' => $row['user_name'],
+                'comment_date' => $row['comment_date']
+            ];
+        }
+
+        // Optional: reset indexes
+        $result = array_values($result);
+
+        foreach ($result as &$task) {
+            $task['activities'] = array_values($task['activities']);
+        }
+        $requestUrl =  $this->request->getGet();
         $tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
-        
-        return view($rutes,compact('id','page','projectUnits','projectsList'));
+        return view($rutes,compact('id','page','projectUnits','projectsList','result','requestUrl','tasksByprojectUnits'));
     }
 
     public function historycommentsReportList() {
@@ -695,15 +770,34 @@ class ReportController extends controller
             ]);
         }
 
-        $search = $this->request->getPost('search');
-        $projectUnitFilter = $this->request->getPost('projectUnitFilter');
-        $projectFilter = $this->request->getPost('projectFilter');
-        $filerStatus = $this->request->getPost('filerStatus');
-        $filterDate = $this->request->getPost('filterDate');
-        //taskId 
-        $taskId = decryptor($this->request->getPost('taskId'));
-        //generate history report 
-        $historyReport = $this->reportModel->generateHistoryReport($taskId);
+        $date = $this->request->getGet('date');
+        $startDate = date('Y-m-d',strtotime('-1 day'));
+        $endDate = date('Y-m-d',strtotime('-1 day'));
+        if($date){
+            $date = explode('to', $date);
+            $startDate = $date[0];
+            $endDate = $date[1];
+        }
+
+         $builder = $taskModel->where('created_from_template', $template)->where('task_gen_date >=', $startDate)->where('task_gen_date <=', $endDate);
+        if($projectunit != 'all'){
+            $builder->where('project_unit', $projectunit);
+        }
+        $task = $builder->get()->getResult();
+
+        
+        $taskId = [];
+        if(!empty($task)){
+            foreach($task as $key => $value){
+                $taskId[] = $value->id;
+            }
+            $taskId = implode(',', $taskId);
+        }
+        if(!empty($taskId)){
+            $historyReport = $this->reportModel->generateHistoryReport($taskId);
+        }else{
+            $historyReport = [];
+        }
        
         $result = [];
         if(!empty($historyReport)){
@@ -712,7 +806,7 @@ class ReportController extends controller
                 $result[$value['activity_id']] = [
                     'taskTitle' => $value['title'],
                     'taskDate' => date('M d, Y',strtotime($value['task_gen_date'])),
-                    
+                    'projectUnit' => $value['store'],
                     'activity_id' => $value['activity_id'],
                     'activity_title' => $value['activity_title'],
                     'activity_status' => $value['activityStatus'],
@@ -735,46 +829,42 @@ class ReportController extends controller
 
     }
 
-    function historyReportDownload($id){
-        $id = decryptor($id);
-
+    function historyReportDownload($id = false){
+       
         $taskModel = new TaskModel();
-        $task = $taskModel->where('id', $id)->get()->getRow();
+         $template = $this->request->getGet('task');
+        //date date=2026-03-22+to+2026-03-28 splt to satrt date and end date 
+        $date = $this->request->getGet('date');
+        $date = explode('to', $date);
+        $startDate = $date[0];
+        $endDate = $date[1];
+        $id = decryptor($id);
+        //projectunit
+        $projectunit = $this->request->getGet('projectunit');
+        
+        $builder = $taskModel->where('created_from_template', $template)->where('task_gen_date >=', $startDate)->where('task_gen_date <=', $endDate);
+        if($projectunit != 'all'){
+            $builder->where('project_unit', $projectunit);
+        }
+        $task = $builder->get()->getResult();
 
         if (!$task) {
             return "No Task Found";
         }
 
-        // 🔹 Get report data
-        $historyReport = $this->reportModel->generateHistoryReport($id);
+        $taskId = [];
+        if(!empty($task)){
+            foreach($task as $key => $value){
+                $taskId[] = $value->id;
+            }
+            $taskId = implode(',', $taskId);
+        }
+        $historyReport = $this->reportModel->generateHistoryReport($taskId);
 
         // 🔹 Format result (group by activity)
         $result = [];
 
-        if (!empty($historyReport)) {
-            // foreach ($historyReport as $value) {
-
-            //     if (!isset($result[$value['activity_id']])) {
-            //         $result[$value['activity_id']] = [
-            //             'taskTitle' => $value['title'],
-            //             'taskDate' => date('M d, Y', strtotime($value['task_gen_date'])),
-
-            //             'activity_id' => $value['activity_id'],
-            //             'activity_title' => $value['activity_title'],
-            //             'activity_status' => $value['activityStatus'],
-            //             'activity_description' => $value['activity_description'],
-            //             'activity_comments' => []
-            //         ];
-            //     }
-
-            //     $result[$value['activity_id']]['activity_comments'][] = [
-            //         'comment' => $value['comment'],
-            //         'comment_by' => $value['user_name'],
-            //         'comment_date' => date('M d, Y H:i:s', strtotime($value['comment_date']))
-            //     ];
-            // }
-        }
-       
+        
 
         // 🔹 Get report data
 
@@ -784,7 +874,8 @@ class ReportController extends controller
         $row = 1;
 
         // 🔹 TITLE
-        $sheet->setCellValue('A' . $row, 'TASK TITLE : ' . $task->title . ' ' . date('d-m-Y', strtotime($task->task_gen_date)));
+        $findtask = $taskModel->where('id', $taskId)->first();
+        $sheet->setCellValue('A' . $row, 'History Report : '.$findtask['title'].'('. date('d-m-Y',strtotime($startDate)).' to '. date('d-m-Y',strtotime($endDate)).')');
         $sheet->mergeCells('A1:K1');
         $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $row += 2;
@@ -847,7 +938,7 @@ class ReportController extends controller
         }
 
         // 🔹 DOWNLOAD
-        $filename = 'task_report_'.date('Y-m-d_H-i-s').'.xlsx';
+        $filename = 'task_history_report_'.date('Y-m-d_H-i-s').'.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="'.$filename.'"');

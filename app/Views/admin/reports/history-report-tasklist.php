@@ -19,42 +19,51 @@
 
     <!-- body -->
     <div class="bg-white rounded-lg shadow-sm overflow-hidden p-4">
+         <form action="<?= base_url('history-report/history-report-tasklist') ?>" method="get">
+
         <div class="flex flex-col md:flex-row gap-4 mb-6">
     
             <!-- Column 1: Search Input -->
             <div class="flex-1 relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-400">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.3-4.3"></path>
-                </svg>
-                </div>
-                <input type="text" id="searchInput" placeholder="Search Task title..." class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter text-gray-400">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    </div>
+                    <select id="projectFilter" name="task" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
+                        <option value="all">All</option>
+                       <?php
+                        if(!empty($tasksByprojectUnits)){
+                            foreach($tasksByprojectUnits as $tasks){
+                            ?>
+                                <option <?=($requestUrl['task'] == $tasks->created_from_template) ? 'selected' : '';?>  value="<?=$tasks->created_from_template;?>"><?=$tasks->title;?></option>
+                            <?php 
+                            } 
+                        } ?>
+
+                    </select>
             </div>
               <div class="flex-1 relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-               <i class="bi bi-calendar"></i>
+                    <i class="bi bi-calendar"></i>
                 </div>
-                <input type="text" id="filterDate" placeholder="Filter by date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-
-            
-            
-            <!-- Column 2: Status Dropdown -->
-              <div class="w-full md:w-48 hidden">
+                <input type="text" id="filterDate" name="date" value="<?= $requestUrl['date'] ?? ''; ?>" placeholder="Filter by date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                <!-- set a submit button view report -->
+                </div>
+                          <div class="w-full md:w-48 ">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter text-gray-400">
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                     </svg>
                     </div>
-                    <select id="projectUnitFilter" class="pl-10  pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
+                    <select id="projectUnitFilter" name="projectunit" class="pl-10  pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
                         <option value="all">All</option>
                        <?php
                         if(!empty($projectUnits)){
                             foreach($projectUnits as $unit){
                             ?>
-                                <option  value="<?=$unit['id'];?>"><?=$unit['store'];?></option>
+                                <option <?=($requestUrl['projectunit'] == $unit['id']) ? 'selected' : '';?> value="<?=$unit['id'];?>"><?=$unit['store'];?></option>
                             <?php 
                             } 
                         } ?>
@@ -62,47 +71,81 @@
                     </select>
                 </div>
             </div>
-            <!-- project Filter -->
-                 <div class="w-full md:w-48 hidden">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter text-gray-400">
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                    </svg>
-                    </div>
-                    <select id="projectFilter" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                        <option value="all">All</option>
-                       <?php
-                        if(!empty($projectsList)){
-                            foreach($projectsList as $project){
-                            ?>
-                                <option  value="<?=$project['id'];?>"><?=$project['project'];?></option>
-                            <?php 
-                            } 
-                        } ?>
 
-                    </select>
+                 <div class="flex-1 relative">
+                    <button type="submit" class="btn btn-primary">View Report</button>
                 </div>
-            </div>
-            
-            <div class="w-full md:w-48 hidden">
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter text-gray-400">
-                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                    </svg>
-                    </div>
-                    <select id="filerStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                        <option value="all">All</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Completed">Completed</option>
-                    </select>
-                </div>
-            </div>
-            </div>
+             </div>
+            </form>
             <!-- table -->
              <div class="overflow-x-auto">
-                <div id="clientsTable" class="max-h-[70vh] overflow-y-auto overflow-x-auto custom-scroll-wrapper"></div>
+                <div id="clientsTable__" class="max-h-[70vh] overflow-y-auto overflow-x-auto custom-scroll-wrapper">
+                    <?php
+                    if(!empty($result)) {
+                        foreach($result as $report) {
+                           echo '<div>  <h1 class="h3 mb-3 capitalize">' . $report['task_title'].'-'.$report['task_date'] . '</h3></div>';
+                            $activities = $report['activities'];
+                            $commentsHtml = '';
+                            foreach($activities as $activity) {
+                                $commentId = 'comments_'.$activity['activity_id'];
+                        ?>
+                        <div>
+                                <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-lg mb-3">
+
+                                    <div class="mb-3 p-3">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <div class="flex-1">
+                                                <p class="text-2xl font-bold text-gray-800 mb-1"><?= $activity['activity_title']; ?></p>
+                                                <p class="text-gray-600 mb-2"><?= $activity['activity_description']; ?></p>
+                                                <p>Store : <?= $report['projectUnit']; ?></p>
+                                            </div>
+                                            <div class="px-3 py-1 capitalize rounded-full text-xs font-medium border <?php if($activity['activity_status'] == 'Pending'){ echo 'bg-amber-100 text-amber-800 border-amber-200'; }else if($activity['activity_status'] == 'In_Progress'){ echo 'bg-blue-100 text-blue-800 border-blue-200'; }else{ echo 'bg-green-100 text-green-800 border-green-200'; } ?>">
+                                                <?= $activity['activity_status']; ?>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4 text-sm text-gray-500 mb-2"><div class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar "><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg><span><?=$report['task_date'];?></span></div><div class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square "><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span><?=count($activity['comments'])?> comments</span></div></div>
+                                        <button onclick="toggleComments('<?=$commentId?>',this)" class="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down "><path d="m6 9 6 6 6-6"></path></svg>View Comments</button>
+                                    </div>
+                                    
+
+                                    <!-- COMMENTS SECTION -->
+                                    <div id="<?=$commentId;?>" class="comment-box border-t border-gray-200 bg-gray-50 p-6">
+                                        <h4 class="text-lg font-semibold text-gray-900 mb-4">
+                                            Comments (<?=count($activity['comments'])?>)
+                                        </h4>
+
+                                        <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                                            <?php
+                                            if(!empty($activity['comments'])){
+                                                foreach($activity['comments'] as $cmnts) {
+                                                ?>
+                                                 <div class="bg-white rounded-lg p-2 border border-gray-200 hover:border-blue-300 transition-colors">
+                                                    <div class="flex items-start justify-between mb-2">
+                                                        <div class="flex items-center gap-2">
+                                                        <div class="relative rounded-full overflow-hidden flex items-center justify-center w-10 h-10 text-xs border-2 bg-blue-100 border-white">
+                                                                    <span class="text-blue-600 font-medium"><?='A';?></span>
+                                                            </div>
+                                                            <span class="font-medium text-gray-900"><?=$cmnts['user_name'] ?? 'User'?></span>
+                                                        </div>
+                                                        <span class="text-xs text-gray-500"><?=$cmnts['comment_date'] ?? ''?></span>
+                                                    </div>
+                                                    <p class="text-gray-700 text-sm ml-10 mb-2"><?=$cmnts['comment'] ?? ''?></p>
+                                                </div>
+                                                <?php
+                                                }
+                                            }?>
+                                            <?=($activity['comments'] > 0 ? $commentsHtml :'<p class="text-gray-500">No comments</p>')?>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        <?php
+                            }
+
+                        }
+                    }?>
+                </div>
             </div>
             <div id="loadingText" class="text-center flex items-center justify-center gap-2"  style="display:none; padding:10px; font-weight:bold;">
                <i class="bi bi-spinner bi-spin"></i> Loading data...
@@ -284,8 +327,13 @@ function toggleComments(id,e) {
 
 $(document).on('click','#downloadReport',function(){
     let id = $(this).data('id');
-    window.location.href = "<?= site_url('history-report/download') ?>" + "/" + id;
-})
+   
+        const url = "<?= site_url('history-report/download') ?>?" + 
+            "task=" + encodeURIComponent("<?= $requestUrl['task'] ?>") +
+            "&date=" + encodeURIComponent("<?= $requestUrl['date'] ?>") +
+            "&projectunit=" + encodeURIComponent("<?= $requestUrl['projectunit'] ?>");
+
+        window.location.href = url;})
     </script>
 <?= $this->endSection() ?>
 

@@ -155,8 +155,9 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     //history-report
     $routes->get('history-report','ReportController::historyReport');
     $routes->post('history-report/list','ReportController::historycommentsReportList');
-    $routes->get('history-report/download/(:any)','ReportController::historyReportDownload/$1');
+    $routes->get('history-report/download','ReportController::historyReportDownload');
     $routes->get('history-report-tasklist/(:any)','ReportController::historyReportList/$1');
+    $routes->get('history-report/history-report-tasklist','ReportController::historyReportList');
     //user report
     $routes->get('user-report','ReportController::userReport');
     $routes->get('user-report/userReportList','ReportController::userReportList');

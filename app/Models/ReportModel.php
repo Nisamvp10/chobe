@@ -119,7 +119,7 @@ public function getNearestDate()
 
 public function generateHistoryReport($taskId){
     $builder = $this->db->table('tasks t');
-    $builder->select("t.title,t.task_gen_date,t.id,
+    $builder->select("t.title,t.task_gen_date,t.id,t.status as task_status,
         tsa.id as tsaactivityId,
         tsa.status as activityStatus,
         a.id as activity_id,
@@ -138,7 +138,7 @@ public function generateHistoryReport($taskId){
 
     $builder->where("t.ui",1);
     $builder->where("t.tasktype",1);
-    $builder->where("t.id",$taskId);
+    $builder->where("t.id IN ($taskId)");
     $builder->where('ac.comment IS NOT NULL');
     return $builder->get()->getResultArray();
     
