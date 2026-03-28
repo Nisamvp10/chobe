@@ -667,7 +667,7 @@ class ReportController extends controller
             return lang('Custom.accessDenied');
         }
         $rutes = (haspermission('','report') ? 'admin/reports/history-report-tasklist' : '404page' );
-         $id = decryptor($id);
+        $id = decryptor($id);
         $taskModel = new TaskModel();
         $task = $taskModel->where('id', $id)->get()->getRow();
         $page = ($task) ? $task->title.' '.date('d-m-Y',strtotime($task->task_gen_date)) : 'No Task Found';
@@ -676,7 +676,7 @@ class ReportController extends controller
 
         $projectUnits = $rojectUnitModel->where('status',1)->findAll();
         $projectsList = $projectModel->where('is_active',1)->findAll();
-        $tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tysktype' => 1])->groupBy('project_unit')->get()->getResult();
+        $tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
         
         return view($rutes,compact('id','page','projectUnits','projectsList'));
     }

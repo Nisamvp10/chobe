@@ -40,7 +40,7 @@ class TaskController extends Controller {
     function __construct() {
         $this->branchModel = new BranchesModel();
         $this->taskModel = new TaskModel();
-        $this->taskassignModel = new AssigntaskModel();
+        $this->taskassignModel = new AssigntaskModel(); 
         $this->notificationModel = new NotificationModel();
         $this->taskImgModel = new TaskimagesModel();
         $this->uploadImg = new UploadImages();
