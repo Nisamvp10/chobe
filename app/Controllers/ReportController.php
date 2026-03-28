@@ -12,14 +12,19 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use App\Models\TaskStaffActivityModel;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+
 use App\Models\ProjectsModel;
 use App\Models\TaskModel;
 
 class ReportController extends controller
 {   
     protected $reportModel;
+    protected $taskModel;
     public function __construct() {
         $this->reportModel = new ReportModel();
+        $this->taskModel = new TaskModel();
     }
     public function index()
     {   
@@ -671,6 +676,7 @@ class ReportController extends controller
 
         $projectUnits = $rojectUnitModel->where('status',1)->findAll();
         $projectsList = $projectModel->where('is_active',1)->findAll();
+        $tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tysktype' => 1])->groupBy('project_unit')->get()->getResult();
         
         return view($rutes,compact('id','page','projectUnits','projectsList'));
     }
@@ -730,7 +736,7 @@ class ReportController extends controller
     }
 
     function historyReportDownload($id){
-       $id = decryptor($id);
+        $id = decryptor($id);
 
         $taskModel = new TaskModel();
         $task = $taskModel->where('id', $id)->get()->getRow();
@@ -746,89 +752,101 @@ class ReportController extends controller
         $result = [];
 
         if (!empty($historyReport)) {
-            foreach ($historyReport as $value) {
+            // foreach ($historyReport as $value) {
 
-                if (!isset($result[$value['activity_id']])) {
-                    $result[$value['activity_id']] = [
-                        'taskTitle' => $value['title'],
-                        'taskDate' => date('M d, Y', strtotime($value['task_gen_date'])),
+            //     if (!isset($result[$value['activity_id']])) {
+            //         $result[$value['activity_id']] = [
+            //             'taskTitle' => $value['title'],
+            //             'taskDate' => date('M d, Y', strtotime($value['task_gen_date'])),
 
-                        'activity_id' => $value['activity_id'],
-                        'activity_title' => $value['activity_title'],
-                        'activity_status' => $value['activityStatus'],
-                        'activity_description' => $value['activity_description'],
-                        'activity_comments' => []
-                    ];
-                }
+            //             'activity_id' => $value['activity_id'],
+            //             'activity_title' => $value['activity_title'],
+            //             'activity_status' => $value['activityStatus'],
+            //             'activity_description' => $value['activity_description'],
+            //             'activity_comments' => []
+            //         ];
+            //     }
 
-                $result[$value['activity_id']]['activity_comments'][] = [
-                    'comment' => $value['comment'],
-                    'comment_by' => $value['user_name'],
-                    'comment_date' => date('M d, Y H:i:s', strtotime($value['comment_date']))
-                ];
-            }
+            //     $result[$value['activity_id']]['activity_comments'][] = [
+            //         'comment' => $value['comment'],
+            //         'comment_by' => $value['user_name'],
+            //         'comment_date' => date('M d, Y H:i:s', strtotime($value['comment_date']))
+            //     ];
+            // }
         }
+       
 
-        $result = array_values($result);
+        // 🔹 Get report data
 
-        // 🔹 Create Excel
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
         $row = 1;
 
-        // 🔹 TASK TITLE
+        // 🔹 TITLE
         $sheet->setCellValue('A' . $row, 'TASK TITLE : ' . $task->title . ' ' . date('d-m-Y', strtotime($task->task_gen_date)));
-        $sheet->getStyle('A' . $row)->getFont()->setBold(true)->setSize(14);
+        $sheet->mergeCells('A1:K1');
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(14);
         $row += 2;
 
-        // 🔹 Loop Activities
-        foreach ($result as $activity) {
+        // 🔹 HEADER
+        $headers = ['SL NO','DATE','STORE NAME','OLD NAME','ORACLE CODE','POLARIS CODE','TASK','ACTIVITY','COMMENTS','COMMENTED BY','COMMENTED DATE'];
 
-            // Activity Title
-            $sheet->setCellValue('A' . $row, 'Activity : ' . $activity['activity_title']);
-            $sheet->getStyle('A' . $row)->getFont()->setBold(true);
-            $row++;
-
-            // Description
-            $sheet->setCellValue('A' . $row, 'Description : ' . $activity['activity_description']);
-            $row++;
-
-            // Created Date
-            $sheet->setCellValue('A' . $row, 'Created date : ' . $activity['taskDate']);
-            $row += 2;
-
-            // Table Header
-            $sheet->setCellValue('B' . $row, 'Comments');
-            $sheet->setCellValue('C' . $row, 'Commented By');
-
-            $sheet->getStyle('B' . $row . ':C' . $row)->getFont()->setBold(true);
-            $row++;
-
-            // Comments
-            if (!empty($activity['activity_comments'])) {
-                foreach ($activity['activity_comments'] as $comment) {
-
-                    $sheet->setCellValue('B' . $row, $comment['comment']);
-                    $sheet->setCellValue('C' . $row, $comment['comment_by']);
-                    $row++;
-                }
-            } else {
-                $sheet->setCellValue('B' . $row, 'No Comments');
-                $row++;
-            }
-
-            // Space between activities
-            $row += 2;
+        $col = 'A';
+        foreach ($headers as $head) {
+            $sheet->setCellValue($col . $row, $head);
+            $col++;
         }
 
-        // 🔹 Auto column width
-        foreach (range('A', 'C') as $col) {
+        // 🔹 HEADER STYLE (GREEN)
+        $sheet->getStyle('A' . $row . ':K' . $row)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF']
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '2E7D32'] // green
+            ]
+        ]);
+
+        $row++;
+
+        // 🔹 DATA
+        $sl = 1;
+
+        foreach ($historyReport as $data) {
+
+            $sheet->setCellValue('A' . $row, $sl++);
+            $sheet->setCellValue('B' . $row, date('d-m-Y', strtotime($data['task_gen_date'])));
+            $sheet->setCellValue('C' . $row, $data['store']);
+            $sheet->setCellValue('D' . $row, $data['oldstore_name']);
+            $sheet->setCellValue('E' . $row, $data['oracle_code']);
+            $sheet->setCellValue('F' . $row, $data['polaris_code']);
+            $sheet->setCellValue('G' . $row, $data['title']);
+            $sheet->setCellValue('H' . $row, $data['activity_title']);
+            $sheet->setCellValue('I' . $row, $data['comment']);
+            $sheet->setCellValue('J' . $row, $data['user_name']);
+            $sheet->setCellValue('K' . $row, date('d-m-Y H:i', strtotime($data['comment_date'])));
+
+            $row++;
+        }
+
+        // 🔹 BORDER STYLE
+        $sheet->getStyle('A3:K' . ($row - 1))->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN
+                ]
+            ]
+        ]);
+
+        // 🔹 AUTO WIDTH
+        foreach (range('A','K') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        // 🔹 Download file
-       
+        // 🔹 DOWNLOAD
         $filename = 'task_report_'.date('Y-m-d_H-i-s').'.xlsx';
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -838,6 +856,5 @@ class ReportController extends controller
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save('php://output');
         exit;
-
     }
 }

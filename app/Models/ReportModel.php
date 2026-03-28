@@ -120,23 +120,26 @@ public function getNearestDate()
 public function generateHistoryReport($taskId){
     $builder = $this->db->table('tasks t');
     $builder->select("t.title,t.task_gen_date,t.id,
-    tsa.id as tsaactivityId,
-    tsa.status as activityStatus,
-    a.id as activity_id,
-    a.activity_title,
-    a.activity_description as activity_description,
-    ac.comment as comment,
-    u.name as user_name,
-    ac.created_at as comment_date
+        tsa.id as tsaactivityId,
+        tsa.status as activityStatus,
+        a.id as activity_id,
+        a.activity_title,
+        a.activity_description as activity_description,
+        ac.comment as comment,
+        u.name as user_name,
+        ac.created_at as comment_date,
+        pu.store,pu.oldstore_name,pu.polaris_code,pu.oracle_code
     ");
     $builder->join('task_staff_activities tsa','tsa.task_id=t.id','left');
     $builder->join('activities a','a.id=tsa.task_activity_id','left');
     $builder->join("activities_comments ac","ac.task_id=t.id AND ac.activity_id=a.id","left");
     $builder->join('users u','u.id=ac.user_id','left',"left");
+    $builder->join('project_unit pu','pu.id=t.project_unit','left');
 
     $builder->where("t.ui",1);
     $builder->where("t.tasktype",1);
     $builder->where("t.id",$taskId);
+    $builder->where('ac.comment IS NOT NULL');
     return $builder->get()->getResultArray();
     
 }
