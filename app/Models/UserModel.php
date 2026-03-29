@@ -52,11 +52,11 @@ Class UserModel extends Model{
                 ->orLike('u.position',$search)
                 ->orLike('u.phone',$search); 
             }
-
+            
             if($store){
                $builder->where('u.store_id',$store);
             }else{
-                $builder->where('u.store_id !=',13);
+                $builder->where('u.store_id !=',12);
             }
 
          
