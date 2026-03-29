@@ -46,11 +46,13 @@ Class UserModel extends Model{
                $builder->where('b.id',$branch);
             }
                if (!empty($search)) {
-                $builder->like('u.name',$search)
-                ->orLike('u.email',$search)
-                ->orLike('b.name',$search)
-                ->orLike('u.position',$search)
-                ->orLike('u.phone',$search); 
+                $builder->groupStart()
+                    ->like('u.name', $search)
+                    ->orLike('u.email', $search)
+                    ->orLike('b.name', $search)
+                    ->orLike('u.position', $search)
+                    ->orLike('u.phone', $search)
+                ->groupEnd();
             }
             
             if($store){
