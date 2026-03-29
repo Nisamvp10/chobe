@@ -8,6 +8,7 @@ use App\Models\ServiceModel;
 use App\Models\ClientsModel;
 use App\Controllers\UploadImages;
 use App\Models\ClientContactsModal;
+use App\Models\MasterroleModel;
 
 class Clients extends controller {
     protected $categoryModel;
@@ -15,6 +16,7 @@ class Clients extends controller {
     protected $serviceModel;
     protected $clientsModel;
     protected $userModel;
+    protected $masterroleModel;
 
     function __construct() {
         $this->categoryModel = new CategoryModel();
@@ -22,16 +24,20 @@ class Clients extends controller {
         $this->serviceModel = new ServiceModel();
         $this->clientsModel = new ClientsModel();
         $this->userModel = new UserModel();
+        $this->masterroleModel = new MasterroleModel();
     }
 
     function index() {
 
         $page = (!haspermission(session('user_data')['role'],'view_clients') ? lang('Custom.accessDenied') : 'Clients' );
-        return view('admin/clients/index',compact('page'));
+       $positiondata = $this->masterroleModel->where('status','active')->findAll();
+        return view('admin/clients/index',compact('page','positiondata'));
     }
 
     function create ($id=false) {
         $page = (!haspermission('','create_client') ? lang('Custom.accessDenied') : 'Add New Client' );
+         $positiondata = $this->masterroleModel->where('status','active')->findAll();
+//       echo $this->masterroleModel->getLastQuery();exit();
         $clientGroup = [] ;
         if($id) {
             $page = "Edit Client";
@@ -54,6 +60,7 @@ class Clients extends controller {
                             'email' => $client['email'] ?? '',
                             'infoId' => $client['infoId'] ?? '',
                             'phone' => $client['phone'] ?? '',
+                            'role_id' => $client['role_id'] ?? '',
                             'designation' => $client['designation'] ?? ''
                           ];
                     }
@@ -70,7 +77,7 @@ class Clients extends controller {
         $services =$this->serviceModel->where('is_active' , 1)->findAll();
         $branches = $this->branchModel->where('status',1)->findAll();
         $selectedSpecialties = [];
-        return view('admin/clients/create',compact('page','services','selectedSpecialties','branches','clientGroup'));
+        return view('admin/clients/create',compact('page','services','selectedSpecialties','branches','clientGroup','positiondata'));
         
     }
 
@@ -198,12 +205,15 @@ class Clients extends controller {
                         continue;
                     }
                     $infoId = $infoIds[$index] ?? null;
+                    //get role name from client_contacts
+                    $role_id = $this->masterroleModel->where('id', $designations[$index])->first();
 
                     $contactInfo = [
                         'authorized_personnel' => $person,
                         'email'       => $emails[$index] ?? null,
                         'phone'       => $phones[$index] ?? null,
-                        'designation' => $designations[$index] ?? null,
+                        'role_id'     => $designations[$index] ?? null,
+                        'designation' => $role_id['name'] ?? null,
                         'client_id'   => $id,
                     ];
 
@@ -235,34 +245,47 @@ class Clients extends controller {
         }else {
             if ($this->clientsModel->insert($data)) {
 
+                $insertId = $this->clientsModel->insertID();
+
+                if (empty($insertId)) {
+                    return "Client insert failed";
+                }
+
                 $authorized_personnel = $this->request->getPost('authorized_personnel');
                 $emails = $this->request->getPost('email');
                 $phones = $this->request->getPost('phone');
                 $designations = $this->request->getPost('designation');
+
                 $contacts = [];
-                if(!empty($authorized_personnel)) {
-                    
+
+                if (!empty($authorized_personnel)) {
+
                     foreach ($authorized_personnel as $i => $person) {
+
+                        $role_id = $this->masterroleModel->where('id', $designations[$i])->first();
+
                         $contacts[] = [
-                            'client_id' => $this->clientsModel->insertID(),
+                            'client_id' => $insertId, // ✅ FIXED
                             'authorized_personnel' => $person,
-                            'email' => $emails[$i],
+                            'email' => $emails[$i] ?? null,
                             'phone' => $phones[$i] ?? null,
-                            'designation' => $designations[$i] ?? null,
+                            'role_id' => $designations[$i] ?? null,
+                            'designation' => $role_id['name'] ?? null,
                         ];
                     }
                 }
-                foreach ($contacts as $contact) {
-                    $clientContactsModal->insert($contact);
+
+                if (!empty($contacts)) {
+                    $clientContactsModal->insertBatch($contacts);
                 }
 
                 $validStatus = true;
-                $validMsg = 'New Client Added' ;
+                $validMsg = 'New Client Added';
 
-            }else{
-                
+            } else {
+
                 $validStatus = false;
-                $validMsg = 'Oops!something went wrong Please try again' ;
+                $validMsg = 'Oops! something went wrong Please try again';
             }
         }
         return $this->response->setJSON([ 'success' => $validStatus, 'message' => $validMsg ]);

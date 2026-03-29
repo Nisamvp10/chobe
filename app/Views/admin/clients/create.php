@@ -74,7 +74,7 @@
                 <?php 
                 
                 if(!empty($contactInfo)) {
-                    foreach($contactInfo as $info){ ?>
+                    foreach($contactInfo as $info){  ?>
                     <div class="flex items-center gap-4 contact-row mt-2">
                         <!-- Email -->
                          <div>
@@ -114,12 +114,25 @@
 
                         <!-- Designation -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Designation </label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
                                     <i class="bi bi-file-person text-xl text-gray-400"></i>
                                 </div>
-                                <input type="text" name="designation[]" value="<?=$info['designation'] ?? '';?>" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Designation">
+                                <!-- <input type="text" name="designation[]" value="<?=$info['designation'] ?? '';?>" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Designation"> -->
+                               
+                                 <select name="designation[]" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Select Designation</option>
+                                    <?php
+                                    if(!empty($positiondata)){
+                                        foreach ($positiondata as $designation) { 
+                                            $selected = ($info['role_id'] == $designation['id']) ? 'selected' : '';
+                                            ?>
+                                            <option value="<?= $designation['id']; ?>" <?= $selected; ?>><?= $designation['name']; ?></option>
+                                        <?php } 
+                                    }
+                                    ?>
+                                </select>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
@@ -174,7 +187,19 @@
                                 <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none">
                                     <i class="bi bi-file-person text-xl text-gray-400"></i>
                                 </div>
-                                <input type="text" name="designation[]" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Designation">
+                                <!-- <input type="text" name="designation[]" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Designation"> -->
+                                 <select name="designation[]" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="">Select Designation</option>
+                                    <?php
+                                    if(!empty($positiondata)){
+                                        foreach ($positiondata as $designation) { 
+                                            $selected =000;// ($info['designation'] == $designation['id']) ? 'selected' : '';
+                                            ?>
+                                            <option value="<?= $designation['id']; ?>" <?= $selected; ?>><?= $designation['name']; ?></option>
+                                        <?php } 
+                                    }
+                                    ?>
+                                </select>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
