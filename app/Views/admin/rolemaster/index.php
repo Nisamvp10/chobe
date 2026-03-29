@@ -156,6 +156,7 @@
     });
 
     function buildLevel(parentId = 0) {
+        console.log(map[parentId]);
         if (!map[parentId]) return '';
 
         let html = `<div class="org-level flex justify-center gap-10 mt-10 relative      ${map[parentId].length === 1 ? 'single' : ''}">`;
