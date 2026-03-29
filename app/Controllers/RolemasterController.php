@@ -58,7 +58,7 @@ class RolemasterController extends Controller {
 
         $data = [
             'name' => $project,
-            'parent_id' => $parentId ?: null,
+            'parent_id' => $parentId ?: 2,
             'level' => $level
         ];
         

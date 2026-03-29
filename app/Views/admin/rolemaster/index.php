@@ -120,23 +120,24 @@
     }
         //$(document).ready(function() {
 
-            function projects(search = '') {
-                let filter = $('#filerStatus').val();
-                $.ajax({
-                    url: "<?= site_url('rolemaster/list') ?>",
-                    type: "GET",
-                    data: { search: search,filter:filter },
-                    dataType: "json",
-                    success: function(response) {
-                        
-                        if (response.success) {
-                            renderMsaterTable(response.projects);
-                        }
-                    }
-                });
+    function projects(search = '') {
+        let filter = $('#filerStatus').val();
+        $.ajax({
+            url: "<?= site_url('rolemaster/list') ?>",
+            type: "GET",
+            data: { search: search,filter:filter },
+            dataType: "json",
+            success: function(response) {
+                
+                if (response.success) {
+                    renderMsaterTable(response.projects);
+                }
             }
+        });
+    }
 
   function renderMsaterTable(projects) {
+   
 
     if (!projects || projects.length === 0) {
         $('#orgChart').html(`
@@ -148,20 +149,32 @@
     }
 
     // Group employees by parent_id
-    const map = {};
+    // const map = {};
+    // projects.forEach(p => {
+    //     const key = p.parent_id ?? 0;
+    //     if (!map[key]) map[key] = [];
+    //     map[key].push(p);
+    // });
+
+     const map = {};
     projects.forEach(p => {
         const key = p.parent_id ?? 0;
         if (!map[key]) map[key] = [];
         map[key].push(p);
     });
 
+    // 🔹 find root nodes
+    const allIds = projects.map(p => p.id);
+    const roots = projects.filter(p => !allIds.includes(p.parent_id));
+    
     function buildLevel(parentId = 0) {
-        console.log(map[parentId]);
+
         if (!map[parentId]) return '';
 
         let html = `<div class="org-level flex justify-center gap-10 mt-10 relative      ${map[parentId].length === 1 ? 'single' : ''}">`;
 
         map[parentId].forEach(emp => {
+            
             html += `
                 <div class="flex flex-col items-center relative">
 
@@ -198,7 +211,7 @@
         return html;
     }
 
-    $('#orgChart').html(buildLevel());
+    $('#orgChart').html(buildLevel(2));
 }
 
 
