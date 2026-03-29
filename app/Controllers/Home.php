@@ -21,7 +21,8 @@ class Home extends BaseController
         $inProgressTasks =  $taskModel->where('status','In_Progress')->findAll();
         $completedTasks = $taskModel->where('status','Completed')->findAll();
         $pendingTasks =  $taskModel->where('status',1)->findAll();
-        $recentTasks =  $taskModel->getTasks(10,'t.created_at DESC');
+        $recentTasks =  $taskModel->getTasks('','t.created_at DESC','','','','','',10);
+        //dd($recentTasks);
 
         $groupData = [];
 
@@ -38,7 +39,7 @@ class Home extends BaseController
                     'branch_name' => $task['branch_name'],
                     'priority'  => $task['priority'],
                     'status'    => $task['status'],
-                    'overdue_date' => $task['overdue_date'],
+                    'overdue_date' => $task['task_gen_date'],
                     'progress'  => $task['progress'],
                     'users'     => [],
                 ];

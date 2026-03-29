@@ -63,7 +63,7 @@ class TaskModel extends Model {
                 $builder->orderBy($orderBy);
             }
             if ($taskLimit) {
-                $builder->limit($limit);
+                $builder->limit($taskLimit);
             }
 
         $result = $builder->get()->getResultArray();

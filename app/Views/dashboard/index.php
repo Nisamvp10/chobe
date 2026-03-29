@@ -125,7 +125,7 @@
                                 <th>Branch</th>
                                 <th>Priority</th>
                                 <th>Status</th>
-                                <th>Deadline</th>
+                                <th>Task Gen Date</th>
                             </tr>
                         </thead>
                         <tbody>
