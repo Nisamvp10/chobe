@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\ClientsModel;
 use App\Models\MasterroleModel;
 
-class Staff extends BaseController{
+class ChoppiesTeamController extends BaseController{
     protected $branchModel;
     protected $roleModel;
     protected $imageUploader;
@@ -30,35 +30,53 @@ class Staff extends BaseController{
         $this->clientsModel = new ClientsModel();
         $this->masterroleModel = new MasterroleModel();
     }
-
-    function index()
+    public function index()
     {
-        
-        $page = (!haspermission(session('user_data')['role'],'view_staff') ?  lang('Custom.accessDenied') : "Staff Management" );
-        $active = 'TEST';
-        $branches = $this->branchModel->where('status',1)->findAll();
-        $clients = $this->clientsModel->where('status',1)->findAll();
-        if (!haspermission(session('user_data')['role'],'view_staff')) {
-             $branches = [];
-        }
-        return view('staff/index',compact('page','active','branches','clients'));
-    }
+        $routes = (haspermission('','view_staff')) ? 'admin/choppies-team/index' : '404error';
+        $page = (haspermission('','view_staff')) ? 'Choppies Team' : lang('custom.accessDenied');
 
-    function bulkindex(){
-        $data = '';
-        $page = "Bulk Team Data Upload";
-      
-        return view('staff/bulk-create',compact('page','data'));
+        return view($routes);
     }
     
+    function list() {
 
+        if (!$this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Invalid Request'
+            ]);
+        }
+        if (!haspermission(session('user_data')['role'],'view_staff')) {
+             return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Permission Denied'
+            ]);
+        }
+        $userModel = new UserModel();
+
+        $search = $this->request->getPost('search');
+        $filter = $this->request->getPost('filter');
+        $branch = $this->request->getPost('branch');
+
+        $staff = $userModel->getUsers($search,$filter,$branch);//12 only choppies team
+
+        foreach ($staff as &$staffKey) {
+            $staffKey['encrypted_id'] = encryptor($staffKey['id']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'staff' => $staff
+        ]);
+    }
+    
     function create($id = false){
         
           $userModel = new UserModel();
           $serviceModel = new ServiceModel();
         if ($id){
 
-            $page = "Edit Team";
+            $page = "Edit Choppies Team";
             $id = decryptor($id);
             $data = $userModel->where('id',$id)->first();
             $selectedSpecialties = $this->specialityModel->getSpecialty($id);
@@ -66,15 +84,16 @@ class Staff extends BaseController{
         }else{
             $selectedSpecialties = [];
             $data = '';
-            $page = "Add Team";
+            $page = "Add Choppies Team";
         }
         $branches = $this->clientsModel->where('status',1)->findAll();
         $positiondata = $this->masterroleModel->where('status','active')->findAll();
         $roles = $this->roleModel->findAll();
         $services = $this->categoryModel->getCategory();
       
-        return view('staff/create',compact('page','branches','roles','data','services','selectedSpecialties','positiondata'));
+        return view('admin/choppies-team/create',compact('page','branches','roles','data','services','selectedSpecialties','positiondata'));
     }
+
     function save(){
 
         $userModel = new UserModel();
@@ -101,14 +120,14 @@ class Staff extends BaseController{
             'hire_date' => 'required|valid_date[Y-m-d]', // assuming YYYY-MM-DD
             'status' => 'required',
             //'branch' => 'required|numeric', // or string based on your table
-            'role' => 'required',
+            //'role' => 'required',
         ];
         if (empty($id)) {
-            $rules['password'] = 'required|min_length[6]|max_length[50]';
+           // $rules['password'] = 'required|min_length[6]|max_length[50]';
             $rules['email'] = 'required|valid_email|max_length[100]|is_unique[users.email]';
         }
         if(!empty($this->request->getPost('password'))) {
-            $rules['password'] = 'required|min_length[6]|max_length[50]';
+          //  $rules['password'] = 'required|min_length[6]|max_length[50]';
         }
         if (!$this->validate($rules)) {
             return $this->response->setJSON([
@@ -125,8 +144,7 @@ class Staff extends BaseController{
             'position_id' => $this->request->getPost('position'),
             'hire_date' => $this->request->getPost('hire_date'),
             'booking_status' => $this->request->getPost('status'),
-            'store_id' => 13,// $this->request->getPost('branch'),
-            'role' => $this->request->getPost('role'),
+            'store_id' => $this->request->getPost('branch'),
             'status' => 2,
         ];
 
@@ -193,143 +211,4 @@ class Staff extends BaseController{
             'message' => $validMsg,
         ]);
     }
-
-    function uploadExcel() {
-        $status = false;
-        $message = '';
-        if(!$this->request->isAJAX()) {
-            return $this->response->setJSON(['success' => $status ,'msg' => '"Invalid Request"']);
-        }
-        if(!haspermission('','create_staff') ) {
-            return $this->response->setJSON(['success' =>false,'message' => lang('Custom.accessDenied')]);
-        }
-
-         $file = $this->request->getFile('staff_excel');
-        
-        if (!$file->isValid() || $file->getExtension() === '') {
-            return $this->response->setJSON(['success' =>false,'message' => 'Please upload a valid Excel file']);
-        }
-
-        $ext = $file->getClientExtension();
-        if (!in_array($ext, ['xls', 'xlsx'])) {
-            return $this->response->setJSON(['success' =>false,'message' => 'Only .xls or .xlsx files allowed']);
-        }
-
-        $filePath = $file->getTempName();
-        $spreadsheet = IOFactory::load($filePath);
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
-
-        $staffModel = new UserModel();;
-        $count = 0;
-        $insertedMessages = [];
-
-        foreach ($rows as $index => $row) {
-            if ($index === 0) continue; // skip header row
-            
-            $staffData = [
-                'name'           => $row[0] ?? '',
-                'email'          => $row[1] ?? '',
-                'phone'          => $row[2] ?? '',
-                'position'       => $row[3] ?? '',
-                'password' => password_hash($row[4] ?? '', PASSWORD_DEFAULT),
-                'booking_status' => 1,
-                'role'           => 5, //inventory staff
-                'status'         => 2,
-            ];
-
-            if (!empty($staffData['name']) && !empty($staffData['email'])) {
-                if($staffModel->insert($staffData)) {
-                    $insertedMessages[] = " Staff {$staffData['name']} added successfully.";
-                }else {
-                    $insertedMessages[] = "Failed to add staff {$staffData['name']}.";
-                }
-                $count++;
-                
-            }
-        }
-
-        $insertedMessages[] = " All {$count} staff members uploaded successfully.";
-
-        return $this->response->setJSON([
-            'success'  => true,
-            'inserted' => $insertedMessages
-        ]);
-        
-    }
-
-    function list() {
-
-        if (!$this->request->isAJAX()) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Invalid Request'
-            ]);
-        }
-        if (!haspermission(session('user_data')['role'],'view_staff')) {
-             return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Permission Denied'
-            ]);
-        }
-        $userModel = new UserModel();
-
-        $search = $this->request->getPost('search');
-        $filter = $this->request->getPost('filter');
-        $branch = $this->request->getPost('branch');
-
-        $staff = $userModel->getUsers($search,$filter,$branch,13);
-
-        foreach ($staff as &$staffKey) {
-            $staffKey['encrypted_id'] = encryptor($staffKey['id']);
-        }
-
-        return $this->response->setJSON([
-            'success' => true,
-            'staff' => $staff
-        ]);
-    }
-
-    function delete() {
-
-        if (!$this->request->isAjax()) {
-            return $this->response->setJSON([ 'success' => false, 'message' => "Invalid Request"]);
-        }
-        $userModel = new UserModel();
-        $validSuccess = false;
-        $validMsg = "oops! Item Not Valid ";
-        
-        $id = decryptor($this->request->getPost('id'));
-
-        if ($id) {
-            $staffFind = $userModel->where('id',$id)->find();
-            if ($staffFind) {
-
-                if( $userModel->delete($id)){
-                    $validSuccess = true;
-                    $validMsg = 'Deleted successfully!';
-                }else{
-                    $validMsg = 'Delete failed. Please try again.';
-                }
-            }
-        }
-
-        return $this->response->setJSON([
-            'success' => $validSuccess,
-            'message' => $validMsg
-        ]);
-    }
-    function branchStaff() {
-
-        if (!$this->request->isAjax()) {
-            return $this->response->setJSON(['success' => false , 'message' => lang('Custom.invalidRequest')]);
-        }
-
-        $branchId = $this->request->getPost('branch');
-        $userModel = new UserModel();
-        $branches = $userModel->getstaffRole($branchId);
-
-        return $this->response->setJSON(['branches' => $branches]);
-    }
-
 }

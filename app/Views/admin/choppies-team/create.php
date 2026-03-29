@@ -20,21 +20,14 @@
  <div class="flex items-center justify-between">
     <div class="col-lg-12">
         <div class="d-flex justify-content-between align-items-center mb-0">
-            <a href="<?=base_url('staff');?>" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <a href="<?=base_url('choppies-team');?>" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left text-gray-500">
                 <path d="m12 19-7-7 7-7"></path>
                 <path d="M19 12H5"></path>
                 </svg>
             </a> 
             <h1 class="h3 mb-0 text-left"><?= $page ?? '' ?></h1>
-            <?php
-            if(haspermission(session('user_data')['role'],'create_task')) { ?>
-                <div>
-                    <a href="<?= base_url('staff-upload') ?>" class="btn btn-primary">
-                        <i class="bi bi-plus-circle me-1"></i> Bulk Team Data Upload 
-                    </a>
-                </div>
-            <?php } ?>
+           
         </div>
     </div>
 </div><!-- closee titilebar -->
@@ -72,7 +65,7 @@
                 </div>
              
 
-                 <div class="hidden">
+                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Clients</label>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-diagram-3 text-xl text-gray-400"></i></div>
@@ -81,9 +74,11 @@
                             <?php
                                 if(!empty($branches)){
                                     foreach($branches as $branch){
-                                    ?>
-                                        <option <?= ($ebranch == $branch['id'] ? 'selected' :'') ?> value="<?=$branch['id'];?>"><?=$branch['name'];?></option>
-                                    <?php 
+                                        if($branch['id'] != 000){
+                                           ?>
+                                           <option <?= ($ebranch == $branch['id'] ? 'selected' :'') ?> value="<?=$branch['id'];?>"><?=$branch['name'];?></option>
+                                           <?php
+                                        } 
                                     } 
                                 } ?>
                         </select>                       
@@ -91,49 +86,8 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Profile / IMG URL</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-image text-xl text-gray-400"></i></div>
-                        <input type="file" name="file"  id="file" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Password">
-                        <div class="invalid-feedback" id="file_error"></div>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Specialties</label>
-                    <div id="serviceTags" class="flex flex-wrap gap-2 mb-2">
-                    <?php foreach ($selectedSpecialties as $sp): ?>
-                        <div class="inline-flex items-center bg-blue-50 text-blue-700 rounded-full px-3 py-1 text-sm">
-                            <?= esc($sp['category']) ?>
-                            <button type="button" class="ml-1 text-blue-700 hover:text-blue-900 removeBtn" data-value="<?= $sp['id'] ?>" data-text="<?= $sp['category'] ?>">
-                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x "><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-                            </button>
-                            <input type="hidden" name="services[]" value="<?= $sp['id'] ?>">
-                        </div>
-                    <?php endforeach; ?>
-                    </div>
-                    <!-- Dropdown + Add button -->
-                    <div class="flex">
-                        <select id="serviceDropdown" class="flex-1 py-2 px-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Select a service</option>
-                        <?php
-                        if ($services) {
-                            $selectedIds = array_column($selectedSpecialties, 'speciality');
-                            foreach ($services as $items) {
-                                if (!in_array($items['id'], $selectedIds)) {
-                            ?>
-                                <option value="<?= $items['id'] ?>"><?= $items['category'] ?></option>
-                            <?php
-                                }
-                            }
-                        } ?>
-                        </select>
-
-                        <button type="button" id="addServiceBtn" class="px-3 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus "><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
-                        </button>
-                    </div>
-                </div>
+               
+                
             </div>
 
             <!-- 2 -->
@@ -147,19 +101,7 @@
                     </div>
                 </div>
                  
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <div class="relative">
-                        <!-- Eye Icon (clickable) -->
-                        <div id="togglePassword" class="absolute inset-y-0 left-0 pl-3 mt-2  items-center cursor-pointer">
-                            <i class="bi bi-eye text-xl text-gray-400"></i>
-                        </div>
-
-                        <!-- Password Input -->
-                        <input type="password" name="password"  id="password" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Password">
-                        <div class="invalid-feedback" id="password_error"></div>
-                    </div>
-                </div>
+      
                                 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -193,29 +135,20 @@
                         <div class="invalid-feedback" id="position_error"></div>
                     </div>
                 </div>
-
-                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Profile / IMG URL</label>
                     <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-key text-xl text-gray-400"></i></div>
-                        <select name="role" id="role" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required="">
-                            <option   value="">Select Role</option>
-                            <?php
-                                if(!empty($roles)){
-                                    foreach($roles as $role){
-                                    ?>
-                                        <option <?= ($erole == $role->id ? 'selected' :'') ?> value="<?=$role->id;?>"><?=$role->role_name;?></option>
-                                    <?php 
-                                    } 
-                                } ?>
-                        </select>                       
-                        <div class="invalid-feedback" id="hrole_error"></div>
+                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-image text-xl text-gray-400"></i></div>
+                        <input type="file" name="file"  id="file" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Password">
+                        <div class="invalid-feedback" id="file_error"></div>
                     </div>
                 </div>
+
+                  
             </div><!-- close2 -->
         </div>
          <div class="flex mt-2 justify-end gap-3">
-                <a href="<?=base_url('staff');?>" class="border border-gray-300 px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</a>
+                <a href="<?=base_url('choppies-team');?>" class="border border-gray-300 px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</a>
                 <?php if(haspermission(session('user_data')['role'],'create_staff') ) { ?>
                     <button type="submit" id="submitBtn" class="bg-blue-600 px-4 py-2 flex rounded-2 hover:bg-primary-700 text-white transition-colors items-center"> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save mr-1"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>Save</button>
                 <?php } ?>
@@ -238,7 +171,7 @@
             );
 
             $.ajax({
-                url : '<?=base_url('staff/save');?>',
+                url : '<?=base_url('choppies-team/save');?>',
                 method:'POST',
                 data: formData,
                 contentType: false,

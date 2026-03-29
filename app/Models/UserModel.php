@@ -12,7 +12,7 @@ Class UserModel extends Model{
         return password_hash($password,PASSWORD_DEFAULT);
     }
 
-    function getUsers($search=false,$filter=false,$branch = false) {
+    function getUsers($search=false,$filter=false,$branch = false,$store = false) {
     //    $builder = $this->db->table('users as u')
     //         ->select('u.id, u.name, u.email, u.phone, u.hire_date, u.profileimg, u.booking_status,u.status, u.position, r.role_name, b.branch_name as branch')
     //         ->select('GROUP_CONCAT(c.category ORDER BY c.category SEPARATOR ", ") as specialties')
@@ -45,14 +45,21 @@ Class UserModel extends Model{
             
                $builder->where('b.id',$branch);
             }
-
-            if (!empty($search)) {
+               if (!empty($search)) {
                 $builder->like('u.name',$search)
                 ->orLike('u.email',$search)
                 ->orLike('b.name',$search)
                 ->orLike('u.position',$search)
                 ->orLike('u.phone',$search); 
             }
+
+            if($store){
+               $builder->where('u.store_id',$store);
+            }else{
+                $builder->where('u.store_id !=',13);
+            }
+
+         
 
             return $builder->get()->getResultArray();
     }

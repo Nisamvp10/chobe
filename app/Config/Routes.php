@@ -56,6 +56,13 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('branch-staff','Staff::branchStaff');
     $routes->get('staff-upload', 'Staff::bulkindex');
     $routes->post('staff-upload/uploadExcel', 'Staff::uploadExcel');
+    //choppies-team 
+    $routes->get('choppies-team','ChoppiesTeamController::index');
+    $routes->post('choppies-team/save','ChoppiesTeamController::save');
+    $routes->post('choppies-team/list','ChoppiesTeamController::list');
+    $routes->get('choppies-team/edit/(:any)','ChoppiesTeamController::create/$1');
+    $routes->get('choppies-team/create','ChoppiesTeamController::create');
+    $routes->post('choppies-team/delete','ChoppiesTeamController::delete');
     //branch
     $routes->get('branches','Branches::index');
     $routes->get('branch/create','Branches::create');
