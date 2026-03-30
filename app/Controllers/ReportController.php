@@ -157,7 +157,6 @@ class ReportController extends controller
                 $task['url'] = 'tasklist/' . encryptor($task['id']);
             }
         }
- echo $builder->getLastQuery();
         // Response
         return $this->response->setJSON([
             'success' => true,
