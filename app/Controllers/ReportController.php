@@ -125,7 +125,9 @@ class ReportController extends controller
             $startDate = date('Y-m-d', strtotime('-3 days'));
         }
         if(empty($endDate)) {
-            $endDate = date('Y-m-d', strtotime('-1 days'));
+            //today
+            //$endDate = date('Y-m-d', strtotime('-1 days'));
+            $endDate = date('Y-m-d');
         }
 
         $taskModel = new TaskModel();
@@ -137,6 +139,7 @@ class ReportController extends controller
             ->where('task_gen_date >=', $startDate)
             ->where('task_gen_date <=', $endDate)
             ->groupBy(['DATE(task_gen_date)', 'created_from_template']); // safer
+           
 
         // Search
         if (!empty($search)) {
@@ -154,7 +157,7 @@ class ReportController extends controller
                 $task['url'] = 'tasklist/' . encryptor($task['id']);
             }
         }
-
+ echo $builder->getLastQuery();
         // Response
         return $this->response->setJSON([
             'success' => true,
