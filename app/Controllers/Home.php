@@ -6,7 +6,7 @@ use App\Models\ClientsModel;
 use App\Models\TaskModel;
 use App\Models\ProjectunitModel;
 use App\Models\ProjectsModel;
-use App\Models\MasterTaskModel;
+use App\Models\MastertaskModel;
 class Home extends BaseController
 {
 
@@ -16,7 +16,7 @@ class Home extends BaseController
         $clientsModel = new ClientsModel();
         $taskModel = new TaskModel();
         $projectUnitModel = new ProjectunitModel();
-        $masterTaskModel = new MasterTaskModel();
+        $masterTaskModel = new MastertaskModel();
         $projectsModel = new ProjectsModel();
 
         $totalAppointments = $appointmentModel->countAll();
