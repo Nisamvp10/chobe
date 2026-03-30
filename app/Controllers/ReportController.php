@@ -384,16 +384,27 @@ class ReportController extends controller
             }
 
             // Map activity properly using activityId as KEY
-            if (!empty($activityId)) {
+            // if (!empty($activityId)) {
+            //     $groupedTasks[$taskId]['activities'][$activityId] = [
+            //         //the comment zero is not showing show the comment 0
+            //         'comment'    => (!empty($repo['last_comment']) && $repo['last_comment'] != 'Nill')
+            //                             ? $repo['last_comment']
+            //                             : 'Nill',
+            //         'activityId' => encryptor($tsaactivityId) ?? '',
+            //         'taskId'     => encryptor($taskId) ?? ''
+            //     ];
+            // }
 
+            if (!empty($activityId)) {
                 $groupedTasks[$taskId]['activities'][$activityId] = [
-                    'comment'    => (!empty($repo['last_comment']) && $repo['last_comment'] != 'Nill')
-                                        ? $repo['last_comment']
-                                        : 'Nill',
+                    'comment' => (isset($repo['last_comment']) && $repo['last_comment'] !== 'Nill')
+                                    ? $repo['last_comment']
+                                    : 'Nill',
                     'activityId' => encryptor($tsaactivityId) ?? '',
                     'taskId'     => encryptor($taskId) ?? ''
                 ];
             }
+
         }
 
         /* ============================================
