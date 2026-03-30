@@ -4,6 +4,9 @@ namespace App\Controllers;
 use App\Models\AppointmentModel;
 use App\Models\ClientsModel;
 use App\Models\TaskModel;
+use App\Models\ProjectunitModel;
+use App\Models\ProjectsModel;
+use App\Models\MasterTaskModel;
 class Home extends BaseController
 {
 
@@ -12,6 +15,9 @@ class Home extends BaseController
         $appointmentModel = new AppointmentModel(); 
         $clientsModel = new ClientsModel();
         $taskModel = new TaskModel();
+        $projectUnitModel = new ProjectunitModel();
+        $masterTaskModel = new MasterTaskModel();
+        $projectsModel = new ProjectsModel();
 
         $totalAppointments = $appointmentModel->countAll();
         $totalRevenue = $appointmentModel->selectSum('price')->get()->getRow()->price;
@@ -91,6 +97,10 @@ class Home extends BaseController
         if ($lastMonthCount > 0) {
             $growth = (($currentMonthCount - $lastMonthCount) / $lastMonthCount) * 100;
         }
+
+        $projects = $projectsModel->where('is_active',1)->findAll();
+        $masterTasks = $masterTaskModel->where('status','active')->findAll();
+
         $data = [
             'totalAppintments' => $totalAppointments,
             'growth' =>round($growth),
@@ -107,7 +117,9 @@ class Home extends BaseController
             'recentTasks' => $groupData,
             'myTasks' => '',
             'unreadNotifications' => '',
-            'page'  => 'Dashboard'
+            'page'  => 'Dashboard',
+            'projects' => $projects,
+            'masterTasks' => $masterTasks,
         ];
         return view('dashboard/index', $data);
     }

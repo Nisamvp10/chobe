@@ -109,158 +109,94 @@
 </div>
 
 <div class="row">
+   
+
     <!-- Recent Tasks -->
-    <div class="col-lg-7">
+    <div class="col-lg-12">
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Recent Tasks</h5>
-                <a href="<?= base_url('tasks') ?>" class="btn btn-sm btn-outline-primary">View All</a>
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-2">Recent Tasks</h5>
+                 <div class="flex flex-col md:flex-row gap-4 mb-6">
+    
+            <!-- Column 1: Search Input -->
+            <div class="flex-1 relative">
+                <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">Search Task title...</label>
+                <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-gray-400">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                </div>
+                <input type="text" id="searchInput" placeholder="Search Task title..." class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
+            </div>
+             <div class="flex-1 ">
+                <label for="filterDate" class="block text-sm font-medium text-gray-700 mb-2">Filter by date</label>
+                <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+               <i class="bi bi-calendar"></i>
+                </div>
+                <input type="text" id="filterDate" placeholder="Filter by date"  value="<?=date('Y-m-d' ,strtotime('-1 days'))?> to <?=date('Y-m-d' ,strtotime('-1 days'))?>" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+            </div>
+            <div class="w-full md:w-48">
+                <label for="taskProject" class="block text-sm font-medium text-gray-700 mb-2">Filter by project</label>
+                <select class="w-full border px-3 py-2 rounded" id="taskProject">
+                      <option value="all">All</option>
+                <?php 
+                    if(!empty($projects)) {
+                        foreach($projects as $project) {
+                        ?>
+                        <option value="<?=$project['id'];?>"><?=$project['project'];?></option>
+                        <?php
+                        }
+                }?>
+                </select>
+            </div>
+
+            <!-- Column 2: Status Dropdown -->
+            <div class="w-full md:w-48">
+                <div class="relative">
+                    <label for="taskFilterStatus" class="block text-sm font-medium text-gray-700 mb-2">Filter by status</label>
+                    <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter text-gray-400">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    </div>
+                    <select id="taskFilterStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
+                         <option value="all">All</option>
+                        <option  value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    </div>
+                </div>
+            </div>
+            </div>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Branch</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Task Gen Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($recentTasks)): ?>
-                                <tr>
-                                    <td colspan="5" class="text-center py-4">No tasks found</td>
-                                </tr>
-                            <?php else: ?>
-                                <?php foreach ($recentTasks as $task): ?>
-                                    <tr>
-                                        <td>
-                                            <a href="<?= base_url('dashboard/tasks/view/' . $task['id']) ?>" class="text-decoration-none text-dark">
-                                                <?= $task['title'] ?>
-                                            </a>
-                                        </td>
-                                        <td><?= $task['branch_name'] ?></td>
-                                        <td>
-                                            <span class="badge rounded-pill 
-                                                <?= $task['priority'] == 'High' ? 'bg-danger' : 
-                                                   ($task['priority'] == 'Medium' ? 'bg-warning' : ($task['priority'] == 'Low' ? 'bg-primary': 'bg-success') )?>">
-                                                <?= ucfirst($task['priority']) ?>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge rounded-pill 
-                                                <?= $task['status'] == 'Pending' ? 'bg-warning' : 
-                                                   ($task['status'] == 'In_Progress' ? 'bg-primary' : 'bg-success') ?>">
-                                                <?= ucfirst(str_replace('_', ' ', $task['status'])) ?>
-                                            </span>
-                                        </td>
-                                        <td><?= date('M d, Y', strtotime($task['overdue_date'])) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                <div class="table-responsive" id="taskTable">
+                    
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- My Tasks & Notifications -->
-    <div class="col-lg-5">
-        <!-- My Tasks -->
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">My Tasks</h5>
-                <a href="<?= base_url('tasks/my-tasks') ?>" class="btn btn-sm btn-outline-primary">View All</a>
-            </div>
-            <div class="card-body p-3">
-                <?php if (empty($myTasks)): ?>
-                    <div class="text-center py-4">
-                        <i class="bi bi-inbox text-muted" style="font-size: 2rem;"></i>
-                        <p class="mb-0 mt-2">No tasks assigned to you</p>
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($myTasks as $task): ?>
-                        <div class="task-item d-flex align-items-center p-2 border-bottom">
-                            <div class="me-3">
-                                <?php if ($task['status'] == 'completed'): ?>
-                                    <i class="bi bi-check-circle-fill text-success" style="font-size: 1.5rem;"></i>
-                                <?php elseif ($task['status'] == 'in_progress'): ?>
-                                    <i class="bi bi-hourglass-split text-warning" style="font-size: 1.5rem;"></i>
-                                <?php else: ?>
-                                    <i class="bi bi-circle text-primary" style="font-size: 1.5rem;"></i>
-                                <?php endif; ?>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">
-                                    <a href="<?= base_url('dashboard/tasks/view/' . $task['id']) ?>" class="text-decoration-none text-dark">
-                                        <?= $task['title'] ?>
-                                    </a>
-                                </h6>
-                                <div class="small text-muted">
-                                    <i class="bi bi-calendar-event me-1"></i>
-                                    <?= date('M d, Y', strtotime($task['deadline'])) ?>
-                                    <span class="mx-2">•</span>
-                                    <span class="badge rounded-pill 
-                                        <?= $task['priority'] == 'high' ? 'bg-danger' : 
-                                           ($task['priority'] == 'medium' ? 'bg-warning' : 'bg-success') ?>">
-                                        <?= ucfirst($task['priority']) ?>
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="task-progress">
-                                <div class="progress" style="width: 60px; height: 6px;">
-                                    <div class="progress-bar 
-                                        <?= $task['priority'] == 'high' ? 'bg-danger' : 
-                                           ($task['priority'] == 'medium' ? 'bg-warning' : 'bg-success') ?>" 
-                                         role="progressbar" 
-                                         style="width: <?= $task['progress'] ?>%;" 
-                                         aria-valuenow="<?= $task['progress'] ?>" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="100"></div>
-                                </div>
-                                <div class="small text-end mt-1"><?= $task['progress'] ?>%</div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
-        </div>
 
-        <!-- Recent Notifications -->
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">Recent Notifications</h5>
-                <a href="#<?= base_url('notifications') ?>" class="btn btn-sm btn-outline-primary">View All</a>
-            </div>
-            <div class="card-body p-0">
-                <?php if (empty($unreadNotifications)): ?>
-                    <div class="text-center py-4">
-                        <i class="bi bi-bell-slash text-muted" style="font-size: 2rem;"></i>
-                        <p class="mb-0 mt-2">No new notifications</p>
-                    </div>
-                <?php else: ?>
-                    <div class="list-group list-group-flush">
-                        <?php foreach ($unreadNotifications as $notification): ?>
-                            <a href="<?= base_url('dashboard/notifications/mark-as-read/' . $notification['id']) ?>" class="list-group-item list-group-item-action">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <h6 class="mb-1">Task Notification</h6>
-                                    <small><?= timeAgo($notification['created_at']) ?></small>
-                                </div>
-                                <p class="mb-1"><?= $notification['message'] ?></p>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
 </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Moment.js (must be before daterangepicker.js) -->
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+
+<!-- Date Range Picker -->
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <script>
     // Function to create priority distribution chart
     function createPriorityChart() {
@@ -432,6 +368,183 @@
         createPriorityChart();
         createStatusChart();
     });
+
+    
+
+tasks();
+let alltaskData = [];
+function tasks(startDate='',endDate=''){
+    $('#taskTable').html('<p class="text-center p-2 text-muted align-middle justify-content-center d-flex">Loading...</p>');
+    let searchInput = $('#searchInput').val();
+    let filter = $('#taskFilterStatus').val();
+    let taskProject = $('#taskProject').val();
+
+    let taskFilterStatus = $('#taskFilterStatus').val();
+    $.ajax({
+        url: "<?= base_url('dashboard/tasks') ?>",
+        type: "GET",
+        data: {
+            search: searchInput,
+            filter: filter,
+            taskProject: taskProject,
+            startDate: startDate, endDate: endDate,
+            status: taskFilterStatus
+        },
+        success: function(response) {
+           if(response.task.length > 0){
+                alltaskData = response.task;
+                taskdataRender();
+           }else{
+            console.log(response.task);
+           $('#taskTable').html('<p class="text-center p-2 text-muted align-middle justify-content-center d-flex">No tasks found</p>');
+           }
+        }
+    });
+}
+
+let rowsPerPage = 15;
+let currentPage = 1;
+
+function taskdataRender(){
+    let data = alltaskData;
+    let start = (currentPage - 1) * rowsPerPage;
+    let end = start + rowsPerPage;
+    let paginatedData = data.slice(start, end);
+    //first loading loading...
+    let html = '';
+    if(paginatedData.length > 0){
+        
+        html = `
+        
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Branch</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Task Gen Date</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+        paginatedData.forEach((item,index) => {
+            html += `
+           <tr>
+            <td>${start + index + 1}</td>
+                <td>
+                    <a href="javascript:void(0)" class="text-decoration-none text-dark">
+                        ${item.title}
+                    </a>
+                </td>
+                <td>${item.branch_name}</td>
+                <td>
+                
+                    <span class="badge rounded-pill 
+                        ${item.priority == 'High' ? 'bg-danger' : 
+                        (item.priority == 'Medium' ? 'bg-warning' : (item.priority == 'Low' ? 'bg-primary': 'bg-success') )}">
+                            ${item.total_activities} / ${item.completed_activities}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge rounded-pill 
+                        ${item.status == 'Pending' ? 'bg-warning' : 
+                        (item.status == 'In_Progress' ? 'bg-primary' : 'bg-success') }">
+                        ${item.status}
+                    </span>
+                </td>
+                <td>${item.created}</td>
+            </tr>
+            `;
+        });
+        html += `</tbody>
+        </table>`;
+         let totalPages = Math.ceil(data.length / rowsPerPage);
+        html += `
+            <div class="flex justify-between items-center mt-4 p-3">
+                <div>
+                    <label class="mr-2">Rows per page:</label>
+                    <select onchange="changeRowsPerPage(this.value)" class="px-2 py-1 border rounded">
+                        <option value="15"  ${rowsPerPage == 15 ? 'selected' : ''}>15</option>
+                        <option value="25"  ${rowsPerPage == 25 ? 'selected' : ''}>25</option>
+                        <option value="50"  ${rowsPerPage == 50 ? 'selected' : ''}>50</option>
+                        <option value="100" ${rowsPerPage == 100 ? 'selected' : ''}>100</option>
+                    </select>
+                </div>
+                <div>
+                    <button onclick="prevPage()" ${currentPage === 1 ? 'disabled' : ''} class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Prev</button>
+                    <span class="mx-2">Page ${currentPage} of ${totalPages}</span>
+                    <button onclick="nextPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''} class="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Next</button>
+                </div>
+            </div>`;
+    }else{
+        console.log(alltaskData);
+        html = '<p>No tasks found</p>';
+    }
+    $('#taskTable').html(html);
+}
+
+// Change rows per page
+function changeRowsPerPage(value) {
+    rowsPerPage = parseInt(value);
+    currentPage = 1;
+    taskdataRender();
+}
+
+// Pagination functions
+function prevPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        taskdataRender();
+    }
+}
+function nextPage(totalPages) {
+    if (currentPage < totalPages) {
+        currentPage++;
+        taskdataRender();
+    }
+}
+$('#searchInput').on('keyup', function() {
+    tasks();
+});
+
+$('#taskProject, #filterDate, #taskFilterStatus').on('change', function() {
+    tasks();
+});
+
+    $('#filterDate').daterangepicker({
+        opens: 'left',
+        autoUpdateInput: false,
+        locale: {
+            cancelLabel: 'Clear',
+            format: 'DD-MM-YYYY'
+        },
+        ranges: {
+            'Today': [moment(), moment()],
+            'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+            'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+            'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+            'This Month': [moment().startOf('month'), moment().endOf('month')],
+            'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        }
+    });
+
+    // Apply event
+    $('#filterDate').on('apply.daterangepicker', function (ev, picker) {
+        let startDate = picker.startDate.format('YYYY-MM-DD');
+        let endDate = picker.endDate.format('YYYY-MM-DD');
+        $(this).val(startDate + ' to ' + endDate);
+        tasks(startDate,endDate)
+
+    });
+
+    // Cancel event
+    $('#filterDate').on('cancel.daterangepicker', function (ev, picker) {
+        $(this).val('');
+        $('#results').empty();
+    });
+
 </script>
 <?= $this->endSection() ?>
 
@@ -457,4 +570,6 @@ function timeAgo($datetime) {
         return date('M d, Y', $timestamp);
     }
 }
+
 ?>
+
