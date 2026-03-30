@@ -17,6 +17,7 @@ class Clients extends controller {
     protected $clientsModel;
     protected $userModel;
     protected $masterroleModel;
+    protected $clientContactsModal;
 
     function __construct() {
         $this->categoryModel = new CategoryModel();
@@ -25,6 +26,7 @@ class Clients extends controller {
         $this->clientsModel = new ClientsModel();
         $this->userModel = new UserModel();
         $this->masterroleModel = new MasterroleModel();
+        $this->clientContactsModal = new ClientContactsModal();
     }
 
     function index() {
@@ -43,7 +45,7 @@ class Clients extends controller {
             $page = "Edit Client";
             $id = decryptor($id);
             $data = $this->clientsModel->getClinentById($id);
-            if(!empty($data)) {
+            if(!empty($data)) { 
                 foreach ($data as $client) {
                     if(!isset($clientGroup[$client['id']])) {
                         $clientGroup[$client['id']] =[
@@ -340,23 +342,27 @@ class Clients extends controller {
             $users = $this->userModel->where('status', 'approved')->where('booking_status', 1)->where('position_id !=', 4)->where('position_id !=', 3)->findAll();
 
 
-            $rm = $this->userModel
-                ->select('users.id, users.name, up.level')
-                ->join('user_position as up', 'up.id = users.position_id', 'left')
-                ->where('users.store_id', $id)
-                ->where('up.id', 4)//Regional Manager
-                ->orderBy('up.level', 'ASC')
-                ->get()
-                ->getResult();
+            // $rm = $this->userModel
+            //     ->select('users.id, users.name, up.level')
+            //     ->join('user_position as up', 'up.id = users.position_id', 'left')
+            //     ->where('users.store_id', $id)
+            //     ->where('up.id', 4)//Regional Manager
+            //     ->orderBy('up.level', 'ASC')
+            //     ->get()
+            //     ->getResult();
+            //rm pick from client_contacts
+            $rm = $this->clientContactsModal->select('authorized_personnel as name,id')->where(['role_id'=>4,'client_id'=>$id])->findAll();
+            $managers = $this->clientContactsModal->select('authorized_personnel as name,id')->where(['role_id'=>3,'client_id'=>$id])->findAll();
+           
 
-            $managers = $this->userModel
-                ->select('users.id, users.name, up.level')
-                ->join('user_position as up', 'up.id = users.position_id', 'left')
-                ->where('users.store_id', $id)
-                ->where('up.id', 3)//Regional Manager
-                ->orderBy('up.level', 'ASC')
-                ->get()
-                ->getResult();
+            // $managers = $this->userModel
+            //     ->select('users.id, users.name, up.level')
+            //     ->join('user_position as up', 'up.id = users.position_id', 'left')
+            //     ->where('users.store_id', $id)
+            //     ->where('up.id', 3)//Regional Manager
+            //     ->orderBy('up.level', 'ASC')
+            //     ->get()
+            //     ->getResult();
 
             return $this->response->setJSON([
                 'status' => true,

@@ -732,11 +732,11 @@ a{
                 <li class="nav-item">
                     <a class="nav-link <?= strpos(uri_string(), 'staff') === 0 && strpos(uri_string(), 'appointments') === false ? 'active' : '' ?>" href="<?= base_url('staff') ?>">
                     <span class="flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-user "><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="10" r="3"></circle><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path></svg></span>
-                        <span>Chobe Team</span>
+                        <span> Team</span>
                     </a>
                 </li>
 
-                 <li class="nav-item">
+                 <li class="nav-item hidden">
                     <a class="nav-link <?= strpos(uri_string(), 'choppies-team') === 0 ? 'active' : '' ?>" href="<?= base_url('choppies-team') ?>">
                     <span class="flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-user "><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="10" r="3"></circle><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path></svg></span>
                         <span>Choppies Team</span>

@@ -288,9 +288,7 @@ class TaskController extends Controller {
                 }
 
                 // 6️⃣ Completion check
-                $assignedStaffs = $this->taskassignModel
-                    ->where('task_id', $taskId)
-                    ->findAll();
+                $assignedStaffs = $this->taskassignModel->where('task_id', $taskId)->findAll();
 
                 $allDone = true;
 
@@ -1197,9 +1195,10 @@ class TaskController extends Controller {
                         assign.name as assigned_name,
                         u.name,u.id
                     ')
+                    //regional manager and manager slect from
                     ->join('users as alloc', 'alloc.id = project_unit.allocated_to', 'left')
                     ->join('users as assign', 'assign.id = project_unit.assigned_to', 'left')
-                     ->join('users as u', 'u.store_id = project_unit.client_id', 'left')
+                    ->join('users as u', 'u.store_id = project_unit.client_id', 'left')
                     ->where('project_unit.id', $id)
                     ->get()
                     ->getresult();
