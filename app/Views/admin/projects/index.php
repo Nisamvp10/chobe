@@ -44,7 +44,7 @@
                     </svg>
                     </div>
                     <select id="filerStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                    <option value="all">Account Status</option>
+                    <option value="all">Project Status</option>
                     <option value="1">Active</option>
                     <!-- <option value="on leave">On Leave</option> -->
                     <option value="0">Inactive</option>

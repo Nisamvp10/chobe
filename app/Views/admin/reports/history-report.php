@@ -24,12 +24,12 @@
                     </svg>
                     </div>
                     <select id="projectFilter" name="task" class="pl-10 common-select pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                        <option value="all">All</option>
+                        <option value="all">Tasks</option>
                        <?php
                         if(!empty($tasksByprojectUnits)){
                             foreach($tasksByprojectUnits as $tasks){
                             ?>
-                                <option  value="<?=$tasks->created_from_template;?>"><?=$tasks->title;?></option>
+                                <option  value="<?=$tasks->id;?>"><?=$tasks->title;?></option>
                             <?php 
                             } 
                         } ?>
@@ -51,7 +51,7 @@
                     </svg>
                     </div>
                     <select id="projectUnitFilter" name="projectunit" class="pl-10 common-select  pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                        <option value="all">All</option>
+                        <option value="all">Project Units</option>
                        <?php
                         if(!empty($projectUnits)){
                             foreach($projectUnits as $unit){

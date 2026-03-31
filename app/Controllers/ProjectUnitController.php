@@ -30,7 +30,7 @@ class ProjectUnitController extends Controller
     public function index()
     {
         $page = (!hasPermission('','view_project_unit')) ?  lang('Custom.accessDenied') : 'Project Unit';
-        $stores = $this->clientsModel->where('status',1)->find();
+        $stores = $this->clientsModel->where(['status'=>1,'store_type'=>1])->find();
         $rm = $this->userModel->where(['position_id'=>4,'status'=>'approved','booking_status'=>1])->find();
         $storeManager = $this->userModel->where(['position_id'=>3,'status'=>'approved','booking_status'=>1])->find();
         //dosnot select allocated_to and assigned_to if status is 0

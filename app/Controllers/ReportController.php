@@ -13,7 +13,7 @@ use PhpOffice\PhpSpreadsheet\Style\Font;
 use App\Models\TaskStaffActivityModel;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
+use App\Models\MastertaskModel;
 
 use App\Models\ProjectsModel;
 use App\Models\TaskModel;
@@ -22,9 +22,11 @@ class ReportController extends controller
 {   
     protected $reportModel;
     protected $taskModel;
+    protected $mastertaskModel;
     public function __construct() {
         $this->reportModel = new ReportModel();
         $this->taskModel = new TaskModel();
+        $this->mastertaskModel = new MastertaskModel();
     }
     public function index()
     {   
@@ -666,13 +668,17 @@ class ReportController extends controller
 
     public function historyReport() {
         $page = (!haspermission('','report') ? lang('Custom.accessDenied') : 'Select the task you want to report' );
-        $rutes = (haspermission('','report') ? 'admin/reports/history-report' : '404page' );
+        $rutes = (haspermission('','report') ? 'admin/reports/history-report' : '404page' );    
         $rojectUnitModel = new ProjectunitModel();
         $projectModel = new ProjectsModel();
 
         $projectUnits = $rojectUnitModel->where('status',1)->findAll();
         $projectsList = $projectModel->where('is_active',1)->findAll();
-        $tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
+        //create from template grouping not working
+        //$tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit,created_from_template')->get()->getResult(); 
+        $tasksByprojectUnits = $this->mastertaskModel->where('status','active')->get()->getResult();
+        //echo $this->taskModel->getLastQuery();
+        
         
         return view($rutes,compact('projectUnits','projectsList','page','tasksByprojectUnits'));
     }
@@ -765,7 +771,8 @@ class ReportController extends controller
             $task['activities'] = array_values($task['activities']);
         }
         $requestUrl =  $this->request->getGet();
-        $tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
+        //$tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
+        $tasksByprojectUnits = $this->mastertaskModel->where('status','active')->get()->getResult();
         return view($rutes,compact('id','page','projectUnits','projectsList','result','requestUrl','tasksByprojectUnits'));
     }
 

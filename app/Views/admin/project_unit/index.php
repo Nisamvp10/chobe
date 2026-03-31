@@ -51,7 +51,7 @@
                     </svg>
                     </div>
                     <select id="filerStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                    <option value="all">Project Unit Type</option>
+                    <option value="all">Clients</option>
                           <?php
                           if(!empty($stores)) {
                             foreach($stores as $units) {
@@ -71,7 +71,7 @@
                     </svg>
                     </div>
                     <select id="filerProject" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                    <option value="all">Project Unit Type</option>
+                    <option value="all">Projects</option>
                           <?php
                           if(!empty($projects)) {
                             foreach($projects as $project) {

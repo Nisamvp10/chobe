@@ -62,7 +62,7 @@
             </div>
             <div class="w-full md:w-48">
                 <select class="w-full border px-3 py-2 rounded" id="taskProject">
-                      <option value="all">All</option>
+                      <option value="all">Projects</option>
                 <?php 
                     if(!empty($projects)) {
                         foreach($projects as $project) {
@@ -83,9 +83,8 @@
                     </svg>
                     </div>
                     <select id="taskFilterStatus" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                         <option value="all">All</option>
+                         <option value="all">Task Status</option>
                         <option <?=($taskStatus == 'pending' ? 'selected' :'') ;?> value="Pending">Pending</option>
-                        <option <?=($taskStatus == 'in-progress' ? 'selected' :'') ;?> value="In_Progress">In Progress</option>
                         <option value="Completed">Completed</option>
                     </select>
                 </div>

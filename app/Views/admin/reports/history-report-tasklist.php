@@ -31,12 +31,12 @@
                     </svg>
                     </div>
                     <select id="projectFilter" name="task" class="common-select pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                        <option value="all">All</option>
+                        <option value="all">Tasks</option>
                        <?php
                         if(!empty($tasksByprojectUnits)){
                             foreach($tasksByprojectUnits as $tasks){
                             ?>
-                                <option <?=($requestUrl['task'] == $tasks->created_from_template) ? 'selected' : '';?>  value="<?=$tasks->created_from_template;?>"><?=$tasks->title;?></option>
+                                <option <?=($requestUrl['task'] == $tasks->id) ? 'selected' : '';?>  value="<?=$tasks->id;?>"><?=$tasks->title;?></option>
                             <?php 
                             } 
                         } ?>
@@ -58,7 +58,7 @@
                     </svg>
                     </div>
                     <select id="projectUnitFilter" name="projectunit" class="pl-10 common-select  pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none">
-                        <option value="all">All</option>
+                        <option value="all">Project Units</option>
                        <?php
                         if(!empty($projectUnits)){
                             foreach($projectUnits as $unit){
@@ -144,7 +144,11 @@
                             }
 
                         }
-                    }?>
+                    }else{?>
+                        <div class="text-center py-12">
+                            <p class="text-gray-500">No reports found</p>
+                        </div>
+                    <?php }?>
                 </div>
             </div>
             <div id="loadingText" class="text-center flex items-center justify-center gap-2"  style="display:none; padding:10px; font-weight:bold;">
