@@ -878,6 +878,9 @@ class ReportController extends controller
          $template = $this->request->getGet('task');
         //date date=2026-03-22+to+2026-03-28 splt to satrt date and end date 
         $date = $this->request->getGet('date');
+        if(empty($date)) {
+            $date = date('Y-m-d',strtotime('-1 day')).'to'.date('Y-m-d');
+        }
         $date = explode('to', $date);
         $startDate = $date[0] ?? date('Y-m-d',strtotime('-1 day'));
         $endDate = $date[1] ?? date('Y-m-d');
@@ -915,7 +918,6 @@ class ReportController extends controller
         $sheet = $spreadsheet->getActiveSheet();
 
         $row = 1;
-
         // 🔹 TITLE
         $findtask = $taskModel->where('id', $taskId)->first();
         $sheet->setCellValue('A' . $row, 'History Report : '.$findtask['title'].'('. date('d-m-Y',strtotime($startDate)).' to '. date('d-m-Y',strtotime($endDate)).')');
