@@ -731,21 +731,21 @@ class ReportController extends controller
 
         foreach ($historyReport as $row) {
 
-            $taskId = $row['id']; // task id
-            $activityId = $row['tsaactivityId']; // activity id
+            $taskId = $row['id'];
+            $activityId = $row['activity_id']; // ✅ FIXED
 
-            //  TASK LEVEL
+            // TASK LEVEL
             if (!isset($result[$taskId])) {
                 $result[$taskId] = [
                     'task_id' => $taskId,
                     'task_title' => $row['title'],
                     'projectUnit' => $row['store'],
-                    'task_date' => date('M d, Y',strtotime($row['task_gen_date'])),
+                    'task_date' => date('M d, Y', strtotime($row['task_gen_date'])),
                     'activities' => []
                 ];
             }
 
-            //  ACTIVITY LEVEL
+            // ACTIVITY LEVEL (ONLY ONCE)
             if (!isset($result[$taskId]['activities'][$activityId])) {
                 $result[$taskId]['activities'][$activityId] = [
                     'activity_id' => $activityId,
@@ -756,12 +756,31 @@ class ReportController extends controller
                 ];
             }
 
-            //  COMMENTS LEVEL
-            $result[$taskId]['activities'][$activityId]['comments'][] = [
-                'comment' => $row['comment'],
-                'user_name' => $row['user_name'],
-                'comment_date' => $row['comment_date']
-            ];
+            // COMMENTS LEVEL (ONLY REAL COMMENTS)
+            if ($row['comment'] !== null && $row['comment'] !== '') {
+
+                // prevent duplicate same comment
+                $exists = false;
+
+                foreach ($result[$taskId]['activities'][$activityId]['comments'] as $c) {
+                    if (
+                        $c['comment'] == $row['comment'] &&
+                        $c['user_name'] == $row['user_name'] &&
+                        $c['comment_date'] == $row['comment_date']
+                    ) {
+                        $exists = true;
+                        break;
+                    }
+                }
+
+                if (!$exists) {
+                    $result[$taskId]['activities'][$activityId]['comments'][] = [
+                        'comment' => $row['comment'], // ✅ includes "0"
+                        'user_name' => $row['user_name'],
+                        'comment_date' => $row['comment_date']
+                    ];
+                }
+            }
         }
 
         // Optional: reset indexes
@@ -770,6 +789,10 @@ class ReportController extends controller
         foreach ($result as &$task) {
             $task['activities'] = array_values($task['activities']);
         }
+        // echo "<pre>";
+        // print_r($result);
+        // echo "</pre>";
+        // exit;
         $requestUrl =  $this->request->getGet();
         //$tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
         $tasksByprojectUnits = $this->mastertaskModel->where('status','active')->get()->getResult();
@@ -926,8 +949,31 @@ class ReportController extends controller
         // 🔹 DATA
         $sl = 1;
 
+       $unique = [];
+
         foreach ($historyReport as $data) {
 
+            // ✅ skip empty comments (but allow "0")
+            if ($data['comment'] === null || $data['comment'] === '') {
+                continue;
+            }
+
+            // ✅ create unique key (prevents duplicates)
+            $key = md5(
+                $data['id'] .
+                $data['activity_id'] .
+                $data['comment'] .
+                $data['user_name'] .
+                $data['comment_date']
+            );
+
+            if (isset($unique[$key])) {
+                continue; // skip duplicate
+            }
+
+            $unique[$key] = true;
+
+            // ✅ WRITE TO EXCEL
             $sheet->setCellValue('A' . $row, $sl++);
             $sheet->setCellValue('B' . $row, date('d-m-Y', strtotime($data['task_gen_date'])));
             $sheet->setCellValue('C' . $row, $data['store']);
@@ -936,13 +982,12 @@ class ReportController extends controller
             $sheet->setCellValue('F' . $row, $data['polaris_code']);
             $sheet->setCellValue('G' . $row, $data['title']);
             $sheet->setCellValue('H' . $row, $data['activity_title']);
-            $sheet->setCellValue('I' . $row, $data['comment']);
+            $sheet->setCellValue('I' . $row, $data['comment']); // ✅ "0" works
             $sheet->setCellValue('J' . $row, $data['user_name']);
             $sheet->setCellValue('K' . $row, date('d-m-Y H:i', strtotime($data['comment_date'])));
 
             $row++;
         }
-
         // 🔹 BORDER STYLE
         $sheet->getStyle('A3:K' . ($row - 1))->applyFromArray([
             'borders' => [

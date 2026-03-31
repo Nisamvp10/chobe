@@ -65,14 +65,14 @@ class ProjectUnitController extends Controller
 
         $rules = [
             'name'    => 'required|min_length[3]|max_length[100]',
-            'old_name'  => 'required|min_length[2]',
+            //'old_name'  => 'required|min_length[2]',
             //'oracle_code'   => 'required',
             //'polaris_code'   => 'required',
             'contact_number'   => 'required',
             'client'   => 'required',
             'start_date'   => 'required',
-            'rm'   => 'required',
-            'store_manager'   => 'required',
+            //'rm'   => 'required',
+            //'store_manager'   => 'required',
             'allocated_to'     => 'required',
             'allocated_date'     => 'required',
             //'allocatedType'     => 'required',

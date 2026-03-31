@@ -127,6 +127,7 @@ public function generateHistoryReport($taskId){
         a.activity_title,
         a.activity_description as activity_description,
         ac.comment as comment,
+        ac.user_id as comment_user_id,
         u.name as user_name,
         ac.created_at as comment_date,
         pu.store,pu.oldstore_name,pu.polaris_code,pu.oracle_code
