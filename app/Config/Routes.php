@@ -104,6 +104,7 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->post('project-unit/save','ProjectUnitController::save');
     $routes->post('project-unit/list','ProjectUnitController::list');
     $routes->post('projectunit/bulk-upload','ProjectUnitController::bulkUpload');
+    $routes->post('project-unit/delete','ProjectUnitController::delete');
     //tasks 
     $routes->get('tasks','TaskController::index');
     $routes->get('task/create','TaskController::create');

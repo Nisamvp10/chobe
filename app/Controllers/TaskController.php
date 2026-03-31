@@ -587,6 +587,8 @@ class TaskController extends Controller {
             if(empty($template['created_from_template'])) continue;
 
             $unitId = $template['project_unit'];
+            $projectunitCurrentStatus = $this->projectUnitModel->where('status',1)->find($unitId);
+            if(empty($projectunitCurrentStatus)) continue;
 
             $key = $template['created_from_template'].'_'.$template['project_id'].'_'.$unitId;
 
@@ -662,8 +664,8 @@ class TaskController extends Controller {
         GET UNIT STAFF
         -----------------------------------
         */
-
-        $unit = $this->projectUnitModel->find($unitId);
+        //projectUnitModel status = 1
+        $unit = $this->projectUnitModel->where('status',1)->find($unitId);
 
         $staffIds = [];
 

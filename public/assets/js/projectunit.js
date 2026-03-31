@@ -317,6 +317,7 @@ function renderunitTable(projects) {
                                     <div class="text-sm text-gray-900">${project.contact_number}</div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap text-right text-sm font-medium"> 
+                                <a href="#" class="text-blue-600 hover:text-blue-800 mr-3" onclick="deleteProject('${project.encrypted_id}')"><i class="bi bi-trash"></i> </a>
                                 ${project.is_active == 1 ? `<a onclick="openModal('${project.encrypted_id}')" class=" hover:text-blue-800 mr-3 ${project.allocated_to == 0 || project.assigned_to == 0 ? '!text-red-600' : '!text-blue-600'} ">Edit</a>` : `<span data-id="${project.encrypted_id}" onclick="unlockCategory(this)" class="text-blue-600 hover:text-blue-800 mr-3 cursor-pointer "><i class="bi bi-lock"></i></span>`}
                                 </td>
                             </tr>
@@ -433,6 +434,29 @@ function unlockCategory(e) {
         let id = $(e).data('id');
         $.ajax({
             url: App.getSiteurl() + 'project/unlock',
+            method: 'POST',
+            data: { id: id },
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    setTimeout(function () {
+                        projects();
+                    }, 3000)
+
+                } else {
+                    toastr.error(response.message);
+                }
+            }
+        })
+    }
+}
+function deleteProject(id) {
+    if (confirm('are you sure ! You want to Delete Project')) {
+        let html = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...';
+        $(this).html(html);
+        $.ajax({
+            url: App.getSiteurl() + 'project-unit/delete',
             method: 'POST',
             data: { id: id },
             dataType: 'json',

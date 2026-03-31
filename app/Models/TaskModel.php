@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 class TaskModel extends Model {
     protected $table = 'tasks';
     protected $primaryKey ='id';
-    protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','task_gen_date','task_gen_date','status','taskmode','ui','tasktype','project_id','priority','progress','branch','project_unit','overdue_date','completed_at'];
+    protected $allowedFields= ['id','title','description','created_from_template','recurrence','next_run_date','task_gen_date','task_gen_date','status','taskmode','ui','tasktype','project_id','priority','progress','branch','project_unit','project_unit_status','overdue_date','completed_at'];
 
     protected $useSoftDeletes = false; // IMPORTANT 
 

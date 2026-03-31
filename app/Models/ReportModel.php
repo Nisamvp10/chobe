@@ -96,6 +96,7 @@ public function getReports($search='', $filter='', $startDate='', $endDate='', $
     }
 
     $builder->where('t.tasktype',1);
+    
 
     $builder->groupBy(['t.id','a.id']);
 
@@ -140,6 +141,7 @@ public function generateHistoryReport($taskId){
     $builder->where("t.tasktype",1);
     $builder->where("t.id IN ($taskId)");
     $builder->where('ac.comment IS NOT NULL');
+    
     return $builder->get()->getResultArray();
     
 }

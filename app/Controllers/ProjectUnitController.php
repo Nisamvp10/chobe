@@ -225,6 +225,7 @@ class ProjectUnitController extends Controller
         if($project !=='all'){ 
             $builder->where('project_unit.project_id',$project);
         }
+        $builder->where('project_unit.status',1);
 
         $projects = $builder->findAll();
         foreach($projects as &$project){
@@ -341,6 +342,24 @@ private function projectunitlog($data) {
         'assign_to_id' => $data['assigned_to'],
     ];
     $this->projectunitlogmodel->insert($log);
+}
+
+public function delete()
+{
+    if(!$this->request->isAJAX()){
+        return $this->response->setJSON(['success' => false, 'message' => 'Invalid Request']);
+    }
+    if(!hasPermission('','delete_project_unit')) {
+        return $this->response->setJSON(['success' => false,'message' => ' Permission Denied']);
+    }
+    $id = decryptor($this->request->getPost('id'));
+    $projectUnit = $this->projectUnitModel->where('id',$id)->get()->getRow();
+    if($projectUnit){
+        if($this->projectUnitModel->update($id,['status' => 2])){
+            return $this->response->setJSON(['success' => true,'message' => 'Project Unit Deleted']);
+        }
+    }
+    return $this->response->setJSON(['success' => false,'message' => 'Project Unit Not Found']);
 }
 
 }

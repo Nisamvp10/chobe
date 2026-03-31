@@ -130,6 +130,8 @@ class CronController extends Controller {
             if(empty($template['created_from_template'])) continue;
 
             $unitId = $template['project_unit'];
+            $projectunitCurrentStatus = $this->projectUnitModel->where('status',1)->find($unitId);
+            if(empty($projectunitCurrentStatus)) continue;
 
             $key = $template['created_from_template'].'_'.$template['project_id'].'_'.$unitId;
 
