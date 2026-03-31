@@ -879,8 +879,8 @@ class ReportController extends controller
         //date date=2026-03-22+to+2026-03-28 splt to satrt date and end date 
         $date = $this->request->getGet('date');
         $date = explode('to', $date);
-        $startDate = $date[0];
-        $endDate = $date[1];
+        $startDate = $date[0] ?? date('Y-m-d',strtotime('-1 day'));
+        $endDate = $date[1] ?? date('Y-m-d');
         $id = decryptor($id);
         //projectunit
         $projectunit = $this->request->getGet('projectunit');
