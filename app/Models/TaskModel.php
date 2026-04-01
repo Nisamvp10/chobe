@@ -44,6 +44,10 @@ class TaskModel extends Model {
                 $builder->groupStart();
                  $builder->like('t.title',$searchInput);
                  $builder->orLike('b.store',$searchInput);
+                 $builder->orLike('b.polaris_code',$searchInput);
+                 $builder->orLike('b.oracle_code',$searchInput);
+                 $builder->orLike('b.oldstore_name',$searchInput);
+                 $builder->orLike('u.name',$searchInput);
                  $builder->groupEnd();
             }
             if(!empty($startDate) && !empty($endDate)) {
