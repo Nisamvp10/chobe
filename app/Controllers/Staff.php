@@ -278,7 +278,7 @@ class Staff extends BaseController{
         $filter = $this->request->getPost('filter');
         $branch = $this->request->getPost('branch');
 
-        $staff = $userModel->getUsers($search,$filter,$branch,12);
+        $staff = $userModel->getUsers($search,$filter,$branch,13);
 
         foreach ($staff as &$staffKey) {
             $staffKey['encrypted_id'] = encryptor($staffKey['id']);
