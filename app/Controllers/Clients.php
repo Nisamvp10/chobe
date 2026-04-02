@@ -113,6 +113,7 @@ class Clients extends controller {
                 if(!empty($client['authorized_personnel'])) {
                       $contactsGroupped[$client['id']]['clientsInfo'][] = [
                         'authorized_personnel' => $client['authorized_personnel'],
+                        'infoId' => ($client['role_id'] == 3 || $client['role_id'] == 4) ? $client['infoId'] : '',
                         'email' => $client['email'] ?? '',
                         'phone' => $client['phone'] ?? '',
                         'designation' => $client['designation'] ?? ''
@@ -124,6 +125,7 @@ class Clients extends controller {
                     if(!empty($client['authorized_personnel'])) {
                         $contactsGroupped[$client['id']]['clientsInfo'][] = [
                             'authorized_personnel' => $client['authorized_personnel'],
+                            'infoId' => ($client['role_id'] == 3 || $client['role_id'] == 4) ? $client['infoId'] : '',
                             'email' => $client['email'] ?? '',
                             'phone' => $client['phone'] ?? '',
                             'designation' => $client['designation'] ?? ''

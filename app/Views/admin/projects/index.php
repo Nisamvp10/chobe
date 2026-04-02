@@ -117,9 +117,10 @@
                         html += `
                             <tr class="hover:bg-gray-50 ${project.is_active ==0 ? 'bg-red-100 bg-opacity-50' :'' }"  >
                                 <td class="px-2 py-2 whitespace-nowrap">
-                                    <div class="flex items-center">
+                                    <div class="flex items-center gap-2">
                                        
                                         <div class="text-sm font-medium text-gray-900">${count}</div>
+                                        <div onclick="copyText('${project.id}', this)" data-msg="${project.project} ID Copied" class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3"><span class="text-blue-600 font-medium">${project.id}</span></div>
                                     </div>
                                 </td>
                                 <td class="px-2 py-2 whitespace-nowrap">

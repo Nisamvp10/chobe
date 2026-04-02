@@ -107,8 +107,9 @@ $(document).on('change', '#projectUnit', function () {
   }
 })
 
-function copyText(text) {
+function copyText(text, e) {
   navigator.clipboard.writeText(text).then(() => {
-    toastr.success('client ID copied to clipboard');
+    let msg = $(e).data('msg');
+    toastr.success(msg);
   });
 }

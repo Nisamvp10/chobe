@@ -197,10 +197,12 @@ class ProjectUnitController extends Controller
         project_unit.polaris_code,
         project_unit.rm_mail,project_unit.contact_number,project_unit.start_date,project_unit.contact_number,
         project_unit.allocated_to,project_unit.assigned_to,
-        m.name as manager,rm.name as rm,')
+        m.authorized_personnel as manager,rm.authorized_personnel as rm,')
         ->join('clients as c', 'c.id = project_unit.client_id', 'left')
-        ->join('users as m', 'm.id = project_unit.manager_id', 'left')
-        ->join('users as rm', 'rm.id = project_unit.regional_manager_id', 'left');
+        //->join('users as m', 'm.id = project_unit.manager_id', 'left')
+        //->join('users as rm', 'rm.id = project_unit.regional_manager_id', 'left');
+        ->join('client_contacts as m', 'm.id = project_unit.manager_id', 'left')
+        ->join('client_contacts as rm', 'rm.id = project_unit.regional_manager_id', 'left');
         if($filter !=='all'){
            $builder->where('c.id',$filter);
         }
@@ -289,6 +291,7 @@ public function bulkUpload()
             $failedRows[] = $row;
             continue;
         }
+       
 
         $insertData[] = [
             'store'               => $rowData[1],  // Name
@@ -298,19 +301,22 @@ public function bulkUpload()
             'rm_mail'             => $rowData[5] ?? null,
             'contact_number'      => $rowData[6] ?? null,
             'client_id'           => $rowData[7] ?? null,
-            'start_date'          => !empty($rowData[8]) ? date('Y-m-d', strtotime($rowData[8])) : null,
-            'regional_manager_id' => $rowData[9] ?? null,
-            'manager_id'          => $rowData[10] ?? null,
-            'allocated_to'        => $rowData[11] ?? null,
-            'allocated_date'      => !empty($rowData[12]) ? date('Y-m-d', strtotime($rowData[12])) : null,
-            'allocated_type'      => $rowData[13] ?? 1,
-            'assigned_to'         => $rowData[14] ?? null,
-            'assigned_date'       => !empty($rowData[15]) ? date('Y-m-d', strtotime($rowData[15])) : null,
-            'assigned_type'       => $rowData[16] ?? 1,
+            'project_id'          => $rowData[8] ?? null,
+            'start_date'          => !empty($rowData[9]) ? date('Y-m-d', strtotime($rowData[9])) : null,
+            'regional_manager_id' => $rowData[10] ?? null,
+            'manager_id'          => $rowData[11] ?? null,
+            'allocated_to'        => $rowData[12] ?? null,
+            'allocated_date'      => !empty($rowData[13]) ? date('Y-m-d', strtotime($rowData[13])) : null,
+            'allocated_type'      => $rowData[14] ?? 1,
+            'assigned_to'         => $rowData[15] ?? null,
+            'assigned_date'       => !empty($rowData[16]) ? date('Y-m-d', strtotime($rowData[16])) : null,
+            'assigned_type'       => $rowData[17] ?? 1,
             'status'              => 1,
             'project_unit_type'   => 1, 
         ];
     }
+
+   
     if (!empty($insertData)) {
        
         if($this->projectUnitModel->insertBatch($insertData)) {

@@ -422,7 +422,6 @@ function taskdataRender(){
                     <th>#</th>
                     <th>Title</th>
                     <th>Branch</th>
-                    <th>Priority</th>
                     <th>Status</th>
                     <th>Task Gen Date</th>
                 </tr>
@@ -442,12 +441,12 @@ function taskdataRender(){
                 <td>
                 
                     <span class="badge rounded-pill 
-                        ${item.priority == 'High' ? 'bg-danger' : 
-                        (item.priority == 'Medium' ? 'bg-warning' : (item.priority == 'Low' ? 'bg-primary': 'bg-success') )}">
-                            ${item.total_activities} / ${item.completed_activities}
+                        ${item.completed_activities == item.total_activities ? 'bg-success' : 
+                        (item.completed_activities == 0 ? 'bg-danger' : (item.completed_activities == item.total_activities ? 'bg-success': 'bg-primary') )}">
+                            ${item.completed_activities} / ${item.total_activities}
                     </span>
                 </td>
-                <td>
+                <td class="hidden">
                     <span class="badge rounded-pill 
                         ${item.status == 'Pending' ? 'bg-warning' : 
                         (item.status == 'In_Progress' ? 'bg-primary' : 'bg-success') }">

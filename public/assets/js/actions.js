@@ -44,10 +44,10 @@ function renderTable(clients) {
             html += `
                 <tr class="hover:bg-gray-50">
                     <td class="px-2 py-2 whitespace-nowrap">
-                        <div class="flex items-center cursor-copy" onclick="copyText('${client.clitId}')">
+                        <div class="flex items-center cursor-copy" >
                             ${client.profile ?
                     `<img class="h-9 w-9 rounded-full mr-3" src="${client.profile}" alt="${client.profile}">`
-                    : `<div class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                    : `<div class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3" onclick="copyText('${client.clitId}', this)" data-msg="Client ID Copied">
                         <span class="text-blue-600 font-medium" >${client.clitId}</span> <!-- charAt(0) -->
                     </div>`
                 }
@@ -61,8 +61,11 @@ function renderTable(clients) {
                         <div class="text-sm text-gray-900">
                             ${client.clientsInfo.length > 0
                     ? client.clientsInfo.map(info => `
-                        <div class="mb-1">
-                            <strong>${info.authorized_personnel}</strong><br>
+                        <div class="mb-1 border p-2 rounded-2">
+                            <div class="flex gap-2 items-center">
+                            <strong>${info.authorized_personnel} </strong> 
+                            ${info.infoId ? `<div onclick="copyText('${info.infoId}', this)" data-msg="${info.designation} ID Copied" class="h-9 w-9 rounded-full bg-blue-100 flex items-center justify-center mr-3"><span class="text-blue-600 font-medium">${info.infoId}</span></div><br>` : ''}
+                            </div>
                             ${info.email ? `<span class="text-gray-600">${info.email}</span><br>` : ''}
                             ${info.phone ? `<span class="text-gray-600">${info.phone}</span><br>` : ''}
                             ${info.designation ? `<span class="text-gray-600">${info.designation}</span>` : ''}
