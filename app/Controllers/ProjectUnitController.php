@@ -279,6 +279,8 @@ public function bulkUpload()
             false
         )[0];
 
+       
+
         $rowData = array_map('trim', $rowData);
 
         // Skip fully empty rows
@@ -289,10 +291,8 @@ public function bulkUpload()
         // Required fields
         if (empty($rowData[1]) || empty($rowData[3]) || empty($rowData[4]) || empty($rowData[7]) || empty($rowData[9]) || empty($rowData[10])) {
             $failedRows[] = $row;
-            continue;
+           // continue;
         }
-       
-
         $insertData[] = [
             'store'               => $rowData[1],  // Name
             'oldstore_name'       => $rowData[2] ?? null,
@@ -316,7 +316,7 @@ public function bulkUpload()
         ];
     }
 
-   
+
     if (!empty($insertData)) {
        
         if($this->projectUnitModel->insertBatch($insertData)) {
@@ -326,6 +326,15 @@ public function bulkUpload()
                 'total_rows'  => $highestRow,
                 'inserted'    => count($insertData),
                 'failed_rows' => $failedRows
+            ]);
+        }else{
+            return $this->response->setJSON([
+                'success'     => false,
+                'message'     => 'Bulk upload failed',
+                'total_rows'  => $highestRow,
+                'inserted'    => count($insertData),
+                'failed_rows' => $failedRows,
+                'errors'      => $this->projectUnitModel->errors()
             ]);
         }
         
