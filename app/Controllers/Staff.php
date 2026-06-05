@@ -11,6 +11,8 @@ use App\Models\CategoryModel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\ClientsModel;
 use App\Models\MasterroleModel;
+use App\Models\ProjectsModel;
+use App\Models\TeamheadProjectsModel;
 
 class Staff extends BaseController{
     protected $branchModel;
@@ -20,6 +22,8 @@ class Staff extends BaseController{
     protected $categoryModel;
     protected $clientsModel;
     protected $masterroleModel;
+    protected $projectsModel;
+    protected $teamheadProjectsModel;
 
     function __construct(){
         $this->branchModel = new BranchesModel();
@@ -29,6 +33,8 @@ class Staff extends BaseController{
         $this->categoryModel = new CategoryModel();
         $this->clientsModel = new ClientsModel();
         $this->masterroleModel = new MasterroleModel();
+        $this->projectsModel = new ProjectsModel();
+        $this->teamheadProjectsModel = new TeamheadProjectsModel();
     }
 
     function index()
@@ -56,6 +62,7 @@ class Staff extends BaseController{
         
           $userModel = new UserModel();
           $serviceModel = new ServiceModel();
+          $projects = $this->projectsModel->where('is_active',1)->find();
         if ($id){
 
             $page = "Edit Team";
@@ -73,7 +80,7 @@ class Staff extends BaseController{
         $roles = $this->roleModel->findAll();
         $services = $this->categoryModel->getCategory();
       
-        return view('staff/create',compact('page','branches','roles','data','services','selectedSpecialties','positiondata'));
+        return view('staff/create',compact('page','branches','roles','data','services','selectedSpecialties','positiondata','projects'));
     }
     function save(){
 
@@ -103,6 +110,12 @@ class Staff extends BaseController{
             //'branch' => 'required|numeric', // or string based on your table
             'role' => 'required',
         ];
+        //validate team head
+        $role = $this->request->getPost('role');
+        if($role == 3){
+            $rules['project'] = 'required';
+        }
+        
         if (empty($id)) {
             $rules['password'] = 'required|min_length[6]|max_length[50]';
             $rules['email'] = 'required|valid_email|max_length[100]|is_unique[users.email]';
@@ -116,6 +129,7 @@ class Staff extends BaseController{
                 'errors' => $this->validator->getErrors()
             ]);
         }
+         $projectId = $this->request->getPost('project');
         $file = $this->request->getFile('file');
         $image =   ($file->isValid() && !$file->hasMoved() ? json_decode($this->imageUploader->uploadimg($file,'user'),true): ['status'=>false]);
 
@@ -164,6 +178,22 @@ class Staff extends BaseController{
                 if(!empty($specialtyData)) {
                     $this->specialityModel->insertBatch($specialtyData);
                 }
+                //update 
+                if($role == 3){
+                    $teamheadData = [
+                        'staff_id' => $id,
+                        'project_type_id' => $projectId,
+                        
+                    ];
+                    //check data in databse else insert 
+                    $checkData = $this->teamheadProjectsModel->where('staff_id',$id)->first();
+                    if($checkData){
+                        $this->teamheadProjectsModel->update($id,$teamheadData);
+                    }else{
+                        $teamheadData['created_at']= date('Y-m-d H:i:s');
+                        $this->teamheadProjectsModel->insert($teamheadData);
+                    }
+                }
                 $validSuccess = true;
                 $validMsg = "Updated Successfully";
             }else {
@@ -180,6 +210,15 @@ class Staff extends BaseController{
                         $row['staff_id'] = $lastId;
                     }
                     $this->specialityModel->insertBatch($specialtyData);
+                }
+                //team head validate and store 
+                if($role == 3){
+                    $teamheadData = [
+                        'staff_id' => $lastId,
+                        'project_type_id' => $projectId,
+                        'created_at'=> date('Y-m-d H:i:s')
+                    ];
+                    $this->teamheadProjectsModel->insert($teamheadData);
                 }
                 $validSuccess = true;
                 $validMsg = "New User Added Successfully";
