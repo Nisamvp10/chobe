@@ -104,12 +104,15 @@
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-4 text-sm text-gray-500 mb-2"><div class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar "><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg><span><?=$report['task_date'];?></span></div><div class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square "><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span><?=count($activity['comments'])?> comments</span></div></div>
-                                        <button onclick="toggleComments('<?=$commentId?>',this)" class="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down "><path d="m6 9 6 6 6-6"></path></svg>View Comments</button>
+                                        <button 
+                                        onclick__="toggleComments('<?=$commentId?>',this)" 
+                                         data-target="comments_<?=$commentId?>"
+                                        class="flex comment-toggle items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down "><path d="m6 9 6 6 6-6"></path></svg>View Comments</button>
                                     </div>
                                     
 
                                     <!-- COMMENTS SECTION -->
-                                    <div id="<?=$commentId;?>" class="comment-box border-t border-gray-200 bg-gray-50 p-6">
+                                    <div id="comments_<?=$commentId;?>" class="comment-box border-t border-gray-200 bg-gray-50 p-6">
                                         <h4 class="text-lg font-semibold text-gray-900 mb-4">
                                             Comments (<?=count($activity['comments'])?>)
                                         </h4>
@@ -173,16 +176,30 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 <script src="<?=base_url('public/assets/js/reports.js') ;?>" ></script>
     <script>
-      
-function toggleComments(id,e) {
-    const el = document.getElementById(id);
-    el.classList.toggle('show');
-    if(el.classList.contains('show')){
-      $(e).innerText = "Hide Comments"
-    }else{
-         $(e).textContent ="View Comments";
-    }
-}
+// function toggleComments(id,e) {
+//     const el = document.getElementById(id);
+//     el.classList.toggle('show');
+//     if(el.classList.contains('show')){
+//       $(e).innerText = "Hide Comments"
+//     }else{
+//          $(e).textContent ="View Comments";
+//     }
+// }
+
+$(document).on('click', '.comment-toggle', function () {
+
+    let target = $(this).data('target');
+    let $comments = $('#' + target);
+
+    $comments.toggleClass('show');
+
+    $(this).text(
+        $comments.hasClass('show')
+            ? 'Hide Comments'
+            : 'View Comments'
+    );
+
+});
 
 $(document).on('click','#downloadReport',function(){
     let id = $(this).data('id');
