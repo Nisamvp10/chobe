@@ -134,6 +134,8 @@ $routes->group('', ['filter' => 'auth'], function($routes)
     $routes->get('task/mytask/activities/(:any)','ActivitiesController::mYactivities/$1');
     $routes->post('task/activity/replay','ReplayController::activityReplaySave');
     $routes->post('activity-task-replays','ReplayController::activityReplayHistory');
+    //teamhead task
+    $routes->get('task/team-head-task','TeamheadTaskController::teamHeadTask');
     //dashboard tasks 
     $routes->get('dashboard/tasks','TaskController::list');
     //activity comments

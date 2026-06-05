@@ -13,6 +13,7 @@ class ActivityModel extends Model
     ];
 
     public function getActivities($taskId=false,$searchInput=false,$filter=false,$startDate=false,$endDate=false,$staffId=null) {
+        $userRole = session('user_data')['role'];
             $builder = $this->db->table('task_staff_activities as tsa')
             ->select(' tsa.task_id,
             tsa.id as activityId,

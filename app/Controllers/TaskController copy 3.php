@@ -1071,12 +1071,7 @@ class TaskController extends Controller {
     function myTask() {
         $page = "My Tasks";
         $branches = $this->branchModel->where('status','active')->findAll();
-        if(hasrole() == 3){
-            return view('admin/task/teamheadertask',compact('page','branches'));
-        }else{
-            return view('admin/task/mytask',compact('page','branches'));
-        }
-        
+        return view('admin/task/mytask',compact('page','branches'));
     }
 
     function notificationTask($taskId=false){

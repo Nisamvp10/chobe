@@ -17,3 +17,19 @@ if (!function_exists('hasPermission')) {
         }
     }
 }
+
+if(!function_exists('logInfo')) {
+    function logInfo($roleId=false,$role) {
+        $db = \Config\Database::connect();
+        $logInfo =  session('user_data');
+       return $logInfo;
+    }
+}
+
+if(!function_exists('hasrole')) {
+    function hasrole() {
+        $db = \Config\Database::connect();
+        $logInfo =  session('user_data');
+       return $logInfo['role'];
+    }
+}

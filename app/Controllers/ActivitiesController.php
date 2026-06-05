@@ -13,6 +13,7 @@ use App\Models\TaskStaffActivityModel;
 use App\Models\ActivitycommentsModel;
 use App\Models\MastertaskModel;
 use App\Services\Common;
+use App\Services\Teamheadtasks;
 
 use DateTime;
 
@@ -27,6 +28,7 @@ protected $taskassignModel;
 protected $commentModel;
 protected $masterTaskModel;
 protected $common;
+protected $teamHeadTaskService;
 
     function __construct(){
         $this->taskModel = new TaskModel();
@@ -39,6 +41,7 @@ protected $common;
         $this->commentModel = new ActivitycommentsModel();
         $this->masterTaskModel = new MastertaskModel();
         $this->common = new Common();
+        $this->teamHeadTaskService = new Teamheadtasks();
     }
 
     function activities($id=false) {
@@ -327,8 +330,8 @@ protected $common;
         $staffId   = (session('user_data')['role'] != 1  && session('user_data')['role'] != 2 ? session('user_data')['id'] : NULL);
 
         //$activityTasks = $this->activityModel->getActivities($taskId,$search,$filter,$startDate,$endDate);
-        $activityTasks = $this->activityModel->getActivities($taskId,$search,$filter,$startDate,$endDate,$staffId);
-        //echo $this->activityModel->getLastQuery(); exit();
+        $activityTasks = $this->teamHeadTaskService->getActivities($taskId,$search,$filter,$startDate,$endDate,$staffId);
+        // $this->activityModel->getLastQuery(); exit();
         $groupData = [];
         //$allusers = $this->userModel->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1])->findAll(); 
         $allusers =   $staff =  $this->taskassignModel->getMasterTaskStaff($taskId);
