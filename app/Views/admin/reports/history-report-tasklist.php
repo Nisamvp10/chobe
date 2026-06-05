@@ -112,7 +112,7 @@
                                     
 
                                     <!-- COMMENTS SECTION -->
-                                    <div id="comments_<?=$commentId;?>" class="comment-box border-t border-gray-200 bg-gray-50 p-6">
+                                    <div id="<?=$commentId;?>" class="comment-box border-t border-gray-200 bg-gray-50 p-6">
                                         <h4 class="text-lg font-semibold text-gray-900 mb-4">
                                             Comments (<?=count($activity['comments'])?>)
                                         </h4>
