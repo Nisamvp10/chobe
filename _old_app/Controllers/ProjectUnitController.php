@@ -1,0 +1,380 @@
+<?php
+namespace App\Controllers;
+
+use CodeIgniter\Controller;
+
+use App\Models\ProjectunitModel;
+use App\Models\BranchesModel;
+use App\Models\ClientsModel;
+use App\Models\UserModel;
+use App\Models\ProjectsModel;
+use App\Models\ProjectunitlogModel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
+class ProjectUnitController extends Controller
+{
+    protected $projectUnitModel;
+    protected $branchModel;
+    protected $clientsModel;
+    protected $projectsModel;
+    protected $projectunitlogmodel;
+
+    function __construct() {
+        $this->projectUnitModel = new ProjectunitModel();
+        $this->branchModel = new BranchesModel();
+        $this->clientsModel = new ClientsModel();
+        $this->userModel = new UserModel();
+        $this->projectsModel = new ProjectsModel();
+        $this->projectunitlogmodel = new ProjectunitlogModel();
+    }
+    public function index()
+    {
+        $page = (!hasPermission('','view_project_unit')) ?  lang('Custom.accessDenied') : 'Project Unit';
+        $stores = $this->clientsModel->where(['status'=>1,'store_type'=>1])->find();
+        $rm = $this->userModel->where(['position_id'=>4,'status'=>'approved','booking_status'=>1])->find();
+        $storeManager = $this->userModel->where(['position_id'=>3,'status'=>'approved','booking_status'=>1])->find();
+        //dosnot select allocated_to and assigned_to if status is 0
+        $projects = $this->projectsModel->where('is_active',1)->find();
+        $allocatedToAndAssignedTo = $this->userModel->where('status', 'approved')->where('booking_status', 1)->where('position_id !=', 4)->where('position_id !=', 3)->findAll();
+        return view('admin/project_unit/index',compact('page','stores','rm','storeManager','allocatedToAndAssignedTo','projects'));
+    }
+
+
+    function getdataFromId($id=false) {
+        if(!haspermission(session('user_data')['role'],'create_project_unit')) {
+             return $this->response->setJSON(['success' => false, 'message' => 'Permission Denied']);
+        }
+        $id = decryptor($id);
+        if($id) {
+            $projectUnit = $this->projectUnitModel->where('id',$id)->get()->getRow();
+            return $this->response->setJSON(['success' => true, 'result' => $projectUnit]);
+
+        }
+        return $this->response->setJSON(['success' => false, 'message' => 'Projectunit Not Found']);
+
+    }
+    function save() {
+        $validStatus = false;
+        $validStatus = '';
+        if(!$this->request->isAJAX()){
+            return $this->response->setJSON(['success'=> false, 'message' => 'invalid Request']);
+        }
+        if(!haspermission(session('user_data')['role'],'create_project_unit')) {
+             return $this->response->setJSON(['success' => false, 'message' => 'Permission Denied']);
+        }
+
+        $rules = [
+            'name'    => 'required|min_length[3]|max_length[100]',
+            //'old_name'  => 'required|min_length[2]',
+            //'oracle_code'   => 'required',
+            //'polaris_code'   => 'required',
+            'contact_number'   => 'required',
+            'client'   => 'required',
+            'start_date'   => 'required',
+            //'rm'   => 'required',
+            //'store_manager'   => 'required',
+            'allocated_to'     => 'required',
+            'allocated_date'     => 'required',
+            //'allocatedType'     => 'required',
+            'rm_mail'  => 'required|min_length[2]',
+            //'status'  => 'required',{allocatedType: "The allocatedType field is required."}
+        ];
+
+        if(!$this->validate($rules))
+        {
+            return $this->response->setJSON([
+                'succeass' => false,
+                'errors' => $this->validator->getErrors()        
+            ]);
+        }
+
+        $store   = $this->request->getVar('name');
+        $rm_mail = $this->request->getVar('rm_mail');
+        $rm = $this->request->getVar(index: 'rm');
+        $oldstore = $this->request->getVar('old_name');
+        $contactNumber = $this->request->getVar('contact_number');
+        $client = $this->request->getVar('client');
+        $storeManager = $this->request->getVar('store_manager');
+        $startDate = $this->request->getVar('start_date');
+        $polaris_code = $this->request->getVar('polaris_code');
+        $oracle_code = $this->request->getVar('oracle_code');
+        $project_id = $this->request->getVar('project');
+
+        $id       = $this->request->getVar('projectId');
+
+        $allocated_to   = $this->request->getPost('allocated_to');
+        $allocated_date = $this->request->getPost('allocated_date');
+        $allocated_type = 1;// $this->request->getPost('allocatedType');
+        $assigned_to    = $this->request->getPost('assigned_to');
+        $assigned_date  = $this->request->getPost('assigned_date');
+        $assigned_type  = 2;//$this->request->getPost('assignedType'); 
+
+
+        $data = [
+            'store' => $store,
+            'oldstore_name' => $oldstore,
+            'polaris_code'  => $polaris_code,
+            'oracle_code'   => $oracle_code,
+            'contact_number'  => $contactNumber,
+            'rm_mail'       => $rm_mail,
+            'client_id'     => $client,
+            'project_id'    =>  $project_id,
+            'manager_id'    => $storeManager,
+            'regional_manager_id'   => $rm,
+            'start_date'    => $startDate,
+            'status'        => 1,
+            'project_unit_type' =>1, 
+            'allocated_to'  =>  $allocated_to,
+            'allocated_date'=>  $allocated_date,
+            'allocated_type'=>  $allocated_type,
+            'assigned_to'   =>  $assigned_to,
+            'assigned_date' =>  $assigned_date,
+            'assigned_type',    $assigned_type,
+        ];
+
+        $logData = [
+            'regional_manager_id' => $rm,
+            'manager_id' => $storeManager,
+            'allocated_to' => $allocated_to,
+            'assigned_to' => $assigned_to,
+        ];
+
+        //create a project unit log .text file 
+        $logMessage = date('Y-m-d H:i:s') .json_encode($data);
+
+        file_put_contents(
+            WRITEPATH . 'logs/changes_log.txt',
+            $logMessage,
+            FILE_APPEND
+        );
+
+        if($id){
+            if($this->projectUnitModel->update($id, $data)){
+                $logData['id'] = $id;
+                $this->projectunitlog($logData);
+                
+                $validStatus = true;
+                $validMsg = 'Updated successfully!';
+
+            }else{
+                
+                $validMsg = 'something went wrong Please Try again';
+            }
+        }else{
+            if($this->projectUnitModel->insert($data)){
+                $lastId = $this->projectUnitModel->getInsertID();
+                $logData['id'] = $lastId;
+                $this->projectunitlog($logData);
+                
+
+                $validStatus = true;
+                $validMsg = 'New Project unit Added';
+
+            }else{
+                
+                $validMsg = 'something went wrong Please Try again';
+            }
+        }
+        return $this->response->setJSON([
+            'success' => $validStatus,
+            'message' => $validMsg
+        ]);
+    }
+
+    function list() {
+        if(!$this->request->isAJAX()){
+            return $this->response->setJSON(['success' => false, 'message' => 'Invalid Request']);
+        }
+        if(!haspermission('','view_project_unit')) {
+            return $this->response->setJSON(['success' => false,'message' => ' Permission Denied']);
+        }
+        $search = $this->request->getVar('search');
+        $filter = $this->request->getVar('filter');
+        $project = $this->request->getPost('project');
+
+        $builder = $this->projectUnitModel->select('project_unit.id,
+        project_unit.store,project_unit.oldstore_name,project_unit.oracle_code,c.name as clientName,project_unit.status as is_active,
+        project_unit.polaris_code,
+        project_unit.rm_mail,project_unit.contact_number,project_unit.start_date,project_unit.contact_number,
+        project_unit.allocated_to,project_unit.assigned_to,
+        m.authorized_personnel as manager,rm.authorized_personnel as rm,')
+        ->join('clients as c', 'c.id = project_unit.client_id', 'left')
+        //->join('users as m', 'm.id = project_unit.manager_id', 'left')
+        //->join('users as rm', 'rm.id = project_unit.regional_manager_id', 'left');
+        ->join('client_contacts as m', 'm.id = project_unit.manager_id', 'left')
+        ->join('client_contacts as rm', 'rm.id = project_unit.regional_manager_id', 'left');
+        if($filter !=='all'){
+           $builder->where('c.id',$filter);
+        }
+
+        if(!empty($search))
+        {
+            $builder->groupStart()
+                ->like('project_unit.store',$search)
+                ->orlike('project_unit.oldstore_name',$search)
+                ->orlike('project_unit.oracle_code',$search)
+                ->orlike('project_unit.polaris_code',$search)
+                ->orlike('project_unit.rm_mail',$search)
+                ->orlike('project_unit.contact_number',$search)
+                ->orlike('project_unit.start_date',$search)
+                ->orlike('project_unit.contact_number',$search)
+                ->orlike('project_unit.allocated_to',$search)
+                ->orlike('project_unit.assigned_to',$search)
+                ->orlike('project_unit.manager_id',$search)
+                ->orlike('project_unit.regional_manager_id',$search)
+                ->groupEnd();
+        }
+        if($project !=='all'){ 
+            $builder->where('project_unit.project_id',$project);
+        }
+        $builder->where('project_unit.status',1);
+
+        $projects = $builder->findAll();
+        foreach($projects as &$project){
+            $project['encrypted_id'] = encryptor($project['id']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'projects' => $projects,
+        ]);
+    }
+
+    //bulk project unit uploader 
+
+public function bulkUpload()
+{
+    if (!$this->request->isAJAX()) {
+        return $this->response->setJSON(['success' => false, 'message' => 'Invalid Request']);
+    }
+
+    if (!haspermission(session('user_data')['role'], 'create_project_unit')) {
+        return $this->response->setJSON(['success' => false, 'message' => 'Permission Denied']);
+    }
+
+    $file = $this->request->getFile('staff_excel');
+
+    if (!$file || !$file->isValid()) {
+        return $this->response->setJSON(['success' => false, 'message' => 'Invalid file']);
+    }
+
+    $spreadsheet = IOFactory::load($file->getTempName());
+    $sheet       = $spreadsheet->getActiveSheet();
+
+    // FIX: Use data rows only
+    $highestRow = $sheet->getHighestDataRow();
+    $highestCol = $sheet->getHighestDataColumn();
+
+    $insertData = [];
+    $failedRows = [];
+
+    // Start from row 2 (header in row 1)
+    for ($row = 2; $row <= $highestRow; $row++) {
+
+        $rowData = $sheet->rangeToArray(
+            "A{$row}:{$highestCol}{$row}",
+            null,
+            true,
+            true,
+            false
+        )[0];
+
+       
+
+        $rowData = array_map('trim', $rowData);
+
+        // Skip fully empty rows
+        if (count(array_filter($rowData)) === 0) {
+            continue;
+        }
+
+        // Required fields
+        if (empty($rowData[1]) || empty($rowData[3]) || empty($rowData[4]) || empty($rowData[7]) || empty($rowData[9]) || empty($rowData[10])) {
+            $failedRows[] = $row;
+           // continue;
+        }
+        $insertData[] = [
+            'store'               => $rowData[1],  // Name
+            'oldstore_name'       => $rowData[2] ?? null,
+            'oracle_code'         => $rowData[3],
+            'polaris_code'        => $rowData[4],
+            'rm_mail'             => $rowData[5] ?? null,
+            'contact_number'      => $rowData[6] ?? null,
+            'client_id'           => $rowData[7] ?? null,
+            'project_id'          => $rowData[8] ?? null,
+            'start_date'          => !empty($rowData[9]) ? date('Y-m-d', strtotime($rowData[9])) : null,
+            'regional_manager_id' => $rowData[10] ?? null,
+            'manager_id'          => $rowData[11] ?? null,
+            'allocated_to'        => $rowData[12] ?? null,
+            'allocated_date'      => !empty($rowData[13]) ? date('Y-m-d', strtotime($rowData[13])) : null,
+            'allocated_type'      => $rowData[14] ?? 1,
+            'assigned_to'         => $rowData[15] ?? null,
+            'assigned_date'       => !empty($rowData[16]) ? date('Y-m-d', strtotime($rowData[16])) : null,
+            'assigned_type'       => $rowData[17] ?? 1,
+            'status'              => 1,
+            'project_unit_type'   => 1, 
+        ];
+    }
+
+
+    if (!empty($insertData)) {
+       
+        if($this->projectUnitModel->insertBatch($insertData)) {
+                return $this->response->setJSON([
+                'success'     => true,
+                'message'     => 'Bulk upload completed',
+                'total_rows'  => $highestRow,
+                'inserted'    => count($insertData),
+                'failed_rows' => $failedRows
+            ]);
+        }else{
+            return $this->response->setJSON([
+                'success'     => false,
+                'message'     => 'Bulk upload failed',
+                'total_rows'  => $highestRow,
+                'inserted'    => count($insertData),
+                'failed_rows' => $failedRows,
+                'errors'      => $this->projectUnitModel->errors()
+            ]);
+        }
+        
+    }
+
+    // return $this->response->setJSON([
+    //     'success'     => false,
+    //     'message'     => 'Bulk upload completed',
+    //     'total_rows'  => $highestRow,
+    //     'inserted'    => count($insertData),
+    //     'failed_rows' => $failedRows
+    // ]);
+}
+private function projectunitlog($data) {
+    $log = [
+        'project_unit_id' => $data['id'],
+        'rm_id' => $data['regional_manager_id'],
+        'sm_id' => $data['manager_id'],
+        'allocate_to_id' => $data['allocated_to'],
+        'assign_to_id' => $data['assigned_to'],
+    ];
+    $this->projectunitlogmodel->insert($log);
+}
+
+public function delete()
+{
+    if(!$this->request->isAJAX()){
+        return $this->response->setJSON(['success' => false, 'message' => 'Invalid Request']);
+    }
+    if(!hasPermission('','delete_project_unit')) {
+        return $this->response->setJSON(['success' => false,'message' => ' Permission Denied']);
+    }
+    $id = decryptor($this->request->getPost('id'));
+    $projectUnit = $this->projectUnitModel->where('id',$id)->get()->getRow();
+    if($projectUnit){
+        if($this->projectUnitModel->update($id,['status' => 2])){
+            return $this->response->setJSON(['success' => true,'message' => 'Project Unit Deleted']);
+        }
+    }
+    return $this->response->setJSON(['success' => false,'message' => 'Project Unit Not Found']);
+}
+
+}

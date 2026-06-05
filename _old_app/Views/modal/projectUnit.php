@@ -1,0 +1,229 @@
+<div id="projectUnitModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 wrapModal">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[100vh] min-h-[80vh] overflow-y-auto">
+        
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <h2 class="text-2xl font-bold text-gray-900 head"></h2>
+      <button data-close="projectUnitModal" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+        ✕
+      </button>
+    </div>
+
+    <div class="p-6 ">
+    
+      <div class="modal-body">
+        <div class="bg-white rounded-lg  overflow-hidden p-2">
+            <form id="projectUnitForm" method="post">
+                 <?= csrf_field() ?>
+                <div class="grid grid-cols-2 gap-4 pb-4">
+
+                  <div >
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <div class="relative">
+                        <input type="hidden" id="projectId" name="projectId" value="" />
+                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-shop-window text-xl text-gray-400"></i></div>
+                        <input type="text" name="name" value=""  id="name" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Your Store Name">
+                        <div class="invalid-feedback" id="name_error"></div>
+                    </div>
+                </div>
+
+                <div >
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Old Name</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-shop-window text-xl text-gray-400"></i></div>
+                        <input type="text" name="old_name" value=""  id="old_name" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Old Name">
+                        <div class="invalid-feedback" id="old_name_error"></div>
+                    </div>
+                </div>
+                <!--2  -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Oracle Code</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-hash text-xl text-gray-400"></i></div>
+                            <input type="number" name="oracle_code" value=""  id="oracle_code" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Oracle Code">
+                            <div class="invalid-feedback" id="oracle_code_error"></div>
+                        </div>
+                    </div>
+                    <div>
+                     <label class="block text-sm font-medium text-gray-700 mb-1">Polaris Code</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-hash text-xl text-gray-400"></i></div>
+                            <input type="number" name="polaris_code" value=""  id="polaris_code" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Polaris ">
+                            <div class="invalid-feedback" id="polaris_code_error"></div>
+                        </div>
+                    </div>
+                    <!-- 3 -->
+                   <div >
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Email Id</label>
+                      <div class="relative">
+                          <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-envelope text-xl text-gray-400"></i></div>
+                          <input type="email" name="rm_mail" value=""  id="rm_mail" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter RM EMail ID">
+                          <div class="invalid-feedback" id="rm_mail_error"></div>
+                      </div>
+                    </div>
+                  <div>
+                     <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-hash text-xl text-gray-400"></i></div>
+                            <input type="text" name="contact_number" value=""  id="contact_number" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter Polaris ">
+                            <div class="invalid-feedback" id="contact_number_error"></div>
+                        </div>
+                    </div>
+                        <div >
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Clients</label>
+                            <div class="responseive">
+                                <select id="client" name="client" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                 <option value="">Choose client</option>
+                            <?php
+                            if($stores) {
+                                foreach($stores as $store) { ?>
+                                 <option value="<?= $store['id'] ?>"><?= $store['name'] ?></option> 
+                                <?php
+                                }
+                            }?>
+                            </select>
+                                <div class="invalid-feedback" id="client_error"></div>
+                            </div>
+                        </div>
+                <div >
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-person text-xl text-gray-400"></i></div>
+                        <input type="date" name="start_date" value=""  id="start_date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Start Date">
+                        <div class="invalid-feedback" id="start_date_error"></div>
+                    </div>
+                </div>
+                 <div class="w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">RM Name</label>
+                          <div class="responseive">
+                              <select id="rm" name="rm" class="pl-3 rmSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  <option  value="">Select Regional Manager</option>
+                               
+                              </select>
+                          <div class="invalid-feedback" id="rm_error"></div>
+                          </div>
+                      </div>
+                      
+                 <div class="w-full">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Store Manager</label>
+                        <div class="responseive">
+                        <select id="store_manager" name="store_manager" class="pl-3 smSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                          <option value="">Select Store Manager</option>
+                          <?php
+                          if($storeManager) {
+                              foreach($storeManager as $storeManager) { ?>
+                              <option value="<?= $storeManager['id'] ?>"><?= $storeManager['name'] ?></option> 
+                              <?php
+                              }
+                          }?>
+                        </select>
+                        <div class="invalid-feedback" id="store_manager_error"></div>
+                    </div>
+                </div>
+              </div> 
+              <div class="w-full mb-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Projects</label>
+                        <div class="responseive">
+                        <select id="project" name="project" class="pl-3 projectSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                          <option value="">Projects</option>
+                          <?php
+                          if($projects) {
+                              foreach($projects as $project) { ?>
+                              <option value="<?= $project['id'] ?>"><?= $project['project'] ?></option> 
+                              <?php
+                              }
+                          }?>
+                        </select>
+                        <div class="invalid-feedback" id="project_error"></div>
+                    </div>
+                </div>
+                
+                <!-- out of row -->
+                 <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Allocated To</label>
+                         <div class="responseive">
+                                <select id="allocated_to" name="allocated_to" class="pl-3 allocatedToSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  <option value="">Select Allocated To</option>
+                                  <?php
+                                  if($allocatedToAndAssignedTo) {
+                                      foreach($allocatedToAndAssignedTo as $user) { ?>
+                                      <option value="<?= $user['id'] ?>"><?= $user['name'] ?></option> 
+                                      <?php
+                                      }
+                                  }?>
+                                </select>
+                                <div class="invalid-feedback" id="allocated_to_error"></div>
+                            </div>
+                      </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Allocated Date</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-person text-xl text-gray-400"></i></div>
+                            <input type="date" name="allocated_date" value=""  id="allocated_date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Assigned Date">
+                            <div class="invalid-feedback" id="allocated_date_error"></div>
+                        </div>
+                      </div>
+                       <div class="hidden" >
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Allocated Type</label>
+                            <div class="responseive">
+                                <select id="allocatedType" readonly name="allocatedType" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  <option value="">Choose Type</option>
+                                  <option selected value="1">Permanantly</option>
+                                  <option value="1">Temporary</option>
+                                </select>
+                                <div class="invalid-feedback" id="allocatedType_error"></div>
+                            </div>
+                        </div>
+                        <!-- assign -->
+                         <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
+                         <div class="responseive">
+                                <select id="assigned_to" name="assigned_to" class="pl-3 assignedToSelect pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  <option value="">Select Assigned To</option>
+                                  <?php
+                                  if($allocatedToAndAssignedTo) {
+                                      foreach($allocatedToAndAssignedTo as $user) { ?>
+                                      <option value="<?= $user['id'] ?>"><?= $user['name'] ?></option> 
+                                      <?php
+                                      }
+                                  }?>
+                                </select>
+                                <div class="invalid-feedback" id="assigned_to_error"></div>
+                            </div>
+                      </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Assigned Date</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 mt-2 items-center pointer-events-none"><i class="bi bi-person text-xl text-gray-400"></i></div>
+                            <input type="date" name="assigned_date" value=""  id="assigned_date" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Assigned Date">
+                            <div class="invalid-feedback" id="assigned_date_error"></div>
+                        </div>
+                      </div>
+                       
+                       <div class="hidden" >
+                          <label class="block text-sm font-medium text-gray-700 mb-1">Assigned Type</label>
+                            <div class="responseive">
+                                <select id="assignedType" readonly name="assignedType" class="pl-3 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                  <option value="">Choose Type</option>
+                                  <option value="1">Permanantly</option>
+                                  <option selected value="2">Temporary</option>
+                                </select>
+                                <div class="invalid-feedback" id="assignedType_error"></div>
+                            </div>
+                        </div>
+                 </div>
+                
+
+            
+                    <div class="mt-8 flex justify-end gap-3">
+                            <a  data-close="projectUnitModal" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">Cancel</a>
+                            <button id="submitBtn" class="bg-primary hover:bg-primary-700 text-white px-4 py-2 rounded-2 flex items-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save mr-1"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>Save</button>
+                    </div>
+            </form>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
