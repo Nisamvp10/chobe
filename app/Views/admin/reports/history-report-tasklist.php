@@ -95,12 +95,13 @@
                 <div id="clientsTable__" class="max-h-[70vh] overflow-y-auto overflow-x-auto custom-scroll-wrapper">
                     <?php
                     if(!empty($result)) {
+                        $cId= 1;
                         foreach($result as $report) {
                            echo '<div>  <h1 class="h3 mb-3 capitalize">' . $report['task_title'].'-'.$report['task_date'] . '</h3></div>';
                             $activities = $report['activities'];
                             $commentsHtml = '';
                             foreach($activities as $activity) {
-                                $commentId = 'comments_'.$activity['activity_id'];
+                                $commentId = 'comments_'.$activity['activity_id'].'_'.$cId;
                         ?>
                         <div>
                                 <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-lg mb-3">
@@ -118,7 +119,7 @@
                                         </div>
                                         <div class="flex items-center gap-4 text-sm text-gray-500 mb-2"><div class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar "><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg><span><?=$report['task_date'];?></span></div><div class="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square "><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span><?=count($activity['comments'])?> comments</span></div></div>
                                        <button
-                                            data-target="<?=$commentId?>"
+                                            onclick="toggleComments('<?=$commentId?>',this)"
                                             class="comment-toggle flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium">
 
                                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -170,6 +171,7 @@
                             </div>
                         <?php
                             }
+                            $cId++;
 
                         }
                     }else{?>
@@ -210,31 +212,15 @@
 //          $(e).textContent ="View Comments";
 //     }
 // }
-$(document).on('click', '.comment-toggle', function (e) {
-    e.preventDefault();
-
-    let $btn = $(this);
-    let target = $btn.data('target');
-    let $currentBox = $('#' + target);
-
-    // Close all other comment boxes
-    $('.comment-box').not($currentBox).slideUp(200);
-    $('.comment-toggle').not($btn)
-        .removeClass('active')
-        .find('.toggle-text')
-        .text('View Comments');
-
-    // Toggle current comment box
-    $currentBox.slideToggle(200);
-
-    $btn.toggleClass('active');
-
-    $btn.find('.toggle-text').text(
-        $btn.hasClass('active')
-            ? 'Hide Comments'
-            : 'View Comments'
-    );
-});
+function toggleComments(id, e) {
+    const el = document.getElementById(id);
+    el.classList.toggle('show');
+    if(el.classList.contains('show')){
+      $(e).innerText = "Hide Comments"
+    }else{
+         $(e).textContent ="View Comments";
+    }
+}
 
 $(document).on('click','#downloadReport',function(){
     let id = $(this).data('id');
