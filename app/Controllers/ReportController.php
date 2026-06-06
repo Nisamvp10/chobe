@@ -723,8 +723,8 @@ class ReportController extends controller
             $taskId = implode(',', $taskId);
         }
         if(!empty($taskId)){
-            $historyReport = $this->reportModel->generateHistoryReport($taskId);
-            //echo (string) db_connect()->getLastQuery();
+            $historyReport = $this->reportModel->generateHistoryReport($taskId,true);
+            //echo (string) db_connect()->getLastQuery(); 
         }else{
             $historyReport = [];
         }

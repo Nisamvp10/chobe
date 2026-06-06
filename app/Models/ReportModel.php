@@ -118,7 +118,7 @@ public function getNearestDate()
         ->task_gen_date ?? date('Y-m-d');
 }
 
-public function generateHistoryReport($taskId){
+public function generateHistoryReport($taskId,$ui=false){
     $builder = $this->db->table('tasks t');
     $builder->select("t.title,t.task_gen_date,t.id,t.status as task_status,
         tsa.id as tsaactivityId,
@@ -138,8 +138,12 @@ public function generateHistoryReport($taskId){
     $builder->join('users u','u.id=ac.user_id','left',"left");
     $builder->join('project_unit pu','pu.id=t.project_unit','left');
 
-    $builder->where("t.ui",1);
     $builder->where("t.tasktype",1);
+    if($ui){
+        $builder->where("t.ui IN(1,2)");
+    }else{
+        $builder->where("t.ui",1);
+    }
     $builder->where("t.id IN ($taskId)");
     $builder->where('ac.comment IS NOT NULL');
     
