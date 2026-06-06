@@ -707,7 +707,7 @@ class ReportController extends controller
             $builder->where('project_unit', $projectunit);
         }
         $task = $builder->get()->getResult();
-        echo (string) db_connect()->getLastQuery(); exit();
+       // echo (string) db_connect()->getLastQuery(); exit();
 
         //i have get 11 tasks i want to list each activities send ids to report model ,121,55,22,81,58,66,67,68,69,70,71, how to send this ids to report model
         $taskId = [];
