@@ -851,6 +851,25 @@ a{
                         <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
                     </a>
                 </li>
+
+                    <li class="nav-item">
+                    <a class="nav-link <?= strpos(uri_string(), 'projects') === 0 ? 'active' : '' ?>" href="<?= base_url('projects') ?>">
+                        <i class="bi bi-diagram-3-fill"></i>
+                        <span>Projects</span>
+                        <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
+                    </a>
+                </li>
+ <?php
+                if(haspermission('','history_report_view')) {
+                  ?>
+                  <a class="nav-link <?= strpos(uri_string(), 'history-report') === 0 ? 'active' : '' ?>" href="<?= base_url('history-report') ?>">
+                                <i class="bi bi-bar-chart"></i>
+                                <span>History Report</span>
+                            </a>
+                        </li>
+                  <?php  
+                }
+                
                <?php 
                  if(haspermission('','view_branch')) : ?>
                 <li class="nav-item d-none">
@@ -868,28 +887,7 @@ a{
                         <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
                     </a>
                 </li>
- <?php
-                if(haspermission('','history_report_view')) {
-                  ?>
-                  <a class="nav-link <?= strpos(uri_string(), 'history-report') === 0 ? 'active' : '' ?>" href="<?= base_url('history-report') ?>">
-                                <i class="bi bi-bar-chart"></i>
-                                <span>History Report</span>
-                            </a>
-                        </li>
-                  <?php  
-                }
-          
-                if(haspermission('','user_ui')) {
-                    ?>
-                       <li class="nav-item">
-                            <a class="nav-link <?= strpos(uri_string(), 'user-ui') === 0 ? 'active' : '' ?>" href="<?= base_url('user-ui') ?>">
-                                <i class="bi bi-file-earmark-medical"></i>
-                                <span><?= getappdata('screen_title') ?></span>
-                                <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
-                            </a>
-                        </li>
-                    <?php
-                } ?>
+                
                
                 <?php if ($userRole ==1): ?>
                     <!-- nav -->
@@ -919,20 +917,16 @@ a{
                             </a>
                             <?php endif;
                             if(haspermission('','view_category')) : ?>
-                                  <li class="nav-item">
                                 <a class="flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200 text-sm text-gray-700 hover:bg-gray-100 <?= strpos(uri_string(), 'categories') === 0 ? 'active' : '' ?>" href="<?= base_url('categories') ?>">
                                     <!-- <i class="bi bi-diagram-3"></i> -->
                                     <span>Staff Capability</span>
                                 </a>
-                            </li>
                             <?php endif; 
                             if(haspermission('','view_projects')) : ?>
-                              <li class="nav-item">
                                 <a class="flex items-center w-full px-3 py-2 rounded-lg transition-all duration-200 text-sm text-gray-700 hover:bg-gray-100 <?= strpos(uri_string(), 'settings/projects') === 0 ? 'active' : '' ?>" href="<?= base_url('settings/projects') ?>">
                                     <!-- <i class="bi bi-diagram-3"></i> -->
                                     <span>Projects</span>
                                 </a>
-                              </li>
                             <?php endif; ?>
 
                         <?php
@@ -963,7 +957,18 @@ a{
                      <!-- close nav -->
              
                 <?php endif;?>
-               
+                <?php
+                if(haspermission('','user_ui')) {
+                    ?>
+                       <li class="nav-item">
+                            <a class="nav-link <?= strpos(uri_string(), 'user-ui') === 0 ? 'active' : '' ?>" href="<?= base_url('user-ui') ?>">
+                                <i class="bi bi-file-earmark-medical"></i>
+                                <span><?= getappdata('screen_title') ?></span>
+                                <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
+                            </a>
+                        </li>
+                    <?php
+                } ?>
             </ul>
         </div>
     </div>
