@@ -1,6 +1,6 @@
 <?php
 namespace App\Models;
-
+use App\Services\Teamheadtasks;
 use CodeIgniter\Model;
 
 class ProjectsModel extends Model{
@@ -11,4 +11,14 @@ class ProjectsModel extends Model{
     function getCategory() {
         return $this->where('is_active',1)->findAll();
     }
+    public function projectunits(){
+        $this->teamheadtasks = new Teamheadtasks();
+        if(hasRole() ==3){
+            $projectId = $this->teamheadtasks->roleByProjectId();
+            return $this->where(['id'=> $projectId,'is_active'=>1])->findAll();
+        }else{
+            return $this->where('is_active',1)->find();
+        }
+    }
+
 }

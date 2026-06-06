@@ -37,7 +37,8 @@ class ProjectUnitController extends Controller
         $rm = $this->userModel->where(['position_id'=>4,'status'=>'approved','booking_status'=>1])->find();
         $storeManager = $this->userModel->where(['position_id'=>3,'status'=>'approved','booking_status'=>1])->find();
         //dosnot select allocated_to and assigned_to if status is 0
-        $projects = $this->projectsModel->where('is_active',1)->find();
+        $projects = $this->projectsModel->projectunits();
+        //$this->projectsModel->where('is_active',1)->find();
         $allocatedToAndAssignedTo = $this->userModel->where('status', 'approved')->where('booking_status', 1)->where('position_id !=', 4)->where('position_id !=', 3)->findAll();
         return view('admin/project_unit/index',compact('page','stores','rm','storeManager','allocatedToAndAssignedTo','projects'));
     }
