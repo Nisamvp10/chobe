@@ -719,9 +719,12 @@ class ReportController extends controller
         }
         if(!empty($taskId)){
             $historyReport = $this->reportModel->generateHistoryReport($taskId);
+            echo (string) db_connect()->getLastQuery();
         }else{
             $historyReport = [];
         }
+
+       // print_r($historyReport);exit();
            
         $page = '';//($task) ? $task->title.' '.date('d-m-Y',strtotime($task->task_gen_date)) : 'No Task Found';
         $rojectUnitModel = new ProjectunitModel();
