@@ -49,7 +49,7 @@
                         if(!empty($tasksByprojectUnits)){
                             foreach($tasksByprojectUnits as $tasks){
                             ?>
-                                <option <?=($requestUrl['task'] == $tasks->id) ? 'selected' : '';?>  value="<?=$tasks->id;?>"><?=$tasks->title;?></option>
+                                <option <?=($requestUrl['task'] == $tasks['id']) ? 'selected' : '';?>  value="<?=$tasks['id'];?>"><?=$tasks['title'];?></option>
                             <?php 
                             } 
                         } ?>

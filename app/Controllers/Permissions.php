@@ -64,7 +64,7 @@ Class Permissions extends BaseController{
         $builder = $permissionsModel->select('*');
         if($search) {
             $search = str_replace(' ','_',$search);
-            $builder->like('permission_name',$search);
+           // $builder->like('permission_name',$search);
         }
         $permisions =  $builder->findAll();
       

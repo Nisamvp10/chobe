@@ -13,8 +13,9 @@
         $ebranch = $data['store_id'];
         $profile = $data['profileimg'];
         $positionId = $data['position_id'];
+        $projectId = $data['project'];
     }else {
-        $id=$name=$email=$phone=$position=$hire_date=$booking_status=$erole=$ebranch=$profile =$positionId='';
+        $id=$name=$email=$phone=$position=$hire_date=$booking_status=$erole=$ebranch=$profile =$positionId=$projectId='';
     }?>
  <!-- titilebar -->
  <div class="flex items-center justify-between">
@@ -222,7 +223,7 @@
                                 if(!empty($projects)){
                                     foreach($projects as $project){
                                     ?>
-                                        <option <?= ($project == $project['id'] ? 'selected' :'') ?> value="<?=$project['id'];?>"><?=$project['project'];?></option>
+                                        <option <?= ($projectId == $project['id'] ? 'selected' :'') ?> value="<?=$project['id'];?>"><?=$project['project'];?></option>
                                     <?php 
                                     } 
                                 } ?>

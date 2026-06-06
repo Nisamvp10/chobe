@@ -29,7 +29,7 @@
                         if(!empty($tasksByprojectUnits)){
                             foreach($tasksByprojectUnits as $tasks){
                             ?>
-                                <option  value="<?=$tasks->id;?>"><?=$tasks->title;?></option>
+                                <option  value="<?=$tasks['id'];?>"><?=$tasks['title'];?></option>
                             <?php 
                             } 
                         } ?>

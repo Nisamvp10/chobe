@@ -68,6 +68,10 @@ class Staff extends BaseController{
             $page = "Edit Team";
             $id = decryptor($id);
             $data = $userModel->where('id',$id)->first();
+            if(!empty($data) and $data['role'] == 3){
+               $result = $this->teamheadProjectsModel->where('staff_id',$id)->first();
+                $data['project'] =  $result['project_type_id'];
+            }
             $selectedSpecialties = $this->specialityModel->getSpecialty($id);
 
         }else{
@@ -181,14 +185,17 @@ class Staff extends BaseController{
                 //update 
                 if($role == 3){
                     $teamheadData = [
-                        'staff_id' => $id,
+                        //'staff_id' => $id,
                         'project_type_id' => $projectId,
                         
                     ];
                     //check data in databse else insert 
                     $checkData = $this->teamheadProjectsModel->where('staff_id',$id)->first();
+                  
                     if($checkData){
-                        $this->teamheadProjectsModel->update($id,$teamheadData);
+                        $this->db = \Config\Database::connect();
+                        $sql = "UPDATE team_head_projects SET project_type_id = '$projectId' WHERE staff_id = '$id'";
+                        $this->db->query($sql);
                     }else{
                         $teamheadData['created_at']= date('Y-m-d H:i:s');
                         $this->teamheadProjectsModel->insert($teamheadData);

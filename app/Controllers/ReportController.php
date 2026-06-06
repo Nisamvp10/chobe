@@ -677,10 +677,11 @@ class ReportController extends controller
         $projectModel = new ProjectsModel();
 
         $projectUnits = $rojectUnitModel->where('status',1)->findAll();
-        $projectsList = $projectModel->where('is_active',1)->findAll();
+        $projectsList = $projectModel->where('is_active',1)->findAll(); 
         //create from template grouping not working
         //$tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit,created_from_template')->get()->getResult(); 
-        $tasksByprojectUnits = $this->mastertaskModel->where('status','active')->get()->getResult();
+        $tasksByprojectUnits = $this->mastertaskModel->mastertasks();
+        //where('status','active')->get()->getResult();
         //echo $this->taskModel->getLastQuery();
         
         
@@ -801,7 +802,8 @@ class ReportController extends controller
        
         $requestUrl =  $this->request->getGet();
         //$tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
-        $tasksByprojectUnits = $this->mastertaskModel->where('status','active')->get()->getResult();
+        $tasksByprojectUnits = $this->mastertaskModel->mastertasks();
+        //where('status','active')->get()->getResult();
         return view($rutes,compact('id','page','projectUnits','projectsList','result','requestUrl','tasksByprojectUnits'));
     }
 
