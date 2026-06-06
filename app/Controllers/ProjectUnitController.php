@@ -10,6 +10,7 @@ use App\Models\UserModel;
 use App\Models\ProjectsModel;
 use App\Models\ProjectunitlogModel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Services\Teamheadtasks;
 
 class ProjectUnitController extends Controller
 {
@@ -18,6 +19,7 @@ class ProjectUnitController extends Controller
     protected $clientsModel;
     protected $projectsModel;
     protected $projectunitlogmodel;
+    protected $teamheadtasks;
 
     function __construct() {
         $this->projectUnitModel = new ProjectunitModel();
@@ -26,6 +28,7 @@ class ProjectUnitController extends Controller
         $this->userModel = new UserModel();
         $this->projectsModel = new ProjectsModel();
         $this->projectunitlogmodel = new ProjectunitlogModel();
+        $this->teamheadtasks = new Teamheadtasks();
     }
     public function index()
     {
@@ -198,10 +201,10 @@ class ProjectUnitController extends Controller
         project_unit.rm_mail,project_unit.contact_number,project_unit.start_date,project_unit.contact_number,
         project_unit.allocated_to,project_unit.assigned_to,
         m.authorized_personnel as manager,rm.authorized_personnel as rm,')
-        ->join('clients as c', 'c.id = project_unit.client_id', 'left')
+        ->join('clients as c', 'c.id = project_unit.client_id', 'left');
         //->join('users as m', 'm.id = project_unit.manager_id', 'left')
         //->join('users as rm', 'rm.id = project_unit.regional_manager_id', 'left');
-        ->join('client_contacts as m', 'm.id = project_unit.manager_id', 'left')
+        $builder->join('client_contacts as m', 'm.id = project_unit.manager_id', 'left')
         ->join('client_contacts as rm', 'rm.id = project_unit.regional_manager_id', 'left');
         if($filter !=='all'){
            $builder->where('c.id',$filter);
@@ -226,6 +229,9 @@ class ProjectUnitController extends Controller
         }
         if($project !=='all'){ 
             $builder->where('project_unit.project_id',$project);
+        }
+        if(hasRole() == 3){
+            $builder->where('project_unit.project_id',$this->teamheadtasks->roleByprojectId());
         }
         $builder->where('project_unit.status',1);
 
