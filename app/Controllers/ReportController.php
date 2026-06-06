@@ -694,7 +694,7 @@ class ReportController extends controller
         $endDate = date('Y-m-d',strtotime('-1 day'));
         if($date){
             $date = explode('to', $date);
-             $startDate = trim($date[0]);
+            $startDate = trim($date[0]);
             $endDate = trim($date[1]);
         }
         $id = decryptor($id);
@@ -719,7 +719,7 @@ class ReportController extends controller
         }
         if(!empty($taskId)){
             $historyReport = $this->reportModel->generateHistoryReport($taskId);
-            echo (string) db_connect()->getLastQuery();
+            //echo (string) db_connect()->getLastQuery();
         }else{
             $historyReport = [];
         }
