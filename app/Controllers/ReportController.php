@@ -820,7 +820,7 @@ class ReportController extends controller
         $tasksByprojectUnits = $this->mastertaskModel->mastertasks();
         //where('status','active')->get()->getResult();
         
-        return view($rutes,compact('id','page','projectUnits','projectsList','result','requestUrl','tasksByprojectUnits','paginationPage ','totalRows','totalPages','limit'));
+        return view($rutes,compact('id','page','projectUnits','projectsList','result','requestUrl','tasksByprojectUnits','paginationPage','totalRows','totalPages','limit'));
     }
 
     public function historycommentsReportList() {
