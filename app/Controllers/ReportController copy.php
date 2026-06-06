@@ -693,16 +693,6 @@ class ReportController extends controller
         }
         $rutes = (haspermission('','report') ? 'admin/reports/history-report-tasklist' : '404page' );
         $template = $this->request->getGet('task');
-
-        $paginationPage = (int)($this->request->getGet('page') ?? 1);
-
-        if($paginationPage < 1){
-            $paginationPage = 1;
-        }
-
-        $limit  = 100;
-        $offset = ($paginationPage - 1) * $limit;
-
         //date date=2026-03-22+to+2026-03-28 splt to satrt date and end date 
         $date = $this->request->getGet('date');
         $startDate = date('Y-m-d',strtotime('-1 day'));
@@ -721,12 +711,7 @@ class ReportController extends controller
         if($projectunit != 'all'){
             $builder->where('project_unit', $projectunit);
         }
-        $totalRows = $builder->countAllResults(false);
-
-        $totalPages = ceil($totalRows / $limit);
-
-       // $task = $builder->get()->getResult();
-       $task = $builder->limit($limit, $offset)->get()->getResult();
+        $task = $builder->get()->getResult();
        // echo (string) db_connect()->getLastQuery(); exit();
 
         //i have get 11 tasks i want to list each activities send ids to report model ,121,55,22,81,58,66,67,68,69,70,71, how to send this ids to report model
@@ -738,7 +723,7 @@ class ReportController extends controller
             $taskId = implode(',', $taskId);
         }
         if(!empty($taskId)){
-            $historyReport = $this->reportModel->generateHistoryReport($taskId,true);
+            $historyReport = $this->reportModel->generateHistoryReport($taskId);
             //echo (string) db_connect()->getLastQuery(); 
         }else{
             $historyReport = [];
@@ -819,8 +804,7 @@ class ReportController extends controller
         //$tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
         $tasksByprojectUnits = $this->mastertaskModel->mastertasks();
         //where('status','active')->get()->getResult();
-        
-        return view($rutes,compact('id','page','projectUnits','projectsList','result','requestUrl','tasksByprojectUnits','totalRows','totalPages','limit'));
+        return view($rutes,compact('id','page','projectUnits','projectsList','result','requestUrl','tasksByprojectUnits'));
     }
 
     public function historycommentsReportList() {

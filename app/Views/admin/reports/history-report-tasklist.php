@@ -174,6 +174,25 @@
                             $cId++;
 
                         }
+                    if($totalPages > 1): ?>
+
+                            <div class="flex justify-center gap-2 mt-4">
+
+                                <?php for($i=1;$i<=$totalPages;$i++): ?>
+
+                                    <a href="?<?= http_build_query(array_merge($_GET,['page'=>$i])) ?>"
+                                    class="px-3 py-2 border rounded <?= ($paginationPage == $i ? 'bg-blue-600 text-white' : 'bg-white') ?>">
+
+                                        <?= $i ?>
+
+                                    </a>
+
+                                <?php endfor; ?>
+
+                            </div>
+
+                            <?php endif;
+                        
                     }else{?>
                         <div class="text-center py-12">
                             <p class="text-gray-500">No reports found</p>
