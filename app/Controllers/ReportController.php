@@ -929,7 +929,7 @@ class ReportController extends controller
             }
             $taskId = implode(',', $taskId);
         }
-        $historyReport = $this->reportModel->generateHistoryReport($taskId);
+        $historyReport = $this->reportModel->generateHistoryReport($taskId,true);
 
         // 🔹 Format result (group by activity)
         $result = [];
