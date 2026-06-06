@@ -722,7 +722,6 @@ class ReportController extends controller
         }else{
             $historyReport = [];
         }
-        print_r($historyReport);
            
         $page = '';//($task) ? $task->title.' '.date('d-m-Y',strtotime($task->task_gen_date)) : 'No Task Found';
         $rojectUnitModel = new ProjectunitModel();
