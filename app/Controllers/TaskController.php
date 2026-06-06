@@ -1261,7 +1261,7 @@ class TaskController extends Controller {
         if(!haspermission('','create_task')) {
             $route = view('admin/pages-error-404',compact('page'));
         } else {
-           $masterTasks = $this->mastertaskModel->where('status','active')->findAll();
+            $masterTasks = $this->mastertaskModel->mastertasks(); 
             $route =  view('admin/task/group_activity_task_complete',compact('page','masterTasks'));
         }
         return $route;

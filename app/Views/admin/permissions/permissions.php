@@ -34,11 +34,11 @@
                     <path d="m21 21-4.3-4.3"></path>
                 </svg>
                 </div>
-                <input type="text" id="searchInput" placeholder="Search branch by name, or location..." class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                <input type="text" id="searchInput" placeholder="Search Title" class="pl-10 pr-3 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
             </div>
             
             <!-- Column 2: Status Dropdown -->
-            <div class="w-full md:w-48">
+            <div class="w-full md:w-48 hidden">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-filter text-gray-400">
@@ -123,19 +123,22 @@
                         }
                     }
                 },error: function() {
-                    toastr.error('An error occurred while saving Branch');
+                    toastr.error('An error occurred while saving ');
                 },
                 complete: function() {
                     // Re-enable submit button
-                    $('#submitBtn').prop('disabled', false).text('Save Branch');
+                    $('#submitBtn').prop('disabled', false).text('Save');
                 }
             })
         })
     })
-
-    function loadPermissions (search = '') {
+$('#searchInput').on('keyup', function () {
+    loadPermissions();
+})
+    function loadPermissions () {
         let filer = $('#filerStatus').val();
         let roleId = $('#role').val();
+        search = $('#searchInput').val();
         $.ajax({
             url: "<?= site_url('permissions/controls') ?>",
             type: "GET",
@@ -155,7 +158,7 @@
 
             html += `
                     <div class="text-center py-8">
-                        <h3 class="text-lg font-medium text-gray-700">No Branches found</h3>
+                        <h3 class="text-lg font-medium text-gray-700">No Item Found found</h3>
                         <p class="text-gray-500 mt-1">Try adjusting your search</p>
                     </div>`;
         }else {

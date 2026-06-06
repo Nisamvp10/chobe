@@ -53,16 +53,21 @@ Class Permissions extends BaseController{
         if (!$this->request->isAJAX()) {
             return $this->response->setJSON(['success' => false, 'message' => 'Invalid Request']);
         }
-
         $rolesModel = new RolesModel();
         $permissionsModel = new PermissionsModel();
         $rolePermisions = new RolePermissionsModel();
 
         $roleId = $this->request->getGet('role') ?? 1;
-        $search = $this->request->getPost('search');
-        $filter = $this->request->getPost('filter');
-        $permisions =  $permissionsModel->findAll();
+        $search = $this->request->getGet('search');
+        $filter = $this->request->getGet('filter');
         $roleId = ( $roleId ?  $roleId  : 1);
+        $builder = $permissionsModel->select('*');
+        if($search) {
+            $search = str_replace(' ','_',$search);
+            $builder->like('permission_name',$search);
+        }
+        $permisions =  $builder->findAll();
+      
         $assigned = $rolePermisions->where('role_id', $roleId)->findAll();
         $assignedPermissionIds = array_column($assigned, 'permission_id');
 
