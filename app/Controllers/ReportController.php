@@ -694,8 +694,8 @@ class ReportController extends controller
         $endDate = date('Y-m-d',strtotime('-1 day'));
         if($date){
             $date = explode('to', $date);
-            $startDate = $date[0];
-            $endDate = $date[1];
+             $startDate = trim($date[0]);
+            $endDate = trim($date[1]);
         }
         $id = decryptor($id);
         //projectunit
@@ -707,6 +707,8 @@ class ReportController extends controller
             $builder->where('project_unit', $projectunit);
         }
         $task = $builder->get()->getResult();
+        //echo (string) db_connect()->getLastQuery(); exit();
+
         //i have get 11 tasks i want to list each activities send ids to report model ,121,55,22,81,58,66,67,68,69,70,71, how to send this ids to report model
         $taskId = [];
         if(!empty($task)){
