@@ -4,6 +4,8 @@ use App\Models\TaskModel;
 use App\Models\ActivityStaffModel;
 use App\Models\TaskStaffActivityModel;
 use App\Models\ActivityModel;
+use App\Models\ProjectunitModel;
+use App\Models\ProjectsModel;
 
 class Teamheadtasks {
     protected $task;
@@ -11,6 +13,9 @@ class Teamheadtasks {
     protected $taskActivityModel;
     protected $taskStaffActivityModel;
     protected $activityModel;
+    protected $projectUnitModel;
+    protected $projectModel;
+    
     function __construct() {
 
         $this->task = new TaskModel();
@@ -18,17 +23,22 @@ class Teamheadtasks {
         $this->activityStaffModel = new ActivityStaffModel();
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
         $this->activityModel = new ActivityModel();
-        
+        $this->projectUnitModel = new ProjectunitModel();
+        $this->projectModel = new ProjectsModel();
     }
-    private function taskQuery($limit=false,$notificationTask=false,$filter=false,$search=false,$orderBy=false) {
+     function roleByprojectId(){
         $userId = session('user_data')['id'];
-        $role = hasRole();
-            $getProjectId = $this->db->table('team_head_projects')
+        $getProjectId = $this->db->table('team_head_projects')
             ->select('project_type_id')
             ->where('staff_id', $userId)
             ->get()
             ->getRow();
-        
+        return $getProjectId->project_type_id;
+    }
+    private function taskQuery($limit=false,$notificationTask=false,$filter=false,$search=false,$orderBy=false) {
+        $userId = session('user_data')['id'];
+        $role = hasRole();
+        $projectId = $this->roleByprojectId();
 
         $taskIds = $this->db->table('task_assignees')
             ->select('task_id')
@@ -51,7 +61,7 @@ class Teamheadtasks {
             ->join('users as u', 'u.id = a.staff_id')
             ->join('task_images as ti',  'ti.task_id = t.id', 'left')
             ->join('team_head_projects as tp', 'tp.project_type_id = t.project_id', 'left')
-            ->where('tp.project_type_id', $getProjectId->project_type_id);
+            ->where('tp.project_type_id', $projectId);
             $builder->where('t.ui',1)
             ->where('t.tasktype',1)
             ->orderBy('t.id', 'DESC');
@@ -250,5 +260,23 @@ class Teamheadtasks {
             return  $this->activityModel->getActivities($taskId,$search,$filter,$startDate,$endDate,$staffId);
         }
     }
-    
+
+    function getTaskProject(){
+        if(hasRole() == 3){
+            $projectId = $this->roleByprojectId();
+            return $this->projectUnitModel->where(['status'=>1,'project_id'=>$projectId])->findAll();
+        }
+        else{
+            return $this->projectUnitModel->where('status',1)->findAll();
+        }
+    }
+    function getProjectList(){
+        if(hasRole() == 3){
+            $projectId = $this->roleByprojectId();
+            return $this->projectModel->where(['is_active'=>1,'id'=>$projectId])->findAll();
+        }
+        else{
+            return $this->projectModel->where('is_active',1)->findAll();
+        }
+    }
 }

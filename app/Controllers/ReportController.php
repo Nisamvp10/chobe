@@ -14,7 +14,7 @@ use App\Models\TaskStaffActivityModel;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\MastertaskModel;
-
+use App\Services\Teamheadtasks;
 use App\Models\ProjectsModel;
 use App\Models\TaskModel;
 
@@ -23,19 +23,19 @@ class ReportController extends controller
     protected $reportModel;
     protected $taskModel;
     protected $mastertaskModel;
+    protected $teamheadtasks;
     public function __construct() {
         $this->reportModel = new ReportModel();
         $this->taskModel = new TaskModel();
         $this->mastertaskModel = new MastertaskModel();
+        $this->teamheadtasks = new Teamheadtasks();
     }
     public function index()
     {   
         $page = (!haspermission('','report') ? lang('Custom.accessDenied') : 'Select the task you want to report' );
-        $rojectUnitModel = new ProjectunitModel();
-        $projectModel = new ProjectsModel();
-
-        $projectUnits = $rojectUnitModel->where('status',1)->findAll();
-        $projectsList = $projectModel->where('is_active',1)->findAll();
+        $projectUnits = $this->teamheadtasks->getTaskProject();
+        $projectsList = $this->teamheadtasks->getProjectList();
+        //echo (string) db_connect()->getLastQuery();
         return view('admin/reports/tasklist',compact('page','projectUnits','projectsList'));
     }
     public function userReport()
@@ -139,8 +139,12 @@ class ReportController extends controller
             ->select('tasks.title, tasks.task_gen_date, tasks.id')
             ->where('tasktype', 1)
             ->where('task_gen_date >=', $startDate)
-            ->where('task_gen_date <=', $endDate)
-            ->groupBy(['DATE(task_gen_date)', 'created_from_template']); // safer
+            ->where('task_gen_date <=', $endDate);
+            if(hasRole() == 3){
+                $builder->where('project_id', $this->teamheadtasks->roleByProjectId());
+            }
+
+            $builder->groupBy(['DATE(task_gen_date)', 'created_from_template']); 
            
 
         // Search
@@ -737,7 +741,7 @@ class ReportController extends controller
         foreach ($historyReport as $row) {
 
             $taskId = $row['id'];
-            $activityId = $row['activity_id']; // ✅ FIXED
+            $activityId = $row['activity_id']; // FIXED
 
             // TASK LEVEL
             if (!isset($result[$taskId])) {
@@ -794,10 +798,7 @@ class ReportController extends controller
         foreach ($result as &$task) {
             $task['activities'] = array_values($task['activities']);
         }
-        // echo "<pre>";
-        // print_r($result);
-        // echo "</pre>";
-        // exit;
+       
         $requestUrl =  $this->request->getGet();
         //$tasksByprojectUnits = $this->taskModel->where(['ui' =>1,'tasktype' => 1])->groupBy('project_unit')->get()->getResult(); 
         $tasksByprojectUnits = $this->mastertaskModel->where('status','active')->get()->getResult();
