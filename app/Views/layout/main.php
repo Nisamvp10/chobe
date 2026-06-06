@@ -859,7 +859,7 @@ a{
                         <span class="notification-count badge bg-danger rounded-pill ms-auto" id="sidebar-notification-count"></span>
                     </a>
                 </li>
- <?php
+                        <?php
                 if(haspermission('','history_report_view')) {
                   ?>
                   <a class="nav-link <?= strpos(uri_string(), 'history-report') === 0 ? 'active' : '' ?>" href="<?= base_url('history-report') ?>">
@@ -869,7 +869,7 @@ a{
                         </li>
                   <?php  
                 }
-                
+                ?>
                <?php 
                  if(haspermission('','view_branch')) : ?>
                 <li class="nav-item d-none">
