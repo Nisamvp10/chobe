@@ -895,8 +895,213 @@ class ReportController extends controller
        ]);
 
     }
+    public function historyReportDownload($id = false)
+    {
+        ini_set('memory_limit', '1024M');
+        set_time_limit(0);
 
-    function historyReportDownload($id = false){
+        $taskModel = new TaskModel();
+
+        $template = $this->request->getGet('task');
+        $projectunit = $this->request->getGet('projectunit');
+
+        $date = $this->request->getGet('date');
+
+        if (empty($date)) {
+            $date = date('Y-m-d', strtotime('-1 day')) . 'to' . date('Y-m-d');
+        }
+
+        $dateArr = explode('to', $date);
+
+        $startDate = trim($dateArr[0] ?? date('Y-m-d', strtotime('-1 day')));
+        $endDate   = trim($dateArr[1] ?? date('Y-m-d'));
+
+        $builder = $taskModel
+            ->where('created_from_template', $template)
+            ->where('task_gen_date >=', $startDate)
+            ->where('task_gen_date <=', $endDate);
+
+        if ($projectunit != 'all' && !empty($projectunit)) {
+            $builder->where('project_unit', $projectunit);
+        }
+
+        $tasks = $builder->get()->getResult();
+
+        if (empty($tasks)) {
+            return "No Task Found";
+        }
+       
+        $taskIds = [];
+        foreach($tasks as $key => $value){
+            $taskIds[] = $value->id;
+        }
+        $taskIds = implode(',', $taskIds);
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $row = 1;
+
+        $sheet->setCellValue(
+            'A1',
+            'History Report (' .
+            date('d-m-Y', strtotime($startDate)) .
+            ' to ' .
+            date('d-m-Y', strtotime($endDate)) .
+            ')'
+        );
+
+        $sheet->mergeCells('A1:K1');
+
+        $sheet->getStyle('A1')->getFont()
+            ->setBold(true)
+            ->setSize(14);
+
+        $row = 3;
+
+        $headers = [
+            'SL NO',
+            'DATE',
+            'STORE NAME',
+            'OLD NAME',
+            'ORACLE CODE',
+            'POLARIS CODE',
+            'TASK',
+            'ACTIVITY',
+            'COMMENTS',
+            'COMMENTED BY',
+            'COMMENTED DATE'
+        ];
+
+        $col = 'A';
+
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . $row, $header);
+            $col++;
+        }
+
+        $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF']
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '2E7D32']
+            ]
+        ]);
+
+        $row++;
+
+        $sl = 1;
+        $unique = [];
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHUNK PROCESSING
+        |--------------------------------------------------------------------------
+        */
+
+        $chunkSize = 1000;
+        $offset = 0;
+
+        while (true) {
+
+            $historyReport = $this->reportModel
+                ->generateHistoryReportChunk(
+                    $taskIds,
+                    true,
+                    $chunkSize,
+                    $offset
+                );
+
+            if (empty($historyReport)) {
+                break;
+            }
+
+            foreach ($historyReport as $data) {
+
+                if (
+                    $data['comment'] === null ||
+                    $data['comment'] === ''
+                ) {
+                    continue;
+                }
+
+                $key = md5(
+                    $data['id'] .
+                    $data['activity_id'] .
+                    $data['comment'] .
+                    $data['user_name'] .
+                    $data['comment_date']
+                );
+
+                if (isset($unique[$key])) {
+                    continue;
+                }
+
+                $unique[$key] = true;
+
+                $sheet->setCellValue('A'.$row, $sl++);
+                $sheet->setCellValue('B'.$row, date('d-m-Y', strtotime($data['task_gen_date'])));
+                $sheet->setCellValue('C'.$row, $data['store']);
+                $sheet->setCellValue('D'.$row, $data['oldstore_name']);
+                $sheet->setCellValue('E'.$row, $data['oracle_code']);
+                $sheet->setCellValue('F'.$row, $data['polaris_code']);
+                $sheet->setCellValue('G'.$row, $data['title']);
+                $sheet->setCellValue('H'.$row, $data['activity_title']);
+                $sheet->setCellValue('I'.$row, $data['comment']);
+                $sheet->setCellValue('J'.$row, $data['user_name']);
+                $sheet->setCellValue('K'.$row, date('d-m-Y H:i', strtotime($data['comment_date'])));
+
+                $row++;
+            }
+
+            unset($historyReport);
+
+            $offset += $chunkSize;
+        }
+
+        $sheet->getStyle('A3:K'.($row - 1))->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' =>
+                    \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+                ]
+            ]
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | FIXED COLUMN WIDTHS (FASTER THAN AUTOSIZE)
+        |--------------------------------------------------------------------------
+        */
+
+        $sheet->getColumnDimension('A')->setWidth(10);
+        $sheet->getColumnDimension('B')->setWidth(15);
+        $sheet->getColumnDimension('C')->setWidth(35);
+        $sheet->getColumnDimension('D')->setWidth(35);
+        $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('F')->setWidth(20);
+        $sheet->getColumnDimension('G')->setWidth(40);
+        $sheet->getColumnDimension('H')->setWidth(40);
+        $sheet->getColumnDimension('I')->setWidth(60);
+        $sheet->getColumnDimension('J')->setWidth(25);
+        $sheet->getColumnDimension('K')->setWidth(25);
+
+        $filename = 'task_history_report_' . date('Ymd_His') . '.xlsx';
+
+        $tempFile = WRITEPATH . 'uploads/' . $filename;
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save($tempFile);
+
+        return $this->response->download($tempFile, null)
+            ->setFileName($filename);
+    }
+
+
+    function old_historyReportDownload($id = false){
        
         $taskModel = new TaskModel();
          $template = $this->request->getGet('task');

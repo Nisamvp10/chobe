@@ -152,6 +152,43 @@ public function generateHistoryReport($taskId,$ui=false){
     return $builder->get()->getResultArray();
     
 }
+public function generateHistoryReportChunk($taskId, $ui = false, $limit = 1000, $offset = 0){
+
+    $builder = $this->db->table('tasks t');
+    $builder->select("t.title,t.task_gen_date,t.id,t.status as task_status,
+        tsa.id as tsaactivityId,
+        tsa.status as activityStatus,
+        a.id as activity_id,
+        a.activity_title,
+        a.activity_description as activity_description,
+        ac.comment as comment,
+        ac.user_id as comment_user_id,
+        u.name as user_name,
+        ac.created_at as comment_date,
+        pu.store,pu.oldstore_name,pu.polaris_code,pu.oracle_code
+    ");
+    $builder->join('task_staff_activities tsa','tsa.task_id=t.id','left');
+    $builder->join('activities a','a.id=tsa.task_activity_id','left');
+    $builder->join("activities_comments ac","ac.task_id=t.id AND ac.activity_id=a.id","left");
+    $builder->join('users u','u.id=ac.user_id','left',"left");
+    $builder->join('project_unit pu','pu.id=t.project_unit','left');
+
+    $builder->where("t.tasktype",1);
+    if($ui){
+        $builder->where("t.ui IN(1,2)");
+    }else{
+        $builder->where("t.ui",1);
+    }
+    //$builder->where("t.id IN ($taskId)");
+    $taskIdArray = explode(',', $taskId);
+    $builder->whereIn('t.id', $taskIdArray);
+   // $builder->where('ac.comment IS NOT NULL');
+    $builder->where('ac.comment IS NOT NULL', null, false);
+    $builder->limit($limit,$offset);
+    return $builder->get()->getResultArray();
+    
+}
+
   public function _____getReportsOLd($search = '', $filter = '',$startDate ='' , $endDate = '', $prounit ='')
     {
         $subQueryActivities = "
