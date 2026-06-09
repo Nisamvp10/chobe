@@ -143,7 +143,7 @@ class Staff extends BaseController{
             'position_id' => $this->request->getPost('position'),
             'hire_date' => $this->request->getPost('hire_date'),
             'booking_status' => $this->request->getPost('status'),
-            'store_id' => 13,// $this->request->getPost('branch'),
+            'store_id' => 12,// $this->request->getPost('branch'),
             'role' => $this->request->getPost('role'),
             'status' => 2,
         ];
