@@ -70,7 +70,7 @@ class Staff extends BaseController{
             $data = $userModel->where('id',$id)->first();
             if(!empty($data) and $data['role'] == 3){
                $result = $this->teamheadProjectsModel->where('staff_id',$id)->first();
-                $data['project'] =  $result['project_type_id'];
+                $data['project'] =  $result['project_type_id'] ?? '';
             }
             $selectedSpecialties = $this->specialityModel->getSpecialty($id);
 
