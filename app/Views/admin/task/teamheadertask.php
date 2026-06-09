@@ -20,6 +20,14 @@
                     </a>
                 </div>
                 <?php } ?>
+                  <?php
+                if(haspermission('','daily_assign')) { ?>
+                <div>
+                    <a  class="btn !bg-green-500 text-white " onclick="openAssignModal()">
+                        <i class="bi bi-plus-circle me-1"></i>Daily Assign
+                    </a>
+                </div>
+                <?php } ?>
 
                
             </div>
