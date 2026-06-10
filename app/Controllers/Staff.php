@@ -199,6 +199,7 @@ class Staff extends BaseController{
                         echo (string) db_connect()->getLastQuery();
                     }else{
                         $teamheadData['created_at']= date('Y-m-d H:i:s');
+                        $teamheadData['staff_id']=$id;
                         $this->teamheadProjectsModel->insert($teamheadData);
                     }
                 }
