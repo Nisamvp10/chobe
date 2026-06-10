@@ -194,8 +194,9 @@ class Staff extends BaseController{
                   
                     if($checkData){
                         $this->db = \Config\Database::connect();
-                        $sql = "UPDATE team_head_projects SET project_type_id = '$projectId' WHERE staff_id = '$id'";
+                        $sql = "UPDATE team_head_projects SET project_type_id = $projectId,staff_id =$id WHERE staff_id = $id";
                         $this->db->query($sql);
+                        echo (string) db_connect()->getLastQuery();
                     }else{
                         $teamheadData['created_at']= date('Y-m-d H:i:s');
                         $this->teamheadProjectsModel->insert($teamheadData);
