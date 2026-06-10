@@ -192,7 +192,7 @@ class Staff extends BaseController{
                     //check data in databse else insert 
                     $checkData = $this->teamheadProjectsModel->where('staff_id',$id)->first();
                   
-                    if($checkData){
+                    if(!empty($checkData)){
                         $this->db = \Config\Database::connect();
                         $sql = "UPDATE team_head_projects SET project_type_id = $projectId,staff_id =$id WHERE staff_id = $id";
                         $this->db->query($sql);
