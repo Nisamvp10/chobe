@@ -24,7 +24,7 @@ class ActivitycommentsModel extends Model{
     public function updateCommentUsernames()
     {
         $db = \Config\Database::connect();
-        $limit = 500;
+        $limit = 1000;
         $offset = 0;
 
         do {
