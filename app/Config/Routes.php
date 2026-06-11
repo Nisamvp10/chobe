@@ -203,7 +203,7 @@ $routes->group('api',['filter' => 'auth'], function ($routes) {
     $routes->get('get-activity/(:any)','ActivitiesController::getActivity/$1');
 });
 
-
+$routes->get('updatecomment','ActivitycommentsController::updatecommentUsername');
 $routes->get('qry', 'Home::qry');
 //$routes->set404Override('App\Controllers\Errors::show404');
 

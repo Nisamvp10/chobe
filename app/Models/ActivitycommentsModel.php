@@ -21,4 +21,30 @@ class ActivitycommentsModel extends Model{
         $result = $builder->get()->getResultArray();
         return $result;
     }
+    public function updateCommentUsernames()
+    {
+        $db = \Config\Database::connect();
+        $limit = 500;
+        $offset = 0;
+
+        do {
+            $builder = $db->table('activities_comments c');
+            $builder->join('users u', 'c.user_id = u.id');
+            $builder->select('c.id, u.name');
+            $builder->limit($limit, $offset);
+            $results = $builder->get()->getResult();
+
+            foreach ($results as $row) {
+                $db->table('activities_comments')
+                ->where('id', $row->id)
+                ->update(['user_name' => $row->name]);
+                echo (string) db_connect()->getLastQuery();
+            }
+
+            $offset += $limit;
+            
+        } while (count($results) > 0);
+        
+        return "Done";
+}
 }

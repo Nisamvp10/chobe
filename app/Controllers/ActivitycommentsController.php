@@ -18,6 +18,10 @@ class ActivitycommentsController extends Controller {
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
         $this->taskModel = new TaskModel();
     }
+    public function updatecommentUsername(){
+        $this->commentModel->updateCommentUsernames();
+    }
+    
     public function activityCommentsList() {
         //for admin list all comments
         if(hasPermission('','activity_comments')) {}
