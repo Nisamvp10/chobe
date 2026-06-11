@@ -790,7 +790,7 @@ class ReportController extends controller
                 foreach ($result[$taskId]['activities'][$activityId]['comments'] as $c) {
                     if (
                         $c['comment'] == $row['comment'] &&
-                        $c['user_name'] == $row['user_name'] &&
+                        $c['user_name'] == $row['username'] && //$row['user_name'] &&
                         $c['comment_date'] == $row['comment_date']
                     ) {
                         $exists = true;
@@ -801,7 +801,7 @@ class ReportController extends controller
                 if (!$exists) {
                     $result[$taskId]['activities'][$activityId]['comments'][] = [
                         'comment' => $row['comment'], // ✅ includes "0"
-                        'user_name' => $row['user_name'],
+                        'user_name' =>  $row['username'],//$row['user_name'],
                         'comment_date' => $row['comment_date']
                     ];
                 }
@@ -1032,7 +1032,8 @@ class ReportController extends controller
                     $data['id'] .
                     $data['activity_id'] .
                     $data['comment'] .
-                    $data['user_name'] .
+                    //$data['user_name'] .
+                    $data['username'].
                     $data['comment_date']
                 );
 
@@ -1051,7 +1052,7 @@ class ReportController extends controller
                 $sheet->setCellValue('G'.$row, $data['title']);
                 $sheet->setCellValue('H'.$row, $data['activity_title']);
                 $sheet->setCellValue('I'.$row, $data['comment']);
-                $sheet->setCellValue('J'.$row, $data['user_name']);
+                $sheet->setCellValue('J'.$row, $data['username']);
                 $sheet->setCellValue('K'.$row, date('d-m-Y H:i', strtotime($data['comment_date'])));
 
                 $row++;

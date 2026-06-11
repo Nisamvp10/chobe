@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 
 class ActivitycommentsModel extends Model{
     protected $table ='activities_comments';
-    protected $allowedFields = ['id','task_id','activity_id','user_id','comment','status','created_by','created_at'];
+    protected $allowedFields = ['id','task_id','activity_id','user_id','user_name','comment','status','created_by','created_at'];
     protected $primaryKey = 'id';
 
     public function allComments($taskId=false,$activityId =false) {

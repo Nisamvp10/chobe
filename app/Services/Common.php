@@ -1,11 +1,13 @@
 <?php
 namespace App\Services;
 use App\Models\TaskModel;
-
+use App\Models\UserModel;
 class Common {
     protected $taskModel;
+    protected $userinfoModel;
     function __construct() {
         $this->taskModel = new TaskModel();
+        $this->userinfoModel = new UserModel();
     }
     
     public function getBranchNameBytaskId($taskId) {
@@ -41,5 +43,13 @@ class Common {
         $db->query($sql2, [$template, $taskGenDate]);
 
         return true;
+    }
+    function getUserdata(){
+
+        $session = session('user_data')['id'];
+        if($session){
+            $result = $this->userinfoModel->select('name')->where('id',$session)->get()->getRow();
+           return $result;
+        }
     }
 }

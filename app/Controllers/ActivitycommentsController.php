@@ -6,17 +6,20 @@ use CodeIgniter\Controller;
 use App\Models\ActivitycommentsModel;
 use App\Models\TaskStaffActivityModel;
 use App\Models\TaskModel;
+use App\Services\Common;
 
 class ActivitycommentsController extends Controller {
     protected $commentModel;
     protected $taskStaffActivityModel;
     protected $taskModel;
+    protected $userInfo;
 
     function __construct()
     {
         $this->commentModel = new ActivitycommentsModel();
         $this->taskStaffActivityModel = new TaskStaffActivityModel();
         $this->taskModel = new TaskModel();
+        $this->userInfo = new Common();
     }
     public function updatecommentUsername(){
         $this->commentModel->updateCommentUsernames();
@@ -47,7 +50,7 @@ class ActivitycommentsController extends Controller {
                 'errors' => $this->validator->getErrors()
             ]);
         }
-
+        $userInfo = $this->userInfo->getUserdata(); 
         $taskId = decryptor($this->request->getPost('taskId'));
         $activityId = decryptor($this->request->getPost('activityId'));
         $comment = trim($this->request->getPost('comment'));
@@ -58,17 +61,20 @@ class ActivitycommentsController extends Controller {
             ->set([
                 'completed_at' => date('Y-m-d H:i:s'),
                 'complated_by' => session('user_data')['id'],
+                'user_name' => session('user_data')['username'],
                 'status'    => 'completed',
                 'progress'  => 'completed',
             ])->update();
 
         }
         //edit 
+       
         $commentId  =  $this->request->getPost('commentId');
         $dataInc = [
             'task_id'	    => $taskId,
             'activity_id'   =>  $activitytaskId,
             'user_id'	    => session('user_data')['id'],
+            'user_name' =>   $userInfo->name ?? session('user_data')['username'],
             'comment'       => $comment,
             'status'	    => 1,
             'created_by'	=> session('user_data')['id'],
