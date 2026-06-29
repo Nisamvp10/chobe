@@ -29,6 +29,7 @@ protected $commentModel;
 protected $masterTaskModel;
 protected $common;
 protected $teamHeadTaskService;
+protected $db;
 
     function __construct(){
         $this->taskModel = new TaskModel();
@@ -42,6 +43,7 @@ protected $teamHeadTaskService;
         $this->masterTaskModel = new MastertaskModel();
         $this->common = new Common();
         $this->teamHeadTaskService = new Teamheadtasks();
+        $this->db = \Config\Database::connect();
     }
 
     function activities($id=false) {
@@ -335,6 +337,49 @@ protected $teamHeadTaskService;
         $groupData = [];
         //$allusers = $this->userModel->select('id,name,profileimg')->where(['status'=>'approved','booking_status'=>1])->findAll(); 
         $allusers =   $staff =  $this->taskassignModel->getMasterTaskStaff($taskId);
+        
+        // 
+
+            // ============================================
+            // Load all latest comments only once
+            // ============================================
+
+            $taskIds = array_unique(array_column($activityTasks, 'id'));
+            //print_r($taskIds); exit();
+
+            $lastComments = [];
+            $allComments = [];
+           
+
+            if (!empty($taskIds)) {
+
+                $comments = $this->db->query("
+                    SELECT ac.task_id,
+                        ac.activity_id,
+                        ac.comment
+                    FROM activities_comments ac
+                    INNER JOIN (
+                        SELECT MAX(id) AS id
+                        FROM activities_comments
+                        WHERE task_id IN (" . implode(',', $taskIds) . ")
+                        GROUP BY task_id, activity_id
+                    ) latest
+                    ON ac.id = latest.id
+                ")->getResultArray();
+
+                foreach ($comments as $row) {
+                    $lastComments[$row['task_id'].'_'.$row['activity_id']] = $row['comment'];
+                }
+            }
+            if(session('user_data')['role'] == 1  || session('user_data')['role'] == 2 ) {
+                //$allomments = $this->commentModel->allComments($task['id'], $task['task_activity_id']);
+                $commentRows = $this->commentModel->whereIn('task_id', $taskIds)->orderBy('id', 'DESC')->findAll();
+                foreach ($commentRows as $row) {
+                    $key = $row['task_id'].'_'.$row['activity_id'];
+                    $allComments[$key][] = $row;
+                }
+            }
+        // 
        
 
         foreach($activityTasks as &$task) {
@@ -363,16 +408,27 @@ protected $teamHeadTaskService;
                 
             if(!isset($groupData[$taskId])) {
                  //if($staffId) {
-                    $lastComment = $this->commentModel->select('comment')->where(['task_id' => $task['id'],'activity_id' => $task['task_activity_id']])->orderBy('id DESC')->get()->getRow();
+                   // $lastComment = $this->commentModel->select('comment')->where(['task_id' => $task['id'],'activity_id' => $task['task_activity_id']])->orderBy('id DESC')->first();
                     //'user_id'=> session('user_data')['id']
                 // }else{
-                //     $lastComment = [];
+                //     $lastComment = []; 
                 // }
-                if(session('user_data')['role'] == 1  || session('user_data')['role'] == 2 ) {
-                     $allomments = $this->commentModel->allComments($task['id'], $task['task_activity_id']);
-                }else{
-                    $allomments = [];
-                }
+
+                // 
+                $key = $task['id'].'_'.$task['task_activity_id'];
+                $lastComment = [
+                    'comment' => $lastComments[$key] ?? ''
+                ];
+                $allomments = $allComments[$key] ?? [];
+
+                // 
+
+                
+                // if(session('user_data')['role'] == 1  || session('user_data')['role'] == 2 ) {
+                //      $allomments = $this->commentModel->allComments($task['id'], $task['task_activity_id']);
+                // }else{
+                //     $allomments = [];
+                // }
                 
                 $groupData[$taskId] = [
                     'id'            => encryptor($task['id']),
@@ -387,7 +443,7 @@ protected $teamHeadTaskService;
                     'createdAt'     => $task['task_gen_date'],
                     'staffStatus' => 'pending',//$task['staffStatus'],
                     'copen'         =>  $task['commet_status'],
-                    'comment'        => $lastComment->comment ?? '',
+                    'comment'        => $lastComment['comment'] ?? '',
                     'allCommets'    => $allomments,
                     'allUsers'      => $allusers,
                     'duration'      => $duration,
